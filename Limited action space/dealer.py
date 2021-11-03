@@ -1,0 +1,173 @@
+"""
+This file serves as the environment (casino)
+--------------------------------------------
+Requires additional state interpreter
+(environment gives agent max available
+information, i.e.)
+- specific player cards
+- specific first face up dealer card
+------------------------------------
+Blackjack rules implemented:
+- 6 decks, deck penetration: 80%
+- Dealer hits on soft 17
+- Blackjack pays 3:2
+- Insurance pays 2:1
+- Double down allowed after splitting
+- No surrender
+"""
+
+import random
+from human_player import human_agent
+
+def show(reward, agent_hand, dealer_hand):
+    if reward == 0:
+        result = 'It\'s a draw!'
+    elif reward > 0:
+        result = 'You have won!'
+    else:
+        result = 'You have lost!'
+
+    print('-Game over-\n', result, '\nYour hand:')
+    for card in agent_hand:
+        print('[', card, ']', end='')
+    print('\nDealer hand:')
+    for card in dealer_hand:
+        print('[', card, ']', end='')
+    print('\n')
+
+class dealer:
+    def __init__(self):
+        self.N_DECKS = 6
+        self.PENETRATION = 0.8
+        self.VALUES = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
+                       '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
+        self.deck = ['A', '10']* (100) #['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
+        self.shuffle()
+
+    def shuffle(self):
+        random.shuffle(self.deck)
+
+    def check_deck(self):
+        if len(self.deck) < (1 - self.PENETRATION) * 52 * self.N_DECKS:  # check if deck over penetration threshold
+            self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
+            self.shuffle()
+
+    def draw(self):
+        return self.deck.pop()
+
+    def draw_hand(self):
+        return [self.draw(), self.draw()]
+
+    def busted(self, hand):
+        return sum([self.VALUES[card] for card in hand]) > 21
+
+    def blackjack(self, hand):
+        return (len(hand) == 2) and (self.VALUES[hand[0]] + self.VALUES[hand[1]] == 11)
+
+    def evaluate(self, hand):
+        val = sum([self.VALUES[card] for card in hand])
+        if 'A' in hand:
+            return (val + 10) if (val + 10 <= 21) else val  # only 1 ace in hand can ever be used as 11
+        else:
+            return val
+
+    def soft(self, hand):
+        return self.evaluate(hand) - sum([self.VALUES[card] for card in hand]) == 10
+
+    def play_round(self, agent, bet=1):
+        """
+        Plays one round of Blackjack
+        :param agent: deterministic agent - needs to implement policy(state)
+        :param bet: betting amount
+        :return: None
+        """
+        # Save episode (for agent learning)
+        episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}    # dealer always shows first card
+
+        # Check for reshuffle
+        self.check_deck()
+
+        # Hand out cards
+        agent_hand = self.draw_hand()
+        dealer_hand = self.draw_hand()
+        episode['hands'].append(agent_hand.copy())
+        episode['dealer'].append(dealer_hand.copy())
+
+        # Check for blackjack
+        if self.blackjack(agent_hand):
+            reward = 0 if self.blackjack(dealer_hand) else 3 / 2 * bet
+            episode['reward'] = reward
+            agent.learn(episode)
+
+            # (Optional) only for visualization
+            if isinstance(agent, human_agent):
+                show(reward, agent_hand, dealer_hand)
+            return
+
+        # Player turn
+        agent_busted = False
+        dealer_busted = False
+        while True:
+            state = [agent_hand, dealer_hand[0]]
+            action = agent.policy(state)
+            episode['actions'].append(action)
+
+            if action == 's':
+                break
+            else:
+                agent_hand.append(self.deck.pop())      # draw card
+                episode['hands'].append(agent_hand.copy())
+                agent_busted = self.busted(agent_hand)  # check if busted
+                if agent_busted:
+                    break
+
+        # Dealer turn
+        if not agent_busted:
+            while (self.evaluate(dealer_hand) < 17) or \
+                    ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):  # S17 rule
+                dealer_hand.append(self.deck.pop())         # draw card
+                episode['dealer'].append(dealer_hand.copy())
+                dealer_busted = self.busted(dealer_hand)    # check if busted
+
+        # Payout (win: +bet, lose: -bet, draw: 0)
+        reward = 0
+        if agent_busted:
+            reward = -bet
+        elif dealer_busted:
+            reward = bet
+        else:
+            if self.evaluate(agent_hand) > self.evaluate(dealer_hand):
+                reward = bet
+            elif self.evaluate(agent_hand) < self.evaluate(dealer_hand):
+                reward = -bet
+            else:
+                reward = 0
+
+        # (Optional) only for visualization
+        if isinstance(agent, human_agent):
+            show(reward, agent_hand, dealer_hand)
+
+        episode['reward'] = reward
+        agent.learn(episode)
+
+    def card_counter(self):
+        """
+        Returns the probability for the next card for all card values
+        :return: [P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(1)', P(J), P(Q), P(K), P(A)]
+        """
+        return [self.deck.count(value) / len(self.deck) for value in
+                ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']]
+
+
+if __name__ == '__main__':
+    print('Welcome to Blackjack!\n')
+
+    # Policy selection
+    human = human_agent()
+
+    # Play Blackjack
+    casino = dealer()
+    while True:
+        casino.play_round(human)
+        if input('Play again? [y][n]') == 'n':
+            break
