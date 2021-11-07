@@ -18,6 +18,9 @@ Blackjack rules implemented:
 
 import random
 from human_player import human_agent
+from random_policy import random_agent
+from table_policy import table_agent
+from card_counting import count_agent
 
 def show(reward, agent_hand, dealer_hand):
     if reward == 0:
@@ -47,10 +50,11 @@ class dealer:
     def shuffle(self):
         random.shuffle(self.deck)
 
-    def check_deck(self):
+    def check_deck(self, agent):
         if len(self.deck) < (1 - self.PENETRATION) * 52 * self.N_DECKS:  # check if deck over penetration threshold
             self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
             self.shuffle()
+            agent.reset_counting() # we also reset counting (in case of the counting agent)
 
     def draw(self):
         return self.deck.pop()
@@ -85,7 +89,10 @@ class dealer:
         episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}    # dealer always shows first card
 
         # Check for reshuffle
-        self.check_deck()
+        self.check_deck(agent)
+        #print("remaining cards")
+        #print(self.deck)
+
 
         # Hand out cards
         agent_hand = self.draw_hand()
@@ -93,11 +100,14 @@ class dealer:
         episode['hands'].append(agent_hand.copy())
         episode['dealer'].append(dealer_hand.copy())
 
+
         # Check for blackjack
         if self.blackjack(agent_hand):
             reward = 0 if self.blackjack(dealer_hand) else 3 / 2 * bet
             episode['reward'] = reward
             agent.learn(episode)
+            if True:
+                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
 
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
@@ -147,6 +157,9 @@ class dealer:
         if isinstance(agent, human_agent):
             show(reward, agent_hand, dealer_hand)
 
+        if True:
+            agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+
         episode['reward'] = reward
         agent.learn(episode)
 
@@ -161,13 +174,18 @@ class dealer:
 
 if __name__ == '__main__':
     print('Welcome to Blackjack!\n')
-
+ 
     # Policy selection
-    human = human_agent()
+    #human = human_agent() # interactive agent
+    #human = random_agent() # random agent
+    #human = table_agent() # fixed-policy (table) agent
+    human = count_agent() # counting cards (Hi_Lo) agent 
 
     # Play Blackjack
     casino = dealer()
     while True:
-        casino.play_round(human)
+        #casino.play_round(human)
+        bet = human.bet
+        casino.play_round(human, bet)
         if input('Play again? [y][n]') == 'n':
             break
