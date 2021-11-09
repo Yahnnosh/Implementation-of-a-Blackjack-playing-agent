@@ -10,7 +10,7 @@ Contains:
 - **random_policy.py**: agent that acts randomly
 - **table_policy.py**: agent that acts according to the fixed policy from soft_table.csv and hard_table.csv
 - **card_counting.py**: agent that acts according to the fixed policy from soft_table.csv and hard_table.csv and also counts cards using Hi_Lo strategy
-
+- **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate and emp. long term profitability
 
 ## Full action space
 In this setting the action space is expanded to the full action space A={hit, stand, split, double, insurance}.
