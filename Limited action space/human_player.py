@@ -11,7 +11,7 @@ class human_agent(agent):
     def policy(self, hand):
         """
         Interactive policy for human player
-        :param hand: hand = [[card1, card2], card_dealer]
+        :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
         :return: action (human input)
         """
         print('Your hand:')

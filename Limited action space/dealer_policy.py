@@ -13,10 +13,11 @@ class dealer_policy(agent):
     def policy(self, hand):
         """
         Hits if hand < 17, hits S17
-        :param hand: hand = [[card1, card2], card_dealer]
+        :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
         :return: action
         """
-        if (self.evaluate(hand) < 17) or ((self.evaluate(hand) == 17) and (self.soft(hand))):
+        agent_hand = hand[0]
+        if (self.evaluate(agent_hand) < 17) or ((self.evaluate(agent_hand) == 17) and (self.soft(agent_hand))):
             action = 'h'
         else:
             action = 's'

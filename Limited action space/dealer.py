@@ -54,7 +54,9 @@ class dealer:
         if len(self.deck) < (1 - self.PENETRATION) * 52 * self.N_DECKS:  # check if deck over penetration threshold
             self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
             self.shuffle()
-            agent.reset_counting() # we also reset counting (in case of the counting agent)
+
+            if isinstance(agent, count_agent):  # TODO: maybe more generic
+                agent.reset_counting() # we also reset counting (in case of the counting agent)
 
     def draw(self):
         return self.deck.pop()
@@ -83,7 +85,7 @@ class dealer:
         Plays one round of Blackjack
         :param agent: deterministic agent - needs to implement policy(state)
         :param bet: betting amount
-        :return: None
+        :return: full episode of a round (hands, actions, reward)
         """
         # Save episode (for agent learning)
         episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}    # dealer always shows first card
@@ -106,13 +108,14 @@ class dealer:
             reward = 0 if self.blackjack(dealer_hand) else 3 / 2 * bet
             episode['reward'] = reward
             agent.learn(episode)
-            if True:
-                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
 
+            if isinstance(agent, count_agent):  # TODO: maybe more generic
+                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
                 show(reward, agent_hand, dealer_hand)
-            return
+
+            return episode
 
         # Player turn
         agent_busted = False
@@ -157,11 +160,13 @@ class dealer:
         if isinstance(agent, human_agent):
             show(reward, agent_hand, dealer_hand)
 
-        if True:
+        if isinstance(agent, count_agent):  # TODO: maybe more generic
             agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
 
         episode['reward'] = reward
         agent.learn(episode)
+
+        return episode
 
     def card_counter(self):
         """

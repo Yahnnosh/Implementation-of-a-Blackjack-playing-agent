@@ -5,11 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Limited action space/agent.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Limited action space/dealer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Limited action space/dealer_policy.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementation of a Blackjack playing agent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementation of a Blackjack playing agent.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dealer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/human_player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/dealer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/dealer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/dealer_policy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/dealer_policy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/human_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/human_player.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,14 +43,14 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Anaconda3/envs/ML/python.exe" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.dealer (1)">
+  <component name="RunManager" selected="Python.evaluate_performance">
     <configuration name="dealer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -92,6 +93,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="evaluate_performance" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Implementation of a Blackjack playing agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/evaluate_performance.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="human_player" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -115,6 +137,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.evaluate_performance" />
         <item itemvalue="Python.dealer (1)" />
         <item itemvalue="Python.human_player" />
         <item itemvalue="Python.dealer" />
