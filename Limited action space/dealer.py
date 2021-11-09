@@ -101,21 +101,34 @@ class dealer:
         dealer_hand = self.draw_hand()
         episode['hands'].append(agent_hand.copy())
         episode['dealer'].append(dealer_hand.copy())
-
+       
 
         # Check for blackjack
-        if self.blackjack(agent_hand):
-            reward = 0 if self.blackjack(dealer_hand) else 3 / 2 * bet
+        if self.blackjack(dealer_hand):
+            reward = 0 if self.blackjack(agent_hand) else -bet
             episode['reward'] = reward
             agent.learn(episode)
-
+          
             if isinstance(agent, count_agent):  # TODO: maybe more generic
                 agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
-                show(reward, agent_hand, dealer_hand)
+                show(reward, agent_hand, dealer_hand)    
 
             return episode
+        else:
+            if self.blackjack(agent_hand):
+                reward = 3 / 2 * bet
+                episode['reward'] = reward
+                agent.learn(episode)
+
+                if isinstance(agent, count_agent):  # TODO: maybe more generic
+                    agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+                # (Optional) only for visualization
+                if isinstance(agent, human_agent):
+                    show(reward, agent_hand, dealer_hand)
+
+                return episode
 
         # Player turn
         agent_busted = False
