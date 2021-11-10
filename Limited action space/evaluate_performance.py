@@ -11,6 +11,7 @@ from random_policy import random_agent      # low baseline
 from dealer_policy import dealer_policy     # medium baseline
 from table_policy import table_agent        # hard baseline
 from card_counting import count_agent       # optimal baseline
+from value_iteration import value_iteration
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -63,11 +64,12 @@ def long_term_profitability(policy, rounds, plot=False):
 
 if __name__ == '__main__':
     # Select policies
-    policies = [random_agent(), dealer_policy(), table_agent(), count_agent()]
+    #policies = [random_agent(), dealer_policy(), table_agent(), count_agent()]
+    policies = [value_iteration()]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    rounds = 1000
+    rounds = 100
 
     # Select metric(s)
     print('Mean win rate:')

@@ -21,6 +21,8 @@ from human_player import human_agent
 from random_policy import random_agent
 from table_policy import table_agent
 from card_counting import count_agent
+from model_based_agent import model_based_agent
+from value_iteration import value_iteration
 
 def show(reward, agent_hand, dealer_hand):
     if reward == 0:
@@ -98,7 +100,12 @@ class dealer:
         dealer_hand = self.draw_hand()
         episode['hands'].append(agent_hand.copy())
         episode['dealer'].append(dealer_hand.copy())
-       
+
+        if isinstance(agent, model_based_agent):
+            concealed_deck = [self.deck.count(value) for value in
+                              ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']]
+            concealed_deck = [element + 1 if element == dealer_hand[1] else element
+                              for element in concealed_deck]    # add dealer face down card back in
 
         # Check for blackjack
         if self.blackjack(dealer_hand):
@@ -131,7 +138,10 @@ class dealer:
         dealer_busted = False
         while True:
             state = [agent_hand, dealer_hand[0]]
-            action = agent.policy(state)
+            if isinstance(agent, model_based_agent):
+                action = agent.policy(state, concealed_deck)
+            else:
+                action = agent.policy(state)
             episode['actions'].append(action)
 
             if action == 's':
@@ -177,7 +187,7 @@ class dealer:
 
         return episode
 
-    def card_counter(self):
+    def card_counter(self): # TODO: need?
         """
         Returns the probability for the next card for all card values
         :return: [P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(1)', P(J), P(Q), P(K), P(A)]
@@ -190,16 +200,20 @@ if __name__ == '__main__':
     print('Welcome to Blackjack!\n')
  
     # Policy selection
-    #human = human_agent() # interactive agent
-    #human = random_agent() # random agent
-    #human = table_agent() # fixed-policy (table) agent
-    human = count_agent() # counting cards (Hi_Lo) agent 
+    #agent = human_agent() # interactive agent
+    #agent = random_agent() # random agent
+    #agent = table_agent() # fixed-policy (table) agent
+    #agent = count_agent() # counting cards (Hi_Lo) agent
+    agent = value_iteration()
 
     # Play Blackjack
     casino = dealer()
     while True:
-        #casino.play_round(human)
-        bet = human.bet
-        casino.play_round(human, bet)
+        # static betting
+        casino.play_round(agent)
+        # dynamic betting
+        '''bet = agent.bet
+        casino.play_round(agent, bet)'''
+
         if input('Play again? [y][n]') == 'n':
             break
