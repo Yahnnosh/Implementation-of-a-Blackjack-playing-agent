@@ -24,6 +24,7 @@ from card_counting import count_agent
 from model_based_agent import model_based_agent
 from value_iteration import value_iteration
 
+
 def show(reward, agent_hand, dealer_hand):
     if reward == 0:
         result = 'It\'s a draw!'
@@ -39,6 +40,7 @@ def show(reward, agent_hand, dealer_hand):
     for card in dealer_hand:
         print('[', card, ']', end='')
     print('\n')
+
 
 class dealer:
     def __init__(self):
@@ -58,7 +60,7 @@ class dealer:
             self.shuffle()
 
             if isinstance(agent, count_agent):
-                agent.reset_counting() # we also reset counting (in case of the counting agent)
+                agent.reset_counting()  # we also reset counting (in case of the counting agent)
 
     def draw(self):
         return self.deck.pop()
@@ -90,7 +92,7 @@ class dealer:
         :return: full episode of a round (hands, actions, reward)
         """
         # Save episode (for agent learning)
-        episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}    # dealer always shows first card
+        episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}  # dealer always shows first card
 
         # Check for reshuffle
         self.check_deck(agent)
@@ -101,23 +103,17 @@ class dealer:
         episode['hands'].append(agent_hand.copy())
         episode['dealer'].append(dealer_hand.copy())
 
-        if isinstance(agent, model_based_agent):
-            concealed_deck = [self.deck.count(value) for value in
-                              ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']]
-            concealed_deck = [element + 1 if element == dealer_hand[1] else element
-                              for element in concealed_deck]    # add dealer face down card back in
-
         # Check for blackjack
         if self.blackjack(dealer_hand):
             reward = 0 if self.blackjack(agent_hand) else -bet
             episode['reward'] = reward
             agent.learn(episode)
-          
+
             if isinstance(agent, count_agent):
-                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+                agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
-                show(reward, agent_hand, dealer_hand)    
+                show(reward, agent_hand, dealer_hand)
 
             return episode
         if self.blackjack(agent_hand):
@@ -126,7 +122,7 @@ class dealer:
             agent.learn(episode)
 
             if isinstance(agent, count_agent):
-                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+                agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
                 show(reward, agent_hand, dealer_hand)
@@ -139,6 +135,9 @@ class dealer:
         while True:
             state = [agent_hand, dealer_hand[0]]
             if isinstance(agent, model_based_agent):
+                cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+                concealed_deck = [self.deck.count(value) for value in cards]
+                concealed_deck[cards.index(dealer_hand[1])] += 1  # add dealer face down card back in
                 action = agent.policy(state, concealed_deck)
             else:
                 action = agent.policy(state)
@@ -147,7 +146,7 @@ class dealer:
             if action == 's':
                 break
             else:
-                agent_hand.append(self.deck.pop())      # draw card
+                agent_hand.append(self.deck.pop())  # draw card
                 episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand)  # check if busted
                 if agent_busted:
@@ -157,9 +156,9 @@ class dealer:
         if not agent_busted:
             while (self.evaluate(dealer_hand) < 17) or \
                     ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):  # S17 rule
-                dealer_hand.append(self.deck.pop())         # draw card
+                dealer_hand.append(self.deck.pop())  # draw card
                 episode['dealer'].append(dealer_hand.copy())
-                dealer_busted = self.busted(dealer_hand)    # check if busted
+                dealer_busted = self.busted(dealer_hand)  # check if busted
 
         # Payout (win: +bet, lose: -bet, draw: 0)
         reward = 0
@@ -180,14 +179,14 @@ class dealer:
             show(reward, agent_hand, dealer_hand)
 
         if isinstance(agent, count_agent):
-            agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+            agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
 
         episode['reward'] = reward
         agent.learn(episode)
 
         return episode
 
-    def card_counter(self): # TODO: need?
+    def card_counter(self):  # TODO: need?
         """
         Returns the probability for the next card for all card values
         :return: [P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(1)', P(J), P(Q), P(K), P(A)]
@@ -198,12 +197,12 @@ class dealer:
 
 if __name__ == '__main__':
     print('Welcome to Blackjack!\n')
- 
+
     # Policy selection
-    #agent = human_agent() # interactive agent
-    #agent = random_agent() # random agent
-    #agent = table_agent() # fixed-policy (table) agent
-    #agent = count_agent() # counting cards (Hi_Lo) agent
+    # agent = human_agent() # interactive agent
+    # agent = random_agent() # random agent
+    # agent = table_agent() # fixed-policy (table) agent
+    # agent = count_agent() # counting cards (Hi_Lo) agent
     agent = value_iteration()
 
     # Play Blackjack

@@ -30,6 +30,7 @@ def mean_win_rate(policy, rounds):
         reward = episode['reward']
         if reward > 0:
             n_wins += 1
+        print(i)
     return round(n_wins / rounds, 3)
 
 def long_term_profitability(policy, rounds, plot=False):
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    rounds = 100
+    rounds = 10
 
     # Select metric(s)
     print('Mean win rate:')
