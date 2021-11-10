@@ -18,7 +18,7 @@ class table_agent(agent):
     def policy(self, hand):
         """
         Hits/stands according to the fixed table policy 
-        :param hand: hand = [[card1, card2], card_dealer]
+        :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
         :return: action
         """
         agent_hand = hand[0] 

@@ -79,4 +79,6 @@ if __name__ == '__main__':
         print(policy_names[i], ': ', long_term_profitability(policy, rounds, plot=True))
     plt.hlines(1000, xmin=0, xmax=rounds, colors='grey', linestyles='dotted')
     plt.legend()
+    plt.xlabel('rounds')
+    plt.ylabel('bank account')
     plt.show()

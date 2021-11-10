@@ -55,7 +55,7 @@ class dealer:
             self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
             self.shuffle()
 
-            if isinstance(agent, count_agent):  # TODO: maybe more generic
+            if isinstance(agent, count_agent):
                 agent.reset_counting() # we also reset counting (in case of the counting agent)
 
     def draw(self):
@@ -92,9 +92,6 @@ class dealer:
 
         # Check for reshuffle
         self.check_deck(agent)
-        #print("remaining cards")
-        #print(self.deck)
-
 
         # Hand out cards
         agent_hand = self.draw_hand()
@@ -109,26 +106,25 @@ class dealer:
             episode['reward'] = reward
             agent.learn(episode)
           
-            if isinstance(agent, count_agent):  # TODO: maybe more generic
+            if isinstance(agent, count_agent):
                 agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
             # (Optional) only for visualization
             if isinstance(agent, human_agent):
                 show(reward, agent_hand, dealer_hand)    
 
             return episode
-        else:
-            if self.blackjack(agent_hand):
-                reward = 3 / 2 * bet
-                episode['reward'] = reward
-                agent.learn(episode)
+        if self.blackjack(agent_hand):
+            reward = 3 / 2 * bet
+            episode['reward'] = reward
+            agent.learn(episode)
 
-                if isinstance(agent, count_agent):  # TODO: maybe more generic
-                    agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
-                # (Optional) only for visualization
-                if isinstance(agent, human_agent):
-                    show(reward, agent_hand, dealer_hand)
+            if isinstance(agent, count_agent):
+                agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
+            # (Optional) only for visualization
+            if isinstance(agent, human_agent):
+                show(reward, agent_hand, dealer_hand)
 
-                return episode
+            return episode
 
         # Player turn
         agent_busted = False
@@ -173,7 +169,7 @@ class dealer:
         if isinstance(agent, human_agent):
             show(reward, agent_hand, dealer_hand)
 
-        if isinstance(agent, count_agent):  # TODO: maybe more generic
+        if isinstance(agent, count_agent):
             agent.dynamic_bet([agent_hand, dealer_hand]) # perform counting at the end of the round
 
         episode['reward'] = reward
