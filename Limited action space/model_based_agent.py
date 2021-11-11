@@ -5,7 +5,6 @@ Interface for model-based agents, inherits from agent
 from agent import agent
 from abc import abstractmethod
 import numpy as np
-import copy
 
 class model_based_agent(agent):
     @abstractmethod
@@ -32,8 +31,8 @@ class model_based_agent(agent):
         """
         # Initialization
         N_STATES = 363
-        P = np.zeros((N_STATES, N_STATES, 2))     # P[s', s, a], 'hit' = 0, 'stand' = 1
-        visits = np.zeros((N_STATES, N_STATES, 2))
+        P = np.zeros((N_STATES, N_STATES, 2))   # P[s', s, a], 'hit' = 0, 'stand' = 1
+        visits = np.zeros((N_STATES, 2))        # visits[s, a]
         values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
         # Random walks
@@ -41,35 +40,39 @@ class model_based_agent(agent):
             agent_hand = initial_state[0].copy()
             dealer_hand = [initial_state[1]]
             curr_deck = deck.copy()
+            curr_state = [agent_hand.copy(), dealer_hand[0]]
             game_over = False
 
             while np.random.choice(['hit', 'stand']) == 'hit':  # make random action
+                # update visits
+                visits[self.state_approx(curr_state), 0] += 1
+
                 # draw a random card
                 card = np.random.choice(values, p=(curr_deck / np.sum(curr_deck)))
-                p = curr_deck[values.index(card)] / np.sum(curr_deck)  # P(new_state|prev_state, hit)
                 curr_deck[values.index(card)] -= 1  # update deck composition
                 agent_hand.append(card)
-                prev_state, new_state = [(agent_hand[:-1]).copy(), dealer_hand[0]], [agent_hand.copy(), dealer_hand[0]]
+                new_state = [agent_hand.copy(), dealer_hand[0]]
 
                 # check if terminal (busted)
                 if self.evaluate(agent_hand) > 21:
-                    # update P(s'|s,a), visits
-                    P[1, self.state_approx(prev_state), 0] += p
-                    visits[1, self.state_approx(prev_state), 0] += 1
+                    # update P(s'|s,a)
+                    P[1, self.state_approx(curr_state), 0] += 1
                     game_over = True
                     break
                 else:
-                    # update P(s'|s,a), visits
-                    P[self.state_approx(new_state), self.state_approx(prev_state), 0] += p
-                    visits[self.state_approx(new_state), self.state_approx(prev_state), 0] += 1
+                    # update P(s'|s,a)
+                    P[self.state_approx(new_state), self.state_approx(curr_state), 0] += 1
+                    curr_state = new_state
 
             if game_over:
                 continue
+
+            # update visits
+            visits[self.state_approx(curr_state), 1] += 1
+
             # predict face down card dealer
             card = np.random.choice(values, p=(curr_deck / np.sum(curr_deck)))
-            p = curr_deck[values.index(card)] / np.sum(curr_deck)  # P(face down card = card)
             curr_deck[values.index(card)] -= 1  # update deck composition
-            prev_state = [agent_hand.copy(), dealer_hand[0]]
             dealer_hand.append(card)
 
             # let dealer play until the end
@@ -77,29 +80,29 @@ class model_based_agent(agent):
                     ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):  # S17 rule
                 # draw next card
                 card = np.random.choice(values, p=(curr_deck / np.sum(curr_deck)))
-                p *= curr_deck[values.index(card)] / np.sum(curr_deck)
                 curr_deck[values.index(card)] -= 1  # update deck composition
                 dealer_hand.append(card)
 
-                # check if terminal (busted)
-                if self.evaluate(dealer_hand) > 21:
-                    # update P(s'|s,a), visits
-                    P[0, self.state_approx(prev_state), 0] += p
-                    visits[0, self.state_approx(prev_state), 0] += 1
-                    game_over = True
-                    break
-
-            if game_over:
-                continue
             # dealer has stopped, check who won
-            if self.evaluate(agent_hand) > self.evaluate(dealer_hand):
+            if (self.evaluate(dealer_hand) > 21) or (self.evaluate(agent_hand) > self.evaluate(dealer_hand)):
                 terminal_state = 0  # won
             elif self.evaluate(agent_hand) < self.evaluate(dealer_hand):
                 terminal_state = 1  # lost
             else:
-                terminal_state = 2  #draw
-            # update P(s'|s,a), visits
-            P[terminal_state, self.state_approx(prev_state), 0] += p
-            visits[terminal_state, self.state_approx(prev_state), 0] += 1
+                terminal_state = 2  # draw
+            # update P(s'|s,a)
+            P[terminal_state, self.state_approx(curr_state), 1] += 1
 
-        return np.divide(P, visits, where=(visits != 0))
+        # calculate Monte Carlo estimate
+        '''for state in range(N_STATES):
+            for action in (0, 1):
+                P[:, state, action] = np.divide(
+                    P[:, state, action], visits[state, action],
+                    where=(visits[state, action] != 0))'''
+        for state in range(N_STATES):
+            for action in (0, 1):
+                for target_state in range(N_STATES):
+                    if visits[state, action] != 0:
+                        P[target_state, state, action] = P[target_state, state, action] / visits[state, action]
+
+        return P

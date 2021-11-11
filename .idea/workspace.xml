@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/dealer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/dealer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Limited action space/model_based_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/model_based_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/temp.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Limited action space/value_iteration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/value_iteration.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +49,7 @@
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.temp">
+  <component name="RunManager" selected="Python.evaluate_performance">
     <configuration name="evaluate_performance" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -157,8 +157,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.temp" />
         <item itemvalue="Python.evaluate_performance" />
+        <item itemvalue="Python.temp" />
         <item itemvalue="Python.value_iteration" />
         <item itemvalue="Python.model_based_agent" />
         <item itemvalue="Python.test" />
