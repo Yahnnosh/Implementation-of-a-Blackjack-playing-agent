@@ -13,6 +13,7 @@ Contains:
 - **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate and emp. long term profitability
 - **model_based_agent.py**: interface for model-based agents
 - **value_iteration.py**: agent that performs VI on each round
+- **fast_value_iteration.py**: same agent as value_iteration.py but faster (computes only reachable state space)
 
 ## Full action space
 In this setting the action space is expanded to the full action space A={hit, stand, split, double, insurance}.
