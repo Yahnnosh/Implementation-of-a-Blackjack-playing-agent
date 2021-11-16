@@ -23,6 +23,7 @@ from table_policy import table_agent
 from card_counting import count_agent
 from model_based_agent import model_based_agent
 from value_iteration import value_iteration
+from sarsa_agent import sarsa_agent
 
 
 def show(reward, agent_hand, dealer_hand):
@@ -180,6 +181,9 @@ class dealer:
                 agent_hand.append(self.deck.pop())  # draw card
                 episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand)  # check if busted
+
+            if isinstance(agent, sarsa_agent) and (action == 'h'): # SARSA is online method => we constantly learn! 
+                agent.learn(episode) 
 
         # If the `agent` is busted then round should end (there is not reason for the `dealer` ot play).
         if agent_busted:
