@@ -80,7 +80,7 @@ class dealer:
     # Return True if `hand` is a blackjack. A blackjack happens when one of the cards is an ace (`A`) and the second one
     # has a value of 10.
     def blackjack(self, hand):
-        return (len(hand) == 2) and (self.VALUES[hand[0]] + self.VALUES[hand[1]] == 11)
+        return (len(hand) == 2) and (self.evaluate(hand) == 21) 
 
     # Evaluates and returns the value of `hand`. If an ace is in `hand` then we check if that ace could be used as an
     # 11 and return the sum of the values of the cards + 10.
