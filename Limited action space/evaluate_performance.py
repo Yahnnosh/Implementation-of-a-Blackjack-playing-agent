@@ -15,6 +15,7 @@ from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
 from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
+from mc_agent import mc_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -68,7 +69,7 @@ def long_term_profitability(policy, rounds, plot=False):
 if __name__ == '__main__':
     # Select policies
     #policies = [random_agent(), dealer_policy(), table_agent(), count_agent(), fast_value_iteration()]
-    policies = [sarsa_agent(), QAgent()]
+    policies = [mc_agent(), sarsa_agent(), QAgent()]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds

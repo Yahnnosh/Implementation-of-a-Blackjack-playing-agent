@@ -21,6 +21,8 @@
 # the end of an episode can be determined from the reward variable; if it is zero list, then it is not yet the end of the episode
 # but when the reward is 0/1/-1 integer, then it reveals that we are at the end of the episode 
 
+# the win rate is around 42.5% (vs 43.5% optimal)
+
 from agent import agent
 import numpy as np
 import random

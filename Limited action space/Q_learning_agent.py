@@ -56,7 +56,6 @@ class QAgent(agent):
         elif reward == 0:
             final_state_index = 2 # the index of the terminal draw state  
        
-       # print(episode)
         while agent_hands: # while there is something we can learn from 
 
             current_agent_hand = agent_hands.pop(0) # current hand 
