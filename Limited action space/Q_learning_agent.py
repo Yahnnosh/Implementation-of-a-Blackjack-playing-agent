@@ -1,33 +1,34 @@
-"""
-Interface for model-based agents, inherits from agent
-"""
+# Things that can be done here: 
+# 1) it would be cool to visualize the policy (as .csv file) and include this table in the report
+# 2) try alpha decay in order to converge to optimal (table) policy 
+# 3) try online version of Q_learning 
+# 4) try to see what would change if we set state-action value functions for terminal states to be different from [1, -1, 0];
+#    actually in true Q-learning algorithm Q values of terminal states should be always 0!
+# 5) try e-greedy policy instead of greedy policy for better exploration (crucial if we want to converge to the table policy!)
 
 from agent import agent
 import numpy as np
 import random
 
-
 class QAgent(agent):
 
     def __init__(self):
-        self.NUMBER_OF_STATES = 363
-        # The first three states are considered Win, Lose, Tie
-        # TODO: H(state) denotes Q(state, 'h') and S(state) denotes Q(state, 's').
-        self.S = np.zeros(self.NUMBER_OF_STATES)
-        self.H = np.zeros(self.NUMBER_OF_STATES)
-        self.H[0], self.H[1], self.H[2] = 1, -1, 0
-        self.S[0], self.S[1], self.S[2] = 1, -1, 0
-        self.gamma = 1
-        self.alpha = 0.1
+        self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
+        self.S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
+        self.H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
+        self.H[0], self.H[1], self.H[2] = 1, -1, 0 # Q(State,H) when State is terminal (win/lose/draw); what would happen if we set them to zero? 
+        self.S[0], self.S[1], self.S[2] = 1, -1, 0 # Q(State,S) when State is terminal (win/lose/draw); what would happen if we set them to zero? 
+        self.gamma = 1 # we have a single reward at the end => no need to discount anything 
+        self.alpha = 0.01 # learning rate; TODO: 1) perform hyperparameter optimization; 2) see what happens if alpha decays in time ->  
+        # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy  
 
     def policy(self, hand):
-        """
-        Deterministic policy π(s) = a
-        :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
-        :return: action
-        """
-        state_index = self.state_approx(hand)
-        if self.H[state_index] > self.S[state_index]:
+        # Q-learning is an off-policy TD control method and can work in both online/offline refimes. 
+        # Here, we implement offline regime, meaning that the policy updates only at the end of an episode. 
+        # What would happen in the online regime? 
+
+        state_index = self.state_approx(hand) # we return the current state index
+        if self.H[state_index] > self.S[state_index]: # if Q(State, H) > Q(State, S) then we hit 
             return 'h'
         elif self.H[state_index] < self.S[state_index]:
             return 's'
@@ -35,58 +36,49 @@ class QAgent(agent):
             return random.choice(['h', 's'])
 
     def learn(self, episode):
+        
         actions = episode['actions']
         agent_hands = episode['hands']
         reward = episode['reward']
         dealer_card = episode['dealer'][0][0]
-        # TODO: it is possible that `agent_hands` contains exactly one hand, while `actions` is an empty list. This is
-        # incorrect. Indeed, in that case `actions` should contain an 's'.
-        if not actions:
+
+        if not actions: # actions list can be empty if either agent or dealer has a blackjack => nothing to learn here, just return 
             return
-        if reward > 0:
-            final_state_index = 0
+
+        if len(actions) != len(agent_hands): # then and only then the agent busted 
+            del agent_hands[-1] # so we remove the last hand of the agent from the episode because it doesn't carry any useful information (it is just lose state)
+
+        if reward > 0: # if the reward was positive, we won
+            final_state_index = 0 # the index of the terminal win state
         elif reward < 0:
-            final_state_index = 1
+            final_state_index = 1 # the index of the terminal lose state
         elif reward == 0:
-            final_state_index = 2
-        while len(agent_hands) > 1:
-            current_agent_hand = agent_hands.pop(0)
-            # compute the next state
-            next_agent_hand = agent_hands[0]
-            # compute current's and next's state actions
-            current_state_index = self.state_approx([current_agent_hand, dealer_card])
-            next_state_index = self.state_approx([next_agent_hand, dealer_card])
-            # compute the current action
-            action = actions.pop(0)
-            # If the `next_state_index` is more than ---. then we lost
-            if next_state_index >= self.NUMBER_OF_STATES:
-                next_state_index = final_state_index
-                if not (final_state_index == 1):
-                    print("Houston we have a problem!")
-            if action == 'h':
+            final_state_index = 2 # the index of the terminal draw state  
+       
+       # print(episode)
+        while agent_hands: # while there is something we can learn from 
+
+            current_agent_hand = agent_hands.pop(0) # current hand 
+            next_agent_hand = agent_hands[0] if agent_hands else None # next hand
+            
+            current_state_index = self.state_approx([current_agent_hand, dealer_card]) # index of the current state 
+            next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index # next state can be either the state 
+            # correposponding to the next_agent_hand or it can be the terminal_state 
+
+            if current_state_index >= self.NUMBER_OF_STATES: # it might be that the current state is busted state meaning that the state index is out of the range
+                return # then there is nothing left to learn  
+
+            if next_state_index >= self.NUMBER_OF_STATES: # it might be that the next state is busted state meaning that the state index is out of the range
+                next_state_index = final_state_index # then the next state is the terminal lose state
+
+            action = actions.pop(0) # the action which was done in the current state 
+            
+            if action == 'h': # if the action was hit the we update corresponding Q(State, H) function
                 self.H[current_state_index] += self.alpha * (
                         reward + self.gamma * max(self.H[next_state_index], self.S[next_state_index]) - self.H[
                     current_state_index])
-            elif action == 's':
+            
+            elif action == 's': # if the action was state the we update corresponding Q(State, S) function
                 self.S[current_state_index] += self.alpha * (
                         reward + self.gamma * max(self.H[next_state_index], self.S[next_state_index]) - self.S[
                     current_state_index])
-
-        # In this case either actions is empty, which happens iff the last action was a 'h' and we got busted or actions
-        # contains exactly one element which is an 's'. We treat each case differently. In the former case we do nothing
-        # since the hand that has remained in the `agents_hand` does not correspond to a valid state, but just to a
-        # losing state (and we dealt with it inside the while loop). In tha latter case we need to update self.S
-        if actions:
-            # sanity check
-            if not (len(actions) == 1):
-                print("problem 1")
-            action = actions.pop(0)
-            if not (action == 's'):
-                print("problem 2")
-            # now the computation is repeated
-            current_agent_hand = agent_hands.pop(0)
-            current_state_index = self.state_approx([current_agent_hand, dealer_card])
-            next_state_index = final_state_index
-            self.S[current_state_index] += self.alpha * (
-                reward + self.gamma * max(self.H[next_state_index], self.S[next_state_index]) - self.S[current_state_index])
-
