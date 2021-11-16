@@ -14,6 +14,9 @@ Contains:
 - **model_based_agent.py**: interface for model-based agents
 - **value_iteration.py**: agent that performs VI on each round
 - **fast_value_iteration.py**: same agent as value_iteration.py but faster (computes only reachable state space)
+- **Q_learning_agent.py**: agent that performs offline Q-learning (see page 131 in Sutton book) 
+- **sarsa_agent.py**: agent that performs online SARSA control (see page 130 in Sutton book) 
+- **mc_agent.py**: agent that performs Monte Carlo ES (see page 99 in Sutton book) 
 
 ## Full action space
 In this setting the action space is expanded to the full action space A={hit, stand, split, double, insurance}.
