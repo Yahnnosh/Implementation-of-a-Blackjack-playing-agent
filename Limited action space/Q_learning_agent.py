@@ -5,6 +5,7 @@
 # 4) try to see what would change if we set state-action value functions for terminal states to be different from [1, -1, 0];
 #    actually in true Q-learning algorithm Q values of terminal states should be always 0!
 # 5) try e-greedy policy instead of greedy policy for better exploration (crucial if we want to converge to the table policy!)
+# 6) is it good to learn nothing from episodes when we have blackjack? 
 
 from agent import agent
 import numpy as np
@@ -64,12 +65,6 @@ class QAgent(agent):
             current_state_index = self.state_approx([current_agent_hand, dealer_card]) # index of the current state 
             next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index # next state can be either the state 
             # correposponding to the next_agent_hand or it can be the terminal_state 
-
-            if current_state_index >= self.NUMBER_OF_STATES: # it might be that the current state is busted state meaning that the state index is out of the range
-                return # then there is nothing left to learn  
-
-            if next_state_index >= self.NUMBER_OF_STATES: # it might be that the next state is busted state meaning that the state index is out of the range
-                next_state_index = final_state_index # then the next state is the terminal lose state
 
             action = actions.pop(0) # the action which was done in the current state 
             
