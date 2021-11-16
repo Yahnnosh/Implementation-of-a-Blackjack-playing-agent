@@ -5,6 +5,7 @@
 # How should we act in the episode under SARSA method?
 # 1) random initialization of Q(s,a) for all states and actions 
 # 2) observe initial state "s" and choose action "a" according to the greedy policy on Q function from the first step
+# Loop:
 # 3) take action "a" and observe the next state "s_next" 
 # 4) then we choose action "a_next" from "s_next" using greedy-policy from Q
 # 5) update Q function as Q(s,a) <- Q(s,a) + alpha[reward + gamma * Q(s_next, a_next) - Q(s, a)]   
