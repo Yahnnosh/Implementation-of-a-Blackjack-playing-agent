@@ -98,7 +98,7 @@ class dealer:
     def soft(self, hand):
         return self.evaluate(hand) - sum([self.VALUES[card] for card in hand]) == 10
 
-    def play_round(self, agent, bet=1):
+    def play_round(self, agent, bet=1, learning=True):
         """
         Plays one round of Blackjack
         :param agent: deterministic agent - needs to implement policy(state)
@@ -137,7 +137,8 @@ class dealer:
         if self.blackjack(dealer_hand) or self.blackjack(agent_hand):
             episode['reward'] = reward
             # The `agent` receives the episodes details in order to learn
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
 
             # If the `agent` is a `count_agent` then the agent should update its dynamic betting policy.
             # TODO: This should be added as a function when the agent receives the episode
@@ -193,7 +194,8 @@ class dealer:
             if isinstance(agent, count_agent):
                 agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
             return episode
 
         # The `dealer` draws a card until one of the following happens:
@@ -212,7 +214,8 @@ class dealer:
             if isinstance(agent, count_agent):
                 agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
             return episode
 
         # At this point we know that both the `agent` and the `dealer` are not busted. Thus we proceed comparing the
@@ -232,7 +235,8 @@ class dealer:
         if isinstance(agent, count_agent):
             agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
         episode['reward'] = reward
-        agent.learn(episode)
+        if learning:
+            agent.learn(episode)
         return episode
 
     def card_counter(self):  # TODO: need?

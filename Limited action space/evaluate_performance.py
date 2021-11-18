@@ -30,7 +30,7 @@ def mean_win_rate(policy, rounds):
     casino = dealer()
     n_wins = 0
     for i in range(rounds):
-        episode = casino.play_round(policy, bet=1)  # betting amount doesn't matter
+        episode = casino.play_round(policy, bet=1, learning=False)  # betting amount doesn't matter
         reward = episode['reward']
         if reward > 0:
             n_wins += 1
@@ -54,7 +54,7 @@ def long_term_profitability(policy, rounds, plot=False):
         if curr_bank_account < bet:
             break
 
-        episode = casino.play_round(policy, bet=bet)
+        episode = casino.play_round(policy, bet=bet, learning=False)
         reward = episode['reward']
         bank_account.append(curr_bank_account + reward)
 
@@ -68,15 +68,38 @@ def long_term_profitability(policy, rounds, plot=False):
 
 if __name__ == '__main__':
     # Select policies
-    #policies = [random_agent(), dealer_policy(), table_agent(), count_agent(), fast_value_iteration()]
-    policies = [mc_agent(), sarsa_agent(), QAgent()]
+    policies = [
+        random_agent(),
+        dealer_policy(),
+        table_agent(),
+        count_agent(),
+        mc_agent(),
+        sarsa_agent(),
+        QAgent(),
+        fast_value_iteration()]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
     rounds = 100000
 
+    # Training phase
+    print('Starting training')
+    training_rounds = 100000
+    _RETURN_NONE = (lambda: None).__code__.co_code
+    for i, policy in enumerate(policies):
+        # if the instance has not implemented learn, 'pass' in learn will return None
+        if policy.learn.__code__.co_code != _RETURN_NONE:
+            casino = dealer()
+            # agent has implemented learn
+            for t in range(training_rounds):
+                casino.play_round(policy, bet=1, learning=True) # train agent
+            print('Finished training for', policy_names[i])
+        else:
+            # agent has not implemented learn
+            pass
+
     # Select metric(s)
-    print('Mean win rate:')
+    print('\nMean win rate:')
     for i, policy in enumerate(policies):
         print(policy_names[i], ': ', mean_win_rate(policy, rounds))
 
