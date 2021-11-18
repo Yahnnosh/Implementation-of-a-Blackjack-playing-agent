@@ -94,11 +94,6 @@ class model_based_agent(agent):
             P[terminal_state, self.state_approx(curr_state), 1] += 1
 
         # calculate Monte Carlo estimate
-        '''for state in range(N_STATES):
-            for action in (0, 1):
-                P[:, state, action] = np.divide(
-                    P[:, state, action], visits[state, action],
-                    where=(visits[state, action] != 0))'''
         for state in range(N_STATES):
             for action in (0, 1):
                 for target_state in range(N_STATES):
