@@ -19,6 +19,9 @@ from mc_agent import mc_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import sys
+
 
 def mean_win_rate(policy, rounds):
     """
@@ -29,7 +32,8 @@ def mean_win_rate(policy, rounds):
     """
     casino = dealer()
     n_wins = 0
-    for i in range(rounds):
+    # tqdm shows progress bar
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout):
         episode = casino.play_round(policy, bet=1, learning=False)  # betting amount doesn't matter
         reward = episode['reward']
         if reward > 0:
@@ -46,8 +50,9 @@ def long_term_profitability(policy, rounds, plot=False):
     :return: remaining money
     """
     casino = dealer()
-    bank_account = [1000] # starting money
-    for i in range(rounds):
+    bank_account = [1000]   # starting money
+    # tqdm shows progress bar
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout):
         bet = policy.bet if isinstance(policy, count_agent) else 1
 
         curr_bank_account = bank_account[-1]
@@ -66,6 +71,7 @@ def long_term_profitability(policy, rounds, plot=False):
 
     return bank_account[-1]
 
+
 if __name__ == '__main__':
     # Select policies
     policies = [
@@ -74,13 +80,13 @@ if __name__ == '__main__':
         table_agent(),
         count_agent(),
         mc_agent(),
-        sarsa_agent(),
+        #sarsa_agent(),
         QAgent(),
         fast_value_iteration()]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    rounds = 100000
+    testing_rounds = 10000
 
     # Training phase
     print('Starting training')
@@ -101,11 +107,13 @@ if __name__ == '__main__':
     # Select metric(s)
     print('\nMean win rate:')
     for i, policy in enumerate(policies):
-        print(policy_names[i], ': ', mean_win_rate(policy, rounds))
+        win_rate = mean_win_rate(policy, testing_rounds)
+        print(policy_names[i], ': ', win_rate)
 
     print('\nLong term profitability:')
     for i, policy in enumerate(policies):
-        print(policy_names[i], ': ', long_term_profitability(policy, rounds, plot=True))
+        profitability = long_term_profitability(policy, testing_rounds, plot=True)
+        print(policy_names[i], ': ', profitability)
     plt.hlines(1000, xmin=0, xmax=rounds, colors='grey', linestyles='dotted')
     plt.legend()
     plt.xlabel('rounds')

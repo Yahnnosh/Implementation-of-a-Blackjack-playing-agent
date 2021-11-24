@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Limited action space/get_table_from_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/model_based_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/model_based_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/fast_value_iteration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/fast_value_iteration.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +47,7 @@
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.get_table_from_agent">
+  <component name="RunManager" selected="Python.evaluate_performance">
     <configuration name="agent" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -82,6 +82,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/evaluate_performance.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="fast_value_iteration" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Implementation of a Blackjack playing agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/fast_value_iteration.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -132,34 +153,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="value_iteration" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Implementation of a Blackjack playing agent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/value_iteration.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.evaluate_performance" />
+        <item itemvalue="Python.fast_value_iteration" />
         <item itemvalue="Python.get_table_from_agent" />
         <item itemvalue="Python.agent" />
-        <item itemvalue="Python.evaluate_performance" />
         <item itemvalue="Python.temp" />
-        <item itemvalue="Python.value_iteration" />
       </list>
     </recent_temporary>
   </component>

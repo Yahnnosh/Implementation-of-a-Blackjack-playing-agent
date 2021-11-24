@@ -7,6 +7,7 @@ Faster than normal value iteration due to state space cutting
 
 from model_based_agent import model_based_agent
 import numpy as np
+import time
 
 class fast_value_iteration(model_based_agent):
     def __init__(self):
@@ -149,7 +150,8 @@ class fast_value_iteration(model_based_agent):
         R = {}  # R[state]
         V[0], V[1], V[2] = 1, -1, 0     # terminal states
 
-        P = self.state_transition_probability(hand, deck, n=10000)  # P[s][a][s']
+
+        P = self.state_transition_probability(hand, deck, n=1000)  # P[s][a][s']
 
         # Value iteration
         for i in range(iterations):
