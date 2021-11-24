@@ -51,7 +51,9 @@ class sarsa_agent(agent):
             action = random.choice(['h', 's'])
         return action 
 
-    def policy(self, hand):
+    def policy(self, hand, evaluating = False):
+        if evaluating == True:
+            self.act_based_on_previous_q = False
         if self.act_based_on_previous_q:
             return self.stored_action # then we act according to the q function from the previous iteration 
         else:

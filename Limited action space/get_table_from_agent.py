@@ -43,7 +43,10 @@ def plot_table_hard(agent):
     sublist = []
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
-        sublist.append(agent.policy(hand))
+        if isinstance(agent, sarsa_agent):
+            sublist.append(agent.policy(hand, evaluating=True))
+        else:
+            sublist.append(agent.policy(hand))
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
@@ -91,7 +94,10 @@ def plot_table_soft(agent):
     sublist = []
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
-        sublist.append(agent.policy(hand))
+        if isinstance(agent, sarsa_agent):
+            sublist.append(agent.policy(hand, evaluating=True))
+        else:
+            sublist.append(agent.policy(hand))
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
@@ -115,14 +121,14 @@ def plot_table_soft(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    policy = QAgent()
+    #policy = QAgent()
     #policy = table_agent()
-    #policy = sarsa_agent()
+    policy = sarsa_agent()
     #policy = mc_agent()
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 10000
+    training_rounds = 100000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
