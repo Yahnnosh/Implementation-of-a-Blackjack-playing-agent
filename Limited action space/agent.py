@@ -2,9 +2,9 @@
 Interface for agents
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABCMeta
 
-class agent(ABC):
+class agent(metaclass=ABCMeta):
     @abstractmethod
     def policy(self, hand):
         """

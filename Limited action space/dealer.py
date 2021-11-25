@@ -23,6 +23,7 @@ from table_policy import table_agent
 from card_counting import count_agent
 from model_based_agent import model_based_agent
 from value_iteration import value_iteration
+from sarsa_agent import sarsa_agent
 
 
 def show(reward, agent_hand, dealer_hand):
@@ -97,7 +98,7 @@ class dealer:
     def soft(self, hand):
         return self.evaluate(hand) - sum([self.VALUES[card] for card in hand]) == 10
 
-    def play_round(self, agent, bet=1):
+    def play_round(self, agent, bet=1, learning=True):
         """
         Plays one round of Blackjack
         :param agent: deterministic agent - needs to implement policy(state)
@@ -136,7 +137,8 @@ class dealer:
         if self.blackjack(dealer_hand) or self.blackjack(agent_hand):
             episode['reward'] = reward
             # The `agent` receives the episodes details in order to learn
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
 
             # If the `agent` is a `count_agent` then the agent should update its dynamic betting policy.
             # TODO: This should be added as a function when the agent receives the episode
@@ -181,6 +183,9 @@ class dealer:
                 episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand)  # check if busted
 
+            if isinstance(agent, sarsa_agent) and (action == 'h'): # SARSA is online method => we constantly learn! 
+                agent.learn(episode) 
+
         # If the `agent` is busted then round should end (there is not reason for the `dealer` ot play).
         if agent_busted:
             reward = -bet
@@ -189,7 +194,8 @@ class dealer:
             if isinstance(agent, count_agent):
                 agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
             return episode
 
         # The `dealer` draws a card until one of the following happens:
@@ -208,7 +214,8 @@ class dealer:
             if isinstance(agent, count_agent):
                 agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
-            agent.learn(episode)
+            if learning:
+                agent.learn(episode)
             return episode
 
         # At this point we know that both the `agent` and the `dealer` are not busted. Thus we proceed comparing the
@@ -228,7 +235,8 @@ class dealer:
         if isinstance(agent, count_agent):
             agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
         episode['reward'] = reward
-        agent.learn(episode)
+        if learning:
+            agent.learn(episode)
         return episode
 
     def card_counter(self):  # TODO: need?

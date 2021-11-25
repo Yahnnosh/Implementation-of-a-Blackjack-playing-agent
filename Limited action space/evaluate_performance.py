@@ -13,9 +13,15 @@ from table_policy import table_agent        # hard baseline
 from card_counting import count_agent       # optimal baseline
 from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
+from Q_learning_agent import QAgent
+from sarsa_agent import sarsa_agent
+from mc_agent import mc_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+import sys
+
 
 def mean_win_rate(policy, rounds):
     """
@@ -26,8 +32,9 @@ def mean_win_rate(policy, rounds):
     """
     casino = dealer()
     n_wins = 0
-    for i in range(rounds):
-        episode = casino.play_round(policy, bet=1)  # betting amount doesn't matter
+    # tqdm shows progress bar
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
+        episode = casino.play_round(policy, bet=1, learning=False)  # betting amount doesn't matter
         reward = episode['reward']
         if reward > 0:
             n_wins += 1
@@ -42,16 +49,19 @@ def long_term_profitability(policy, rounds, plot=False):
     :param plot: if True draws the evolution of the bank account on a matplotlib plot
     :return: remaining money
     """
+    if isinstance(policy,count_agent):
+        policy.reset_counting()
     casino = dealer()
-    bank_account = [1000] # starting money
-    for i in range(rounds):
+    bank_account = [10000]   # starting money
+    # tqdm shows progress bar
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
         bet = policy.bet if isinstance(policy, count_agent) else 1
 
         curr_bank_account = bank_account[-1]
         if curr_bank_account < bet:
             break
 
-        episode = casino.play_round(policy, bet=bet)
+        episode = casino.play_round(policy, bet=bet, learning=False)
         reward = episode['reward']
         bank_account.append(curr_bank_account + reward)
 
@@ -63,23 +73,54 @@ def long_term_profitability(policy, rounds, plot=False):
 
     return bank_account[-1]
 
+
 if __name__ == '__main__':
     # Select policies
-    policies = [random_agent(), dealer_policy(), table_agent(), count_agent(), fast_value_iteration()]
+    policies = [
+        #random_agent(),
+        #dealer_policy(),
+        #table_agent(),
+        count_agent(),
+        #mc_agent(),
+        #sarsa_agent(),
+        #QAgent()
+        #fast_value_iteration()
+        ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    rounds = 1000
+    testing_rounds = 100000
+
+    # Training phase
+    print('Starting training')
+    training_rounds = 1000
+    _RETURN_NONE = (lambda: None).__code__.co_code
+    for i, policy in enumerate(policies):
+        # if the instance has not implemented learn, 'pass' in learn will return None
+        if policy.learn.__code__.co_code != _RETURN_NONE:
+            casino = dealer()
+            # agent has implemented learn
+            for t in range(training_rounds):
+                casino.play_round(policy, bet=1, learning=True) # train agent
+            print('Finished training for', policy_names[i])
+            # sarsa needs explicit call
+            if isinstance(policy, sarsa_agent):
+                policy.set_evaluating()
+        else:
+            # agent has not implemented learn
+            pass
 
     # Select metric(s)
-    print('Mean win rate:')
+    print('\nMean win rate:')
     for i, policy in enumerate(policies):
-        print(policy_names[i], ': ', mean_win_rate(policy, rounds))
+        win_rate = mean_win_rate(policy, testing_rounds)
+        print(policy_names[i], ': ', win_rate)
 
     print('\nLong term profitability:')
     for i, policy in enumerate(policies):
-        print(policy_names[i], ': ', long_term_profitability(policy, rounds, plot=True))
-    plt.hlines(1000, xmin=0, xmax=rounds, colors='grey', linestyles='dotted')
+        profitability = long_term_profitability(policy, testing_rounds, plot=True)
+        print(policy_names[i], ': ', profitability)
+    plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     plt.legend()
     plt.xlabel('rounds')
     plt.ylabel('bank account')
