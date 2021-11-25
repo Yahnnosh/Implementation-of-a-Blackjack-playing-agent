@@ -80,13 +80,14 @@ if __name__ == '__main__':
         table_agent(),
         count_agent(),
         mc_agent(),
-        #sarsa_agent(),
-        QAgent(),
-        fast_value_iteration()]
+        sarsa_agent(),
+        QAgent()
+        #fast_value_iteration()
+        ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    testing_rounds = 10000
+    testing_rounds = 1000000
 
     # Training phase
     print('Starting training')
@@ -100,6 +101,9 @@ if __name__ == '__main__':
             for t in range(training_rounds):
                 casino.play_round(policy, bet=1, learning=True) # train agent
             print('Finished training for', policy_names[i])
+            # sarsa needs explicit call
+            if isinstance(policy, sarsa_agent):
+                policy.set_evaluating()
         else:
             # agent has not implemented learn
             pass
@@ -114,7 +118,7 @@ if __name__ == '__main__':
     for i, policy in enumerate(policies):
         profitability = long_term_profitability(policy, testing_rounds, plot=True)
         print(policy_names[i], ': ', profitability)
-    plt.hlines(1000, xmin=0, xmax=rounds, colors='grey', linestyles='dotted')
+    plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     plt.legend()
     plt.xlabel('rounds')
     plt.ylabel('bank account')

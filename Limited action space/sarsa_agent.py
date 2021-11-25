@@ -39,7 +39,8 @@ class sarsa_agent(agent):
         self.alpha = 0.01 # learning rate; TODO: 1) perform hyperparameter optimization; 2) see what happens if alpha decays in time ->  
         # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy  
         self.act_based_on_previous_q = False # this variable decides if we act based on previous (or current) state action value function 
-        self.stored_action = '' # this is the action for the current step which is determined from the previous estimate of the q function 
+        self.stored_action = '' # this is the action for the current step which is determined from the previous estimate of the q function
+        self.evaluating = False # used for evaluating the already trained sarsa agent where it is set to True
 
     def greedy_policy(self, hand): # usual greedy policy; it returns the action based on the current estimate of the state-action value function
         state_index = self.state_approx(hand) # we return the current state index
@@ -49,10 +50,13 @@ class sarsa_agent(agent):
             action = 's'
         elif self.H[state_index] == self.S[state_index]:
             action = random.choice(['h', 's'])
-        return action 
+        return action
 
-    def policy(self, hand, evaluating = False):
-        if evaluating == True:
+    def set_evaluating(self):
+        self.evaluating = True
+
+    def policy(self, hand):
+        if self.evaluating == True:
             self.act_based_on_previous_q = False
         if self.act_based_on_previous_q:
             return self.stored_action # then we act according to the q function from the previous iteration 

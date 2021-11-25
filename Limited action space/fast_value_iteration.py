@@ -126,6 +126,9 @@ class fast_value_iteration(model_based_agent):
             else:  # started from s, already done action and reached s_new
                 P[s][action][s_new] += 1
 
+            '''if min([visits[s][a] for s in visits.keys() for a in visits[s].keys()]) >= 10:    # TODO: change!
+                break'''
+
         # calculate Monte Carlo estimate
         for s in P:
             for action in P[s]:
@@ -135,7 +138,7 @@ class fast_value_iteration(model_based_agent):
 
         return P
 
-    def policy(self, hand, deck, iterations=1000):
+    def policy(self, hand, deck, iterations=10000):
         """
         Does value iteration on current round, return greedy policy on calc. Q functions
         :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
@@ -150,10 +153,13 @@ class fast_value_iteration(model_based_agent):
         R = {}  # R[state]
         V[0], V[1], V[2] = 1, -1, 0     # terminal states
 
-
-        P = self.state_transition_probability(hand, deck, n=1000)  # P[s][a][s']
+        '''t0 = time.time()    # TODO: change!'''
+        P = self.state_transition_probability(hand, deck, n=10000)  # P[s][a][s']
 
         # Value iteration
+        '''print('P: ', round(time.time() - t0, 3))    # TODO: change!
+        iterations = int(len(P) / 363 * iterations) # TODO: change!
+        t1 = time.time()    # TODO: change!'''
         for i in range(iterations):
             for state in P:
                 max_Q = INITIAL_VALUES
@@ -175,5 +181,5 @@ class fast_value_iteration(model_based_agent):
             for next_state in P[state][action]:
                 Q[state][action] += GAMMA * P[state][action][next_state] * V[next_state]
         action = np.argmax([Q[state][0], Q[state][1]])
-
+        '''print('VI: ', round(time.time() - t1, 3))   # TODO: change!'''
         return 'h' if action == 0 else 's'

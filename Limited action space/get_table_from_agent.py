@@ -43,10 +43,7 @@ def plot_table_hard(agent):
     sublist = []
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
-        if isinstance(agent, sarsa_agent):
-            sublist.append(agent.policy(hand, evaluating=True))
-        else:
-            sublist.append(agent.policy(hand))
+        sublist.append(agent.policy(hand))
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
@@ -94,10 +91,7 @@ def plot_table_soft(agent):
     sublist = []
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
-        if isinstance(agent, sarsa_agent):
-            sublist.append(agent.policy(hand, evaluating=True))
-        else:
-            sublist.append(agent.policy(hand))
+        sublist.append(agent.policy(hand))
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
@@ -138,6 +132,9 @@ if __name__ == '__main__':
         for t in range(training_rounds):
             casino.play_round(policy, bet=1, learning=True)  # train agent
         print('Finished training for', policy_name)
+        # sarsa needs explicit call
+        if isinstance(policy, sarsa_agent):
+            policy.set_evaluating()
     else:
         # agent has not implemented learn
         pass
