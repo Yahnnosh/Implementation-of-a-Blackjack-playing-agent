@@ -33,7 +33,7 @@ def mean_win_rate(policy, rounds):
     casino = dealer()
     n_wins = 0
     # tqdm shows progress bar
-    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout):
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
         episode = casino.play_round(policy, bet=1, learning=False)  # betting amount doesn't matter
         reward = episode['reward']
         if reward > 0:
@@ -49,10 +49,12 @@ def long_term_profitability(policy, rounds, plot=False):
     :param plot: if True draws the evolution of the bank account on a matplotlib plot
     :return: remaining money
     """
+    if isinstance(policy,count_agent):
+        policy.reset_counting()
     casino = dealer()
-    bank_account = [1000]   # starting money
+    bank_account = [10000]   # starting money
     # tqdm shows progress bar
-    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout):
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
         bet = policy.bet if isinstance(policy, count_agent) else 1
 
         curr_bank_account = bank_account[-1]
@@ -75,23 +77,23 @@ def long_term_profitability(policy, rounds, plot=False):
 if __name__ == '__main__':
     # Select policies
     policies = [
-        random_agent(),
-        dealer_policy(),
-        table_agent(),
+        #random_agent(),
+        #dealer_policy(),
+        #table_agent(),
         count_agent(),
-        mc_agent(),
-        sarsa_agent(),
-        QAgent()
+        #mc_agent(),
+        #sarsa_agent(),
+        #QAgent()
         #fast_value_iteration()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    testing_rounds = 1000000
+    testing_rounds = 100000
 
     # Training phase
     print('Starting training')
-    training_rounds = 100000
+    training_rounds = 1000
     _RETURN_NONE = (lambda: None).__code__.co_code
     for i, policy in enumerate(policies):
         # if the instance has not implemented learn, 'pass' in learn will return None
