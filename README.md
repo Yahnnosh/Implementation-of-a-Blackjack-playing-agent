@@ -33,4 +33,7 @@ In this setting the action space is expanded to the full action space A={hit, st
 Contains:
 
 **Baselines**:
-- **table_policy.py** (hard baseline): agent that acts according to the fixed policy from soft_table.csv and hard_table.csv
+- **table_policy.py** (hard baseline): agent that acts according to the fixed policy from soft_table.csv, hard_table.csv and split_table.csv
+
+**Agents**:
+- **agent.py**: interface for all agents
