@@ -34,6 +34,7 @@ Contains:
 
 **Baselines**:
 - **table_policy.py** (hard baseline): agent that acts according to the fixed policy from soft_table.csv, hard_table.csv and split_table.csv
+- - **card_counting.py** (optimal baseline): agent that acts according to the fixed policy from soft_table.csv, hard_table.csv and split_table.csv and also counts cards using Hi_Lo strategy
 
 **Agents**:
 - **agent.py**: interface for all agents
