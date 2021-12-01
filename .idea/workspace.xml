@@ -5,11 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Full action space/agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Full action space/hard_table.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Full action space/soft_table.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Full action space/split_table.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Full action space/table_policy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/evaluate_performance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/fast_value_iteration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/fast_value_iteration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/get_table_from_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/get_table_from_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/sarsa_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/sarsa_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/card_counting.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/card_counting.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,12 +46,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Full action space" />
+    <property name="settings.editor.selected.configurable" value="Csv.Editor.Settings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Implementation-of-a-Blackjack-playing-agent\Limited action space\simulation_data\old" />
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Implementation-of-a-Blackjack-playing-agent\Full action space" />
     </key>
   </component>
   <component name="RunManager" selected="Python.get_table_from_agent">
@@ -187,7 +195,10 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="" />
@@ -203,12 +214,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="305" y="57" key="SettingsEditor" timestamp="1638367479097">
+      <screen x="0" y="0" width="1368" height="864" />
+    </state>
+    <state x="305" y="57" key="SettingsEditor/0.0.1368.864@0.0.1368.864" timestamp="1638367479097" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
