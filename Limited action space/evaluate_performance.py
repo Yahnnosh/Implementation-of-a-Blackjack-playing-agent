@@ -4,6 +4,7 @@ Evaluates the performance of a policy
 metrics:
 1. Empirical mean win rate
 2. Empirical long term profitability
+3. Empirical loss per round
 """
 
 # Import all agents
@@ -23,67 +24,80 @@ from tqdm import tqdm
 import sys
 
 
-def mean_win_rate(policy, rounds):
+def simulate(policy, rounds, plot=False):
     """
-    Calculate empirical mean win rate (= Exp[win_rate] as rounds -> infty)
+    Calculates empirical mean win rate, empirical long term profitability
+    (i.e. the agent starts with 1000$, the remaining money after the rounds
+    is its long term profitability) and the empirical loss per round
     :param policy: policy to evaluate
     :param rounds: played rounds
-    :return: rounded win rate
-    """
-    casino = dealer()
-    n_wins = 0
-    # tqdm shows progress bar
-    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
-        episode = casino.play_round(policy, bet=1, learning=False)  # betting amount doesn't matter
-        reward = episode['reward']
-        if reward > 0:
-            n_wins += 1
-    return round(n_wins / rounds, 3)
-
-def long_term_profitability(policy, rounds, plot=False):
-    """
-    Calculates empirical long term profitability, i.e. the agent is given
-    1000$, the remaining amount of money after 'rounds' is returned
-    :param agent: policy to evaluate
-    :param rounds: played rounds
     :param plot: if True draws the evolution of the bank account on a matplotlib plot
-    :return: remaining money
+    :return: rounded mean win rate, remaining money, mean loss per round
     """
+    # reset card counting agent
     if isinstance(policy,count_agent):
         policy.reset_counting()
-    casino = dealer()
-    bank_account = [10000]   # starting money
-    # tqdm shows progress bar
-    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
-        bet = policy.bet if isinstance(policy, count_agent) else 1
 
+    # params
+    casino = dealer()
+    bank_account = [1000]   # starting money
+    n_wins = 0
+    game_over = False
+    total_rewards = 0
+
+    # simulate
+    # (tqdm shows progress bar)
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
+        # bet: static or dynamic
+        bet = policy.bet if isinstance(policy, count_agent) else 1  # TODO: change this for add. dyn. policy
+
+        # check if enough money for next round
         curr_bank_account = bank_account[-1]
         if curr_bank_account < bet:
-            break
+            # not enough money to play next round -> stop money change
+            game_over = True
 
-        episode = casino.play_round(policy, bet=bet, learning=False)
+        # play one round
+        episode = casino.play_round(policy, bet=bet, learning=False)    # testing independent from training
         reward = episode['reward']
-        bank_account.append(curr_bank_account + reward)
 
+        # update params
+        if game_over:
+            last_value = bank_account[-1]
+            bank_account.append(last_value)  # money stays at last value (which might be slightly larger than 0)
+        else:
+            bank_account.append(curr_bank_account + reward)
+
+        if reward > 0:
+            n_wins += 1
+
+        total_rewards += reward
+
+    # calculate performance params
+    mean_win_rate = round(n_wins / rounds, 3)
+    long_term_profitability = bank_account[-1]
+    loss_per_round = round(total_rewards / rounds, 3)
+
+    # plot money evolution (if demanded)
     if plot:
         curr_bank_account = bank_account[-1]
         for i in range(rounds + 1 - len(bank_account)):
             bank_account.append(curr_bank_account) # in case lost all their money
         plt.plot([j for j in range(rounds + 1)], bank_account, label=str(type(policy))[8:].split('.')[0])
 
-    return bank_account[-1]
+    return mean_win_rate, long_term_profitability, loss_per_round
 
 
 if __name__ == '__main__':
     # Select policies
     policies = [
-        #random_agent(),
-        #dealer_policy(),
+        random_agent(),
+        dealer_policy(),
         #table_agent(),
         count_agent(),
         #mc_agent(),
         #sarsa_agent(),
-        #QAgent()
+        QAgent()
         #fast_value_iteration()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
@@ -110,16 +124,12 @@ if __name__ == '__main__':
             # agent has not implemented learn
             pass
 
-    # Select metric(s)
-    print('\nMean win rate:')
+    # Testing phase
+    print('Starting testing')
     for i, policy in enumerate(policies):
-        win_rate = mean_win_rate(policy, testing_rounds)
-        print(policy_names[i], ': ', win_rate)
-
-    print('\nLong term profitability:')
-    for i, policy in enumerate(policies):
-        profitability = long_term_profitability(policy, testing_rounds, plot=True)
-        print(policy_names[i], ': ', profitability)
+        mean_win_rate, long_term_profitability, loss_per_round = simulate(policy, testing_rounds, plot=True)
+        print(policy_names[i], ':\t', mean_win_rate, '\t', long_term_profitability, '\t', loss_per_round)
+    # additional code for plot
     plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     plt.legend()
     plt.xlabel('rounds')
