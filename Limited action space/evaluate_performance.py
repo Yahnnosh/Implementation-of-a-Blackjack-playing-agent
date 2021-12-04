@@ -22,17 +22,18 @@ from dealer import dealer
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import sys
+import numpy as np
 
 
 def simulate(policy, rounds, plot=False):
     """
     Calculates empirical mean win rate, empirical long term profitability
     (i.e. the agent starts with 1000$, the remaining money after the rounds
-    is its long term profitability) and the empirical loss per round
+    is its long term profitability) and the empirical loss per round (mean + std)
     :param policy: policy to evaluate
     :param rounds: played rounds
     :param plot: if True draws the evolution of the bank account on a matplotlib plot
-    :return: rounded mean win rate, remaining money, mean loss per round
+    :return: rounded mean win rate, remaining money, mean loss per round, std loss per round
     """
     # reset card counting agent
     if isinstance(policy,count_agent):
@@ -43,7 +44,7 @@ def simulate(policy, rounds, plot=False):
     bank_account = [1000]   # starting money
     n_wins = 0
     game_over = False
-    total_rewards = 0
+    total_rewards = []
 
     # simulate
     # (tqdm shows progress bar)
@@ -71,12 +72,13 @@ def simulate(policy, rounds, plot=False):
         if reward > 0:
             n_wins += 1
 
-        total_rewards += reward
+        total_rewards.append(reward)
 
     # calculate performance params
     mean_win_rate = round(n_wins / rounds, 3)
     long_term_profitability = bank_account[-1]
-    loss_per_round = round(total_rewards / rounds, 3)
+    mean_loss_per_round = round(sum(total_rewards) / rounds, 3)
+    std_loss_per_round = round(np.std(np.array(total_rewards)), 3)
 
     # plot money evolution (if demanded)
     if plot:
@@ -85,7 +87,7 @@ def simulate(policy, rounds, plot=False):
             bank_account.append(curr_bank_account) # in case lost all their money
         plt.plot([j for j in range(rounds + 1)], bank_account, label=str(type(policy))[8:].split('.')[0])
 
-    return mean_win_rate, long_term_profitability, loss_per_round
+    return mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round
 
 
 if __name__ == '__main__':
@@ -131,13 +133,14 @@ if __name__ == '__main__':
     print('-policy name | mean win rate | long term profitability | loss per round-\n')
     # simulate for each policy
     for i, policy in enumerate(policies):
-        mean_win_rate, long_term_profitability, loss_per_round = simulate(policy, testing_rounds, plot=True)
+        mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round \
+            = simulate(policy, testing_rounds, plot=True)
         # for prettier table (aligned)
         extra_white_space = ''
         for _ in range(max_string_length - len(policy_names[i])):
             extra_white_space += ' '
         print(policy_names[i] + ':' + extra_white_space, '\t', mean_win_rate,
-              '\t\t', long_term_profitability, '$\t\t', loss_per_round, '$')
+              '\t\t', long_term_profitability, '$\t\t', mean_loss_per_round, '$', '(+-', std_loss_per_round, '$)')
     # additional code for plot
     plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     plt.legend(loc='upper right')
