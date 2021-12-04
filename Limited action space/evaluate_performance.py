@@ -47,7 +47,7 @@ def simulate(policy, rounds, plot=False):
 
     # simulate
     # (tqdm shows progress bar)
-    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
+    for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=False):
         # bet: static or dynamic
         bet = policy.bet if isinstance(policy, count_agent) else 1  # TODO: change this for add. dyn. policy
 
@@ -93,21 +93,21 @@ if __name__ == '__main__':
     policies = [
         random_agent(),
         dealer_policy(),
-        #table_agent(),
+        table_agent(),
         count_agent(),
-        #mc_agent(),
-        #sarsa_agent(),
-        QAgent()
+        mc_agent(),
+        sarsa_agent(),
+        QAgent(alpha=0.01)
         #fast_value_iteration()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
+    training_rounds = 100000
     testing_rounds = 100000
 
     # Training phase
     print('Starting training')
-    training_rounds = 1000
     _RETURN_NONE = (lambda: None).__code__.co_code
     for i, policy in enumerate(policies):
         # if the instance has not implemented learn, 'pass' in learn will return None
@@ -125,13 +125,22 @@ if __name__ == '__main__':
             pass
 
     # Testing phase
-    print('Starting testing')
+    print('\nStarting testing')
+    # for prettier table (aligned)
+    max_string_length = max([len(name) for name in policy_names])
+    print('-policy name | mean win rate | long term profitability | loss per round-\n')
+    # simulate for each policy
     for i, policy in enumerate(policies):
         mean_win_rate, long_term_profitability, loss_per_round = simulate(policy, testing_rounds, plot=True)
-        print(policy_names[i], ':\t', mean_win_rate, '\t', long_term_profitability, '\t', loss_per_round)
+        # for prettier table (aligned)
+        extra_white_space = ''
+        for _ in range(max_string_length - len(policy_names[i])):
+            extra_white_space += ' '
+        print(policy_names[i] + ':' + extra_white_space, '\t', mean_win_rate,
+              '\t\t', long_term_profitability, '$\t\t', loss_per_round, '$')
     # additional code for plot
     plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
-    plt.legend()
+    plt.legend(loc='upper right')
     plt.xlabel('rounds')
     plt.ylabel('bank account')
     plt.show()
