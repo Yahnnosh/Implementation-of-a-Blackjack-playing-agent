@@ -41,7 +41,7 @@ Contains:
 
 
 ## Dynamic betting
-In this setting the static betting strategy is augmented to the full strategy π = (π_static, π_dynamic).
+In this setting the static betting strategy is augmented to the full policy π = (π_static, π_dynamic).
 Contains:
 
 - **model_based.py**: Calculates the expected return of the next round under the static policy by having access to the deck distribution before the round. Different heuristics can be applied based on the expected return of the next round to find the optimal betting amount.
