@@ -70,4 +70,6 @@ class mc_agent(agent):
                 self.Q_S[state_index] = (self.Q_S[state_index] * self.Q_S_count[state_index] + reward) / (self.Q_S_count[state_index] + 1) 
                 self.Q_S_count[state_index] += 1 
 
+    def get_Q(self):
+        return self.Q_H, self.Q_S
 

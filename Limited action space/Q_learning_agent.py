@@ -85,4 +85,4 @@ class QAgent(agent):
             #self.alpha = self.alpha/(1 + self.alpha)
 
     def get_Q(self):
-        return self.H
+        return self.H, self.S

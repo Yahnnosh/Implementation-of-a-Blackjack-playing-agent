@@ -9,9 +9,6 @@ in bad bets
 ----------------------------------------------------------------------------
 FOR NOW ONLY WORKS WITH Q-LEARNING (limited action space)!
 """
-# TODO: csv somehow put into
-# TODO: different strategies (risky, prop)
-# TODO: extend to other model-free
 
 # Import agents
 from Q_learning_agent import QAgent
@@ -30,13 +27,20 @@ class Model_based_dynamic_betting_policy():
         :param increment: allowed bet increments
         """
         # legality
-        assert min_bet > 0 and max_bet > 0 and increment > 0  # TODO: what if min_bet = 0? does it even bet?
+        assert min_bet > 0 and max_bet > 0 and increment > 0
 
         # dynamic betting policy params
         self.allowed_bets = [bet for bet in range(min_bet, max_bet, increment)]
 
         # static betting policy params
         self.static_betting_policy = static_betting_policy
+        self.V = self.get_V()
+
+    def reset(self):
+        """
+        Reset value functions if policy changed
+        :return: None
+        """
         self.V = self.get_V()
 
     def bet(self, deck, strategy='proportional'):
@@ -80,8 +84,6 @@ class Model_based_dynamic_betting_policy():
                         continue
 
                     # update prob
-                    if sum(deck_card2) == 0:    # TODO: del after debug complete
-                        print('\n', deck_card2, deck_card1, deck)
                     probability_hand = probability_card2 * deck_card2[k] / sum(deck_card2)
 
                     # evaluate expected return under hand
@@ -90,9 +92,32 @@ class Model_based_dynamic_betting_policy():
         min_bet = self.allowed_bets[0]
         max_bet = self.allowed_bets[-1]
         if strategy == 'risky':
-            recommended_bet = self.allowed_bets[-1] if (expected_return > 0) else self.allowed_bets[0]
+            recommended_bet = max_bet if (expected_return > 0) else min_bet
         elif strategy == 'proportional':
-            recommended_bet = expected_return * max_bet # TODO: <--------------
+            recommended_bet = expected_return * max_bet
+            # round to next allowed value
+            if (recommended_bet > min_bet) and (recommended_bet < max_bet):   # otherwise cut to min/max
+                # not very efficient but should be ok
+                self.allowed_bets.append(recommended_bet)
+                self.allowed_bets.sort()
+                index = self.allowed_bets.index(recommended_bet)
+                # closer to next bigger or next lower?
+                distance_to_upper = self.allowed_bets[index + 1] - recommended_bet
+                distance_to_lower = recommended_bet - self.allowed_bets[index - 1]
+                self.allowed_bets.remove(recommended_bet)
+                recommended_bet = self.allowed_bets[index + 1] if distance_to_upper < distance_to_lower \
+                    else self.allowed_bets[index - 1]
+            # round down to next allowed value (safer?)
+            '''if (recommended_bet > min_bet) and (recommended_bet < max_bet):  # otherwise cut to min/max
+                # not very efficient but should be ok
+                self.allowed_bets.append(recommended_bet)
+                self.allowed_bets.sort()
+                index = self.allowed_bets.index(recommended_bet)
+                self.allowed_bets.remove(recommended_bet)
+                recommended_bet = self.allowed_bets[index - 1]'''
+
+        else:
+            raise ValueError
 
         return min(max_bet, max(min_bet, recommended_bet))
 
@@ -143,23 +168,20 @@ class Model_based_dynamic_betting_policy():
         :return: V(s)
         """
         # Q function
-        if isinstance(self.static_betting_policy, QAgent):
-            Q = self.static_betting_policy.get_Q()
-            V = {}
+        Q_hit, Q_stand = self.static_betting_policy.get_Q()
+        V = {}
 
-            values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
-                      '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
-            # draw first hand
-            for card1 in values:
-                # draw second hand
-                for card2 in values:
-                    # draw dealer card
-                    for dealer_card in values:
-                        # evaluate hand
-                        V[card1, card2, dealer_card] = \
-                            Q[self.state_approx([[card1, card2], dealer_card])]
+        values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
+                  '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
+        # draw first hand
+        for card1 in values:
+            # draw second hand
+            for card2 in values:
+                # draw dealer card
+                for dealer_card in values:
+                    # evaluate hand
+                    V[card1, card2, dealer_card] = max(
+                        Q_hit[self.state_approx([[card1, card2], dealer_card])],
+                        Q_stand[self.state_approx([[card1, card2], dealer_card])])
 
-            return V
-
-        else:
-            raise NotImplementedError
+        return V

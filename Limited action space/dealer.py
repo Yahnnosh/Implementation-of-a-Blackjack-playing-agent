@@ -45,7 +45,7 @@ def show(reward, agent_hand, dealer_hand):
 
 class dealer:
     def __init__(self):
-        self.N_DECKS = 1#6  # TODO: change again
+        self.N_DECKS = 6
         self.PENETRATION = 0.8
         self.VALUES = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
                        '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
@@ -66,13 +66,19 @@ class dealer:
                 agent.reset_counting()  # we also reset counting (in case of the counting agent)
 
     # Draws a single card from `self.deck`.
-    def draw(self):
+    def draw(self, agent):
+        # check if deck needs to be reshuffled for next round   # TODO: legal?
+        self.check_deck(agent)
+
         return self.deck.pop()
 
     # Draws two cards from `self.deck`. Note that this function is used in the beginning of the game where both the
     # player and the dealer draw two cards.
-    def draw_hand(self):
-        return [self.draw(), self.draw()]
+    def draw_hand(self, agent):
+        # check if deck needs to be reshuffled for next round   # TODO: legal?
+        self.check_deck(agent)
+
+        return [self.draw(agent), self.draw(agent)]
 
     # Returns True if the value of `hand` is more than 21.
     def busted(self, hand):
@@ -112,8 +118,8 @@ class dealer:
         self.check_deck(agent)
 
         # The initial hand is draw for both the dealer and the agent.
-        agent_hand = self.draw_hand()
-        dealer_hand = self.draw_hand()
+        agent_hand = self.draw_hand(agent)
+        dealer_hand = self.draw_hand(agent)
 
         # `episode['hands']` and `episode['dealer']` are updated to include the first two cards of both the agent and
         # the dealer.
@@ -179,11 +185,11 @@ class dealer:
             # (2) `episode['hands']` gets updated; and
             # (3) we check if the agent is busted.
             if action == 'h':
-                agent_hand.append(self.deck.pop())  # draw card
+                agent_hand.append(self.draw(agent))  # draw card
                 episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand)  # check if busted
 
-            if isinstance(agent, sarsa_agent) and (action == 'h'): # SARSA is online method => we constantly learn! 
+            if isinstance(agent, sarsa_agent) and (action == 'h'):  # SARSA is online method => we constantly learn!
                 agent.learn(episode) 
 
         # If the `agent` is busted then round should end (there is not reason for the `dealer` ot play).
@@ -203,7 +209,7 @@ class dealer:
         # (2) the value of `dealer_hand` is 17 and it is not soft.
         # This policy will be called S17 policy.
         while (self.evaluate(dealer_hand) < 17) or ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):
-            dealer_hand.append(self.deck.pop())
+            dealer_hand.append(self.draw(agent))
             episode['dealer'].append(dealer_hand.copy())
         # Note that following the previous S17 policy. The dealer may be busted. In that case we know that the `agent`
         # won this round.

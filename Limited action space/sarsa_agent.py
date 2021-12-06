@@ -110,3 +110,6 @@ class sarsa_agent(agent):
             
         elif action == 's': # if the action was state the we update corresponding Q(State, S) function
             self.S[current_state_index] += self.alpha * (reward + self.gamma * self.S[next_state_index] - self.S[current_state_index])
+
+    def get_Q(self):
+        return self.H, self.S
