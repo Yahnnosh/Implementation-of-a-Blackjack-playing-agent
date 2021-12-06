@@ -83,3 +83,6 @@ class QAgent(agent):
             # uncomment if we want alpha decay self.alpha = (1/ (1/alpha + 1))
             # example if the current alpha is 1/2 then the new alpha becomes 1/3
             #self.alpha = self.alpha/(1 + self.alpha)
+
+    def get_Q(self):
+        return self.H

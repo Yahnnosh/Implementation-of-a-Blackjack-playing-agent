@@ -45,7 +45,7 @@ def show(reward, agent_hand, dealer_hand):
 
 class dealer:
     def __init__(self):
-        self.N_DECKS = 6
+        self.N_DECKS = 1#6  # TODO: change again
         self.PENETRATION = 0.8
         self.VALUES = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
                        '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
@@ -239,12 +239,15 @@ class dealer:
             agent.learn(episode)
         return episode
 
-    def card_counter(self):  # TODO: need?
+    def card_counter(self):
         """
-        Returns the probability for the next card for all card values
-        :return: [P(2), P(3), P(4), P(5), P(6), P(7), P(8), P(9), P(1)', P(J), P(Q), P(K), P(A)]
+        Returns the number of cards still left in the deck
+        :return: [n_2, n_3, n_4, n_5, n_6, n_7, n_8, n_9, n_10', n_J, n_Q, n_K, n_A]
         """
-        return [self.deck.count(value) / len(self.deck) for value in
+        # check if deck needs to be reshuffled for next round
+        self.check_deck(None)
+
+        return [self.deck.count(value) for value in
                 ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']]
 
 
@@ -252,20 +255,12 @@ if __name__ == '__main__':
     print('Welcome to Blackjack!\n')
 
     # Policy selection
-    # agent = human_agent() # interactive agent
-    # agent = random_agent() # random agent
-    # agent = table_agent() # fixed-policy (table) agent
-    # agent = count_agent() # counting cards (Hi_Lo) agent
-    agent = value_iteration()
+    agent = human_agent()  # interactive agent
 
     # Play Blackjack
     casino = dealer()
     while True:
-        # static betting
         casino.play_round(agent)
-        # dynamic betting
-        '''bet = agent.bet
-        casino.play_round(agent, bet)'''
 
         if input('Play again? [y][n]') == 'n':
             break
