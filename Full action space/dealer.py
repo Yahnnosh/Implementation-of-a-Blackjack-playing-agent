@@ -133,6 +133,11 @@ class dealer:
     def blackjack(self, hand):
         return (len(hand) == 2) and (self.evaluate(hand) == 21) 
 
+    # Return True if cards can be splitted 
+    def split(self, hand): 
+    	hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten 
+    	return hand[0] == hand[1]
+
     # Evaluates and returns the value of `hand`. If an ace is in `hand` then we check if that ace could be used as an
     # 11 and return the sum of the values of the cards + 10.
     def evaluate(self, hand):
@@ -188,6 +193,7 @@ class dealer:
 
         # splitting: most challenging thing 
 
+
         # doubling-down: if the agent does not win automatically, he may double down 
         if (not self.blackjack(agent_hand)): 
         	if agent.doubling(state): # TODO: implement this method for the agent class 
@@ -204,23 +210,23 @@ class dealer:
         			agent_hand.append(self.draw(agent)) # the agent must hit and stand if doubling down 
         			agent_busted = self.busted(agent_hand) # check if the agent is busted or not 
         			
-        			if agent_busted: 
-			            reward += -bet
-			            episode['reward'] = reward
-						agent.learn(episode)
-			            return episode
+        			if agent_busted:
+        				reward += -bet
+        				episode['reward'] = reward
+        				agent.learn(episode)
+        				return episode 
 			
         			# next the dealer takes his cards 
         			while (self.evaluate(dealer_hand) < 17) or ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):
-            			dealer_hand.append(self.draw(agent))
-            			episode['dealer'].append(dealer_hand.copy())
+        				dealer_hand.append(self.draw(agent))
+        				episode['dealer'].append(dealer_hand.copy())
 
-        			# check if the dealer is busted 
-            		if self.busted(dealer_hand):
-			            reward += bet
-			            episode['reward'] = reward
-			 		    agent.learn(episode)
-			            return episode
+        			# check is the dealer is busted 
+        			if self.busted(dealer_hand):
+        				reward += bet
+        				episode['reward'] = reward
+        				agent.learn(episode)
+        				return episode 
 
 			        # compare values of hands of agent and dealer  
 			        if self.evaluate(agent_hand) > self.evaluate(dealer_hand):
@@ -235,7 +241,7 @@ class dealer:
 			        episode['reward'] = reward
 			        agent.learn(episode)
 			        return episode
-
+					
 
 
         # Check for blackjacks using the following rules:
@@ -373,13 +379,14 @@ if __name__ == '__main__':
     print('Welcome to Blackjack!\n')
 
     # Policy selection
-    agent = human_agent()  # interactive agent
+    #agent = human_agent()  # interactive agent
 
     # Play Blackjack
     casino = dealer()
-    while True:
-        casino.play_round(agent)
 
-        if input('Play again? [y][n]') == 'n':
-            break
+    #while True:
+     #   casino.play_round(agent)
+
+      #  if input('Play again? [y][n]') == 'n':
+       #     break
 
