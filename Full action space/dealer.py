@@ -52,6 +52,7 @@ TODO:
 !Important:
 1) Now the agent observes only the total reward at the end of the episode. 
 I think it would be more accurate if the agent observes the reward from the insurance separately.  
+2) Implement splitting with full rules! 
 
 Not important:
 1) think of more readable code for "episode['reward'] = reward; agent.learn(episode); return episode" 
