@@ -153,7 +153,7 @@ class dealer:
     def soft(self, hand):
         return self.evaluate(hand) - sum([self.VALUES[card] for card in hand]) == 10
 
-    def play_round(self, agent, bet=1, learning=True):
+    def play_round(self, agent, bet=1, learning=True, splitting=False):
         """
         Plays one round of Blackjack
         :param agent: deterministic agent - needs to implement policy(state)
@@ -167,8 +167,10 @@ class dealer:
         self.check_deck(agent)
 
         # The initial hand is draw for both the dealer and the agent.
-        agent_hand = self.draw_hand(agent)
-        dealer_hand = self.draw_hand(agent)
+        # If this round is played with the hands that are formed after the splitting then we don't draw the cards here 
+        # and just take the stored hands
+        agent_hand = self.draw_hand(agent) if (splitting == False) else splitting[0] 
+        dealer_hand = self.draw_hand(agent) if (splitting == False) else splitting[1]
 
         # `episode['hands']` and `episode['dealer']` are updated to include the first two cards of both the agent and
         # the dealer.
@@ -192,7 +194,21 @@ class dealer:
 
 
         # splitting: most challenging thing 
-
+        if (split(agent_hand)) and (splitting == False): # only single splitting is allowed 
+        	if agent.split(state): # TODO: Implement this method for the agent class 
+        		# construct two hands and play them sequentially 
+        		episode['actions'].append('splitting')
+        		agent.learn(episode)
+        		hand1 = [[agent_hand[0], self.draw(agent)], dealer_hand] 
+        		hand2 = [[agent_hand[1], self.draw(agent)], dealer_hand] 
+        		
+        		episode1 = self.play_round(agent, bet=bet, splitting=hand1)
+        		episode2 = self.play_round(agent, bet=bet, splitting=hand2)
+        		
+        		episode['reward'] = episode1['reward'] + episode2['reward'] # reward of the splitting episode is just a sum of the 
+        																	# rewards of "daughter" hands 
+        		agent.learn(episode)
+        		return episode
 
         # doubling-down: if the agent does not win automatically, he may double down 
         if (not self.blackjack(agent_hand)): 
