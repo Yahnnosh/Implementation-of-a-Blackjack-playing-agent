@@ -108,8 +108,8 @@ class dealer:
             self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
             self.shuffle()
 
-            if isinstance(agent, count_agent):
-                agent.reset_counting()  # we also reset counting (in case of the counting agent)
+            #if isinstance(agent, count_agent):
+             #   agent.reset_counting()  # we also reset counting (in case of the counting agent)
 
     # Draws a single card from `self.deck`.
     def draw(self, agent):
@@ -164,6 +164,7 @@ class dealer:
         """
         # Save episode (for agent learning)
         episode = {'hands': [], 'dealer': [], 'actions': [], 'reward': []}  # dealer always shows first card
+        allowed_actions = [] # this list contains allowed actions
 
         # Checks if more than a (1-`self.PENETRATION`) fraction of `self.deck` has been used, in that case we reshuffle.
         self.check_deck(agent)
@@ -191,7 +192,7 @@ class dealer:
             if self.split(agent_hand) and (splitting == False): # if agent can split and if this is the first split 
                 allowed_actions.append('split') # then he is allowed to split 
 
-        action = agent.policy(state, allowed_actions) # agent takes first action 
+        action = agent.policy(state, allowed_actions) # agent's first action 
         episode['actions'].append(action)
 
         if action == 'insurance': # if agent decided to buy the insurance 
@@ -287,13 +288,13 @@ class dealer:
 
             # If the `agent` is a `count_agent` then the agent should update its dynamic betting policy.
             # TODO: This should be added as a function when the agent receives the episode
-            if isinstance(agent, count_agent):
-                agent.dynamic_bet([agent_hand, dealer_hand])
+            #if isinstance(agent, count_agent):
+             #   agent.dynamic_bet([agent_hand, dealer_hand])
 
             # (Optional) only for visualization. If the `agent` is a `human_agent` then the details of the current round
             # are visualized.
-            if isinstance(agent, human_agent):
-                show(reward, agent_hand, dealer_hand)
+            #if isinstance(agent, human_agent):
+             #   show(reward, agent_hand, dealer_hand)
 
             return episode
 
@@ -342,10 +343,10 @@ class dealer:
         # If the `agent` is busted then round should end (there is not reason for the `dealer` to play).
         if agent_busted:
             reward += -bet
-            if isinstance(agent, human_agent):
-                show(reward, agent_hand, dealer_hand)
-            if isinstance(agent, count_agent):
-                agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
+            #if isinstance(agent, human_agent):
+             #   show(reward, agent_hand, dealer_hand)
+            #if isinstance(agent, count_agent):
+             #   agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
             if learning:
                 agent.learn(episode)
@@ -362,10 +363,10 @@ class dealer:
         # won this round.
         if self.busted(dealer_hand):
             reward += bet
-            if isinstance(agent, human_agent):
-                show(reward, agent_hand, dealer_hand)
-            if isinstance(agent, count_agent):
-                agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
+            #if isinstance(agent, human_agent):
+             #   show(reward, agent_hand, dealer_hand)
+            #if isinstance(agent, count_agent):
+             #   agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
             episode['reward'] = reward
             if learning:
                 agent.learn(episode)
@@ -383,10 +384,10 @@ class dealer:
         elif self.evaluate(agent_hand) == self.evaluate(dealer_hand):
             reward += 0
 
-        if isinstance(agent, human_agent):
-            show(reward, agent_hand, dealer_hand)
-        if isinstance(agent, count_agent):
-            agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
+       # if isinstance(agent, human_agent):
+        #    show(reward, agent_hand, dealer_hand)
+        #if isinstance(agent, count_agent):
+         #   agent.dynamic_bet([agent_hand, dealer_hand])  # perform counting at the end of the round
         episode['reward'] = reward
         if learning:
             agent.learn(episode)

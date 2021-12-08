@@ -6,7 +6,6 @@ from abc import abstractmethod, ABCMeta
 
 class agent(metaclass=ABCMeta):
     @abstractmethod
-    # TODO: depending on environment implementation need to change this (env controls legal action or agent?)
     def policy(self, hand, allowed_actions):
         """
         Deterministic policy π(s) = a
