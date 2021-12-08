@@ -27,13 +27,13 @@ then a player has an option to treat them as the initial cards in two separate h
 he receives automatically a second card on each of the split cards. Then he has to place 
 additional bet with the amount equail to the initial bet. He then plays his twin hands,
 one at a time, as though they were ordinary hand with the following exceptions:
-- in case of split aces, player receive only one card on each ace
-- if a ten valued card falls on one of the split Aces, the hand is counted as ordinary 21 (not blackjack!)
-- similarly, if he splits tens and he is given an ace, this counts as ordinary 21 
+- in case of split aces, player receive only one card on each ace (we ignore this rule for now)
+- if a ten valued card falls on one of the split Aces, the hand is counted as ordinary 21 (we ignore this rule for now)
+- similarly, if he splits tens and he is given an ace, this counts as ordinary 21 (we ignore this rule for now)
 - the player is not allowed to split again (in book, this is different! but one split is much easier to model)
 2) doubling down:
 - player can double his bet but then he is required to hit and stand 
-- double down is allowed after splitting but not allowed if splitted cards are Aces 
+- double down is allowed after splitting but not allowed if splitted cards are Aces (we ignore this rule for now)
 3) insurance:
 - player is allowed to place additional bet before the draw if the dealer's card is Ace
 - the amount of this additional bet can be any but not higher than the half of the original bet   
@@ -53,6 +53,7 @@ TODO:
 1) Now the agent observes only the total reward at the end of the episode. 
 I think it would be more accurate if the agent observes the reward from the insurance separately.  
 2) Implement splitting with full rules! 
+3) add "learning"
 
 Not important:
 1) think of more readable code for "episode['reward'] = reward; agent.learn(episode); return episode" 
@@ -167,7 +168,7 @@ class dealer:
         # Checks if more than a (1-`self.PENETRATION`) fraction of `self.deck` has been used, in that case we reshuffle.
         self.check_deck(agent)
 
-        # The initial hand is draw for both the dealer and the agent.
+        # The initial hand is drawn for both the dealer and the agent.
         # If this round is played with the hands that are formed after the splitting then we don't draw the cards here 
         # and just take the stored hands
         agent_hand = self.draw_hand(agent) if (splitting == False) else splitting[0] 
@@ -180,86 +181,89 @@ class dealer:
 
         state = [agent_hand, dealer_hand[0]] # the state the agent observes initially 
         reward = 0 # we need initialization for increments 
+        
+        if (not self.blackjack(agent_hand)): # if the agent does not win automatically
+            allowed_actions = ['hit','stand','double'] 
+            if (dealer_hand[0] == 'A') and (splitting == False): # agent is not allowed to buy insurance after splitting
+                # If the dealer's card is Ace and the player doesn't have a blackjack, the player has an option to place
+                # additional bet agaist that the dealer has a blackjack (this side bet is assumed to be half of the initial bet)
+                allowed_actions.append('insurance') # agent has an option to place side bet 
+            if self.split(agent_hand) and (splitting == False): # if agent can split and if this is the first split 
+                allowed_actions.append('split') # then he is allowed to split 
 
-        # If the dealer's card is Ace and the player doesn't have a blackjack, the player has an option to place
-        # additional bet agaist that the dealer has a blackjack (this side bet is assumed to be half of the initial bet)
-        if (dealer_hand[0] == 'A') and (not self.blackjack(agent_hand)):
-        	if agent.insurance(state): # TODO: implement this method for the agent class 
-        		if self.blackjack(dealer_hand):
-        			reward = 0 # So, if a dealer hits Blackjack then reward = 0 
-        			episode['reward'] = reward
-        			agent.learn(episode)
-        			return episode
-        		else: 
-        			reward = -bet/2 # agent loses the side bet but the game continues 
+        action = agent.policy(state, allowed_actions) # agent takes first action 
+        episode['actions'].append(action)
 
-
-        # splitting: most challenging thing 
-        if (split(agent_hand)) and (splitting == False): # only single splitting is allowed 
-        	if agent.split(state): # TODO: Implement this method for the agent class 
-        		# construct two hands and play them sequentially 
-        		episode['actions'].append('splitting')
-        		agent.learn(episode)
-        		hand1 = [[agent_hand[0], self.draw(agent)], dealer_hand] 
-        		hand2 = [[agent_hand[1], self.draw(agent)], dealer_hand] 
+        if action == 'insurance': # if agent decided to buy the insurance 
+            allowed_actions.remove('insurance') # he is not able to buy the insurance again in this round 
+            if self.blackjack(dealer_hand):
+                reward = 0 # So, if a dealer hits Blackjack then reward = 0 
+                episode['reward'] = reward
+                agent.learn(episode)
+                return episode
+            else: 
+                reward = -bet/2 # agent loses the side bet but the game continues 
+                action = agent.policy(state, allowed_actions) # agent takes second action
+                episode['actions'].append(action)
+     
+        if (action == 'split'): 
+            # construct two hands and play them sequentially 
+            hand1 = [[agent_hand[0], self.draw(agent)], dealer_hand] 
+            hand2 = [[agent_hand[1], self.draw(agent)], dealer_hand] 
         		
-        		episode1 = self.play_round(agent, bet=bet, splitting=hand1)
-        		episode2 = self.play_round(agent, bet=bet, splitting=hand2)
-        		
-        		episode['reward'] = episode1['reward'] + episode2['reward'] # reward of the splitting episode is just a sum of the 
-        																	# rewards of "daughter" hands 
-        		agent.learn(episode)
-        		return episode
+            episode1 = self.play_round(agent, bet=bet, splitting=hand1)
+            episode2 = self.play_round(agent, bet=bet, splitting=hand2)
 
-        # doubling-down: if the agent does not win automatically, he may double down 
-        if (not self.blackjack(agent_hand)): 
-        	if agent.doubling(state): # TODO: implement this method for the agent class 
-        		bet = 2*bet # the agent doubles his bet 
-        		if self.blackjack(dealer_hand): # if the dealer has a natural, the agent loses everything
-        			reward += -bet
-        			episode['reward'] = reward
-        			agent.learn(episode)
-        			return episode
-        		else: 
-        			# we just play usual game after doubling down with the only exception 
-        			# that we hit only one time
+            # reward of the splitting episode is just a sum of the rewards of "daughter" hands 
+            reward += episode1['reward'] + episode2['reward']
+            episode['reward'] = reward 
+            agent.learn(episode)
+            return episode
 
-        			agent_hand.append(self.draw(agent)) # the agent must hit and stand if doubling down 
-        			agent_busted = self.busted(agent_hand) # check if the agent is busted or not 
+        if (action == 'double'):     
+            bet = 2*bet # the agent doubles his bet 
+            if self.blackjack(dealer_hand): # if the dealer has a natural, the agent loses everything
+                reward += -bet
+                episode['reward'] = reward
+                agent.learn(episode)
+                return episode
+            else: 
+                # we just play usual game after doubling down with the only exception 
+                # that we hit only one time
+
+                agent_hand.append(self.draw(agent)) # the agent must hit and stand if doubling down 
+                agent_busted = self.busted(agent_hand) # check if the agent is busted or not 
         			
-        			if agent_busted:
-        				reward += -bet
-        				episode['reward'] = reward
-        				agent.learn(episode)
-        				return episode 
+                if agent_busted:
+                    reward += -bet
+                    episode['reward'] = reward
+                    agent.learn(episode)
+                    return episode 
 			
-        			# next the dealer takes his cards 
-        			while (self.evaluate(dealer_hand) < 17) or ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):
-        				dealer_hand.append(self.draw(agent))
-        				episode['dealer'].append(dealer_hand.copy())
+                # next the dealer takes his cards 
+                while (self.evaluate(dealer_hand) < 17) or ((self.evaluate(dealer_hand) == 17) and (self.soft(dealer_hand))):
+                    dealer_hand.append(self.draw(agent))
+                    episode['dealer'].append(dealer_hand.copy())
 
-        			# check is the dealer is busted 
-        			if self.busted(dealer_hand):
-        				reward += bet
-        				episode['reward'] = reward
-        				agent.learn(episode)
-        				return episode 
+                # check is the dealer is busted 
+                if self.busted(dealer_hand):
+                    reward += bet
+                    episode['reward'] = reward
+                    agent.learn(episode)
+                    return episode 
 
-			        # compare values of hands of agent and dealer  
-			        if self.evaluate(agent_hand) > self.evaluate(dealer_hand):
-			            reward += bet
-			        # If the `agent` lost.
-			        elif self.evaluate(agent_hand) < self.evaluate(dealer_hand):
-			            reward += -bet
-			        # if the game ended as a draw.
-			        elif self.evaluate(agent_hand) == self.evaluate(dealer_hand):
-			            reward += 0
-
-			        episode['reward'] = reward
-			        agent.learn(episode)
-			        return episode
-					
-
+                # compare values of hands of agent and dealer  
+                if self.evaluate(agent_hand) > self.evaluate(dealer_hand):
+                    reward += bet
+                # If the `agent` lost.
+                elif self.evaluate(agent_hand) < self.evaluate(dealer_hand):
+                    reward += -bet
+                # if the game ended as a draw.
+                elif self.evaluate(agent_hand) == self.evaluate(dealer_hand):
+                    reward += 0
+                episode['reward'] = reward
+                agent.learn(episode)
+                return episode
 
         # Check for blackjacks using the following rules:
         # (1) If both the `dealer_hand` and the `agent_hand` are blackjacks then the reward of the agent is 0.
@@ -293,41 +297,49 @@ class dealer:
 
             return episode
 
-        # The initial `dealer_hand` and `agent_hand` where not blackjacks. The `agent` proceeds playing.
+        # The initial `dealer_hand` and `agent_hand` were not blackjacks. The `agent` proceeds playing.
 
         # The `agent` plays until either `agent_busted` is True or it decides to stand, which happens iff `action` is
         # set to `s`.
+        
         agent_busted = False
-        action = 'h'
-        while (not agent_busted) and (not action == 's'):
+        action = 'hit'
+        allowed_actions = ['hit','stand'] # only two actions are allowed now   
+        
+        while (not agent_busted) and (not action == 'stand'):
             # Initialization of the `state` which will be used by the `agent` to decide and update its policies. Note
             # that the agent does not know both the cards of the `dealer` but he has access to only one of them.
             state = [agent_hand, dealer_hand[0]]
 
-            # TODO: Add comments for what happens if `agent` is a `model_based_agent`.
-            if isinstance(agent, model_based_agent):
-                cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-                concealed_deck = [self.deck.count(value) for value in cards]
-                concealed_deck[cards.index(dealer_hand[1])] += 1  # add dealer face down card back in
-                action = agent.policy(state, concealed_deck)
-            else:
-                # The `agent` decides which `action` to take based in its current `state`.
-                action = agent.policy(state)
-            # Update `episode['actions']` to include the last action that the player decided to take.
+            action = agent.policy(state, allowed_actions) # agent hits or stands 
             episode['actions'].append(action)
+
+            # TODO: Add comments for what happens if `agent` is a `model_based_agent`.
+            #if isinstance(agent, model_based_agent):
+            #    cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+            #    concealed_deck = [self.deck.count(value) for value in cards]
+            #    concealed_deck[cards.index(dealer_hand[1])] += 1  # add dealer face down card back in
+             #   action = agent.policy(state, concealed_deck)
+            #else:
+                # The `agent` decides which `action` to take based in its current `state`.
+            #    action = agent.policy(state)
+
+
+            # Update `episode['actions']` to include the last action that the player decided to take.
+            #episode['actions'].append(action)
             # If the `action` is 'h' then:
             # (1) the `agent` draws a card from the `self.deck`;
             # (2) `episode['hands']` gets updated; and
             # (3) we check if the agent is busted.
-            if action == 'h':
+            if action == 'hit':
                 agent_hand.append(self.draw(agent))  # draw card
                 episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand)  # check if busted
 
-            if isinstance(agent, sarsa_agent) and (action == 'h'):  # SARSA is online method => we constantly learn!
-                agent.learn(episode) 
+            #if isinstance(agent, sarsa_agent) and (action == 'h'):  # SARSA is online method => we constantly learn!
+               # agent.learn(episode) 
 
-        # If the `agent` is busted then round should end (there is not reason for the `dealer` ot play).
+        # If the `agent` is busted then round should end (there is not reason for the `dealer` to play).
         if agent_busted:
             reward += -bet
             if isinstance(agent, human_agent):
