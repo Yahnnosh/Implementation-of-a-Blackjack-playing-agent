@@ -29,8 +29,8 @@ class QAgent(agent):
         # Here, we implement offline regime, meaning that the policy updates only at the end of an episode. 
         # What would happen in the online regime? 
 
-        if np.random.rand() < self.epsilon:
-            return random.choice(['h', 's'])
+       # if np.random.rand() < self.epsilon:
+        #    return random.choice(['h', 's'])
         state_index = self.state_approx(hand) # we return the current state index
         if self.H[state_index] > self.S[state_index]: # if Q(State, H) > Q(State, S) then we hit 
             return 'h'
