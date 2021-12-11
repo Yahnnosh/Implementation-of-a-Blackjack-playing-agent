@@ -3,9 +3,9 @@ Model-based dynamic betting policy
 (creates new MDP before each round of Blackjack)
 ------------------------------------------------
 WARNING:
-- requires value function or q function of the applied static betting policy
-- use pretrained static betting policy as inaccurate value functions results
-in bad bets
+- requires value function or Q function of the applied static betting policy
+- performance of this agent is highly dependent on the accuracy of the Q or
+value function of the static betting policy
 ----------------------------------------------------------------------------
 FOR NOW ONLY WORKS WITH Q-LEARNING (limited action space)!
 """
@@ -22,7 +22,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         Deterministic model-based dynamic betting stratey π(s) = a
         where s = deck before round, a = betting amount
         (performance depends on accuracy of V(s) or Q(s,a) of static betting policy)
-        :param static_betting_policy: augmented pretrained (highly recommended!) static betting policy
+        :param static_betting_policy: augmented static betting policy
         :param min_bet: minimum betting amount
         :param max_bet: maximum betting amount
         :param increment: allowed bet increments
@@ -38,7 +38,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         self.strategy = strategy
 
         # static betting policy params
-        self.V = self.get_V()
+        self.V = None   # requires reset after static policy is trained
 
     def reset(self):
         """

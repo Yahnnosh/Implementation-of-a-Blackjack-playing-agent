@@ -155,13 +155,13 @@ if __name__ == '__main__':
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
                                                                 increment=increment,
-                                                                strategy='proportional')),
+                                                                strategy='risky')),
         (static_policies[1], None),
         (static_policies[1], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
                                                                 increment=increment,
-                                                                strategy='proportional')),
+                                                                strategy='risky')),
     ]
 
     # Select rounds
