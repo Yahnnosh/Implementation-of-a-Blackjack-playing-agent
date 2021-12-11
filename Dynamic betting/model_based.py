@@ -154,4 +154,13 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                         Q_hit[self.state_approx([[card1, card2], dealer_card])],
                         Q_stand[self.state_approx([[card1, card2], dealer_card])])
 
+        # TODO: needs adaptation for full action space
+        # normalize into -1 < V(s) < +1
+        V_min = min(V.values())
+        V_max = max(V.values())
+
+        normalize = lambda x: -1 + (x - V_min) / (V_max - V_min) * 2
+        for hand in V:
+            V[hand] = normalize(V[hand])
+
         return V

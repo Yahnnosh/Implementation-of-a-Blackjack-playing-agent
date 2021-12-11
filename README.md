@@ -27,6 +27,7 @@ Contains:
 **Additional functions**:
 - **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate, emp. long term profitability and emp. loss per round (mean, std)
 - **get_table_from_agent.py**: plots the tables for all card pairs (hard, soft) for a specific (model-based) policy
+- **plot_training_phase.py**: plots training phase for RL agents
 
 
 ## Full action space
