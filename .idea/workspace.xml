@@ -10,7 +10,7 @@
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamic betting/model_based.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/model_based.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamic betting/hilo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/hilo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,27 +78,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="evaluate_performance" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Implementation of a Blackjack playing agent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/evaluate_performance.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="get_table_from_agent" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -112,6 +91,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/get_table_from_agent.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="hilo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Implementation of a Blackjack playing agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Dynamic betting" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamic betting/hilo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -185,19 +185,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.simulate" />
-      <item itemvalue="Python.evaluate_performance" />
       <item itemvalue="Python.evaluate_performance (1)" />
       <item itemvalue="Python.get_table_from_agent" />
       <item itemvalue="Python.model_based" />
       <item itemvalue="Python.plot_training_phase" />
+      <item itemvalue="Python.hilo" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.evaluate_performance (1)" />
+        <item itemvalue="Python.hilo" />
         <item itemvalue="Python.plot_training_phase" />
         <item itemvalue="Python.model_based" />
         <item itemvalue="Python.get_table_from_agent" />
-        <item itemvalue="Python.evaluate_performance" />
       </list>
     </recent_temporary>
   </component>
@@ -233,10 +233,10 @@
       <screen x="0" y="0" width="1368" height="864" />
     </state>
     <state x="140" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1368.864@0.0.1368.864" timestamp="1639233070290" />
-    <state x="478" y="272" key="#xdebugger.evaluate" timestamp="1639148731107">
+    <state x="478" y="272" key="#xdebugger.evaluate" timestamp="1639239502406">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state x="478" y="272" key="#xdebugger.evaluate/0.0.1368.864@0.0.1368.864" timestamp="1639148731107" />
+    <state x="478" y="272" key="#xdebugger.evaluate/0.0.1368.864@0.0.1368.864" timestamp="1639239502406" />
     <state x="432" y="288" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1639222448231">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
@@ -245,38 +245,38 @@
       <screen x="0" y="0" width="1368" height="864" />
     </state>
     <state x="465" y="187" key="FileChooserDialogImpl/0.0.1368.864@0.0.1368.864" timestamp="1638548578434" />
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom" timestamp="1639234354786">
+    <state width="1348" height="278" key="GridCell.Tab.0.bottom" timestamp="1639239508671">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639234354786" />
-    <state width="1348" height="224" key="GridCell.Tab.0.center" timestamp="1639234354786">
+    <state width="1348" height="278" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
+    <state width="1348" height="278" key="GridCell.Tab.0.center" timestamp="1639239508671">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639234354786" />
-    <state width="1348" height="224" key="GridCell.Tab.0.left" timestamp="1639234354786">
+    <state width="1348" height="278" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
+    <state width="1348" height="278" key="GridCell.Tab.0.left" timestamp="1639239508671">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639234354786" />
-    <state width="1348" height="224" key="GridCell.Tab.0.right" timestamp="1639234354786">
+    <state width="1348" height="278" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
+    <state width="1348" height="278" key="GridCell.Tab.0.right" timestamp="1639239508671">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639234354786" />
-    <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639222415880">
+    <state width="1348" height="278" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
+    <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639239439015">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639222415880" />
-    <state width="1348" height="278" key="GridCell.Tab.1.center" timestamp="1639222415879">
+    <state width="1348" height="278" key="GridCell.Tab.1.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
+    <state width="1348" height="278" key="GridCell.Tab.1.center" timestamp="1639239439015">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.center/0.0.1368.864@0.0.1368.864" timestamp="1639222415879" />
-    <state width="1348" height="278" key="GridCell.Tab.1.left" timestamp="1639222415879">
+    <state width="1348" height="278" key="GridCell.Tab.1.center/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
+    <state width="1348" height="278" key="GridCell.Tab.1.left" timestamp="1639239439015">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.left/0.0.1368.864@0.0.1368.864" timestamp="1639222415879" />
-    <state width="1348" height="278" key="GridCell.Tab.1.right" timestamp="1639222415879">
+    <state width="1348" height="278" key="GridCell.Tab.1.left/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
+    <state width="1348" height="278" key="GridCell.Tab.1.right" timestamp="1639239439015">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.right/0.0.1368.864@0.0.1368.864" timestamp="1639222415879" />
+    <state width="1348" height="278" key="GridCell.Tab.1.right/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
     <state x="305" y="57" key="SettingsEditor" timestamp="1638367479097">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
@@ -293,6 +293,21 @@
           <url>file://$PROJECT_DIR$/Limited action space/fast_value_iteration.py</url>
           <line>138</line>
           <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
+          <line>226</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
+          <line>215</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
+          <line>233</line>
+          <option name="timeStamp" value="24" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

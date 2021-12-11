@@ -5,7 +5,7 @@ Dynamic betting agent acting under the HiLO strategy
 from dynamic_betting_agent import Dynamic_betting_agent
 import numpy as np
 
-class HiLO(Dynamic_betting_agent):
+class HiLo(Dynamic_betting_agent):
     def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1, hilo_increment=1):
         """
         Deterministic model-based dynamic betting stratey π(s) = a
@@ -20,7 +20,7 @@ class HiLO(Dynamic_betting_agent):
         super().__init__(static_betting_policy)
 
         # legality
-        assert min_bet > 0 and max_bet > 0 and increment > 0 and hilo_increment > 0
+        assert min_bet > 0 and max_bet > 0 and increment > 0
 
         # dynamic betting policy params
         self.allowed_bets = [bet for bet in range(min_bet, max_bet, increment)]
@@ -55,8 +55,9 @@ class HiLO(Dynamic_betting_agent):
         deck_before_round = np.array(self.last_deck)
         deck_after_round = np.array(deck)
         played_cards = deck_before_round - deck_after_round
+        self.last_deck = deck
 
-        # check for reshuffle
+        # check for reshuffles
         if np.sum(deck_after_round) > np.sum(deck_before_round):
             self.reset()
             return
@@ -72,10 +73,15 @@ class HiLO(Dynamic_betting_agent):
         :param deck: deck before next round, deck = [n_2, n_3, ..., n_K, n_A]
         :return: optimal bet under the static betting policy
         """
+        self.update(deck)
+
         min_bet = self.allowed_bets[0]
         max_bet = self.allowed_bets[-1]
 
-        recommended_bet = self.true_count * self.hilo_increment
+        if self.hilo_increment == 'infty':
+            recommended_bet = max_bet if self.true_count > 0 else min_bet
+        else:
+            recommended_bet = self.true_count * self.hilo_increment
 
         return min(max_bet, max(min_bet, recommended_bet))
 

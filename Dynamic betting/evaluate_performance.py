@@ -26,6 +26,7 @@ from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from model_based import Model_based_dynamic_betting_policy
+from hilo import HiLo
 
 from dealer import dealer
 
@@ -143,13 +144,17 @@ if __name__ == '__main__':
 
     # Select policies
     # 1) static betting policies
-    static_policies = [
+    '''static_policies = [
         QAgent(alpha=0.01),
         double_QAgent()
+    ]'''
+    static_policies = [
+        QAgent(alpha=0.01),
+        table_agent()
     ]
 
     # 2) full policy (static, dynamic)
-    full_policies = [
+    '''full_policies = [
         (static_policies[0], None),
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
@@ -162,6 +167,25 @@ if __name__ == '__main__':
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky')),
+    ]'''
+    full_policies = [
+        (static_policies[0], None),
+        (static_policies[0], HiLo(static_policies[0],
+                                  min_bet=min_bet,
+                                  max_bet=max_bet,
+                                  increment=increment,
+                                  hilo_increment='infty')),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky')),
+        (static_policies[1], None),
+        (static_policies[1], HiLo(static_policies[0],
+                                  min_bet=min_bet,
+                                  max_bet=max_bet,
+                                  increment=increment,
+                                  hilo_increment='infty'))
     ]
 
     # Select rounds
