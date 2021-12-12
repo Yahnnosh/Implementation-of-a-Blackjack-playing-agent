@@ -11,6 +11,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dynamic betting/hilo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/hilo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamic betting/model_based.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/model_based.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/Q_learning_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/Q_learning_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/double_q.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/double_q.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +60,7 @@
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.evaluate_performance (1)">
+  <component name="RunManager" selected="Python.plot_training_phase">
     <configuration name="evaluate_performance (1)" type="PythonConfigurationType" factoryName="Python" singleton="true" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -193,10 +197,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.evaluate_performance (1)" />
-        <item itemvalue="Python.hilo" />
         <item itemvalue="Python.plot_training_phase" />
+        <item itemvalue="Python.evaluate_performance (1)" />
         <item itemvalue="Python.model_based" />
+        <item itemvalue="Python.hilo" />
         <item itemvalue="Python.get_table_from_agent" />
       </list>
     </recent_temporary>
@@ -245,38 +249,38 @@
       <screen x="0" y="0" width="1368" height="864" />
     </state>
     <state x="465" y="187" key="FileChooserDialogImpl/0.0.1368.864@0.0.1368.864" timestamp="1638548578434" />
-    <state width="1348" height="278" key="GridCell.Tab.0.bottom" timestamp="1639239508671">
+    <state width="1348" height="224" key="GridCell.Tab.0.bottom" timestamp="1639322335372">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
-    <state width="1348" height="278" key="GridCell.Tab.0.center" timestamp="1639239508671">
+    <state width="1348" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639322335372" />
+    <state width="1348" height="224" key="GridCell.Tab.0.center" timestamp="1639322335371">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
-    <state width="1348" height="278" key="GridCell.Tab.0.left" timestamp="1639239508671">
+    <state width="1348" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639322335371" />
+    <state width="1348" height="224" key="GridCell.Tab.0.left" timestamp="1639322335371">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
-    <state width="1348" height="278" key="GridCell.Tab.0.right" timestamp="1639239508671">
+    <state width="1348" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639322335371" />
+    <state width="1348" height="224" key="GridCell.Tab.0.right" timestamp="1639322335372">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639239508671" />
-    <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639239439015">
+    <state width="1348" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639322335372" />
+    <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
-    <state width="1348" height="278" key="GridCell.Tab.1.center" timestamp="1639239439015">
+    <state width="1348" height="278" key="GridCell.Tab.1.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639239666771" />
+    <state width="1348" height="278" key="GridCell.Tab.1.center" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.center/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
-    <state width="1348" height="278" key="GridCell.Tab.1.left" timestamp="1639239439015">
+    <state width="1348" height="278" key="GridCell.Tab.1.center/0.0.1368.864@0.0.1368.864" timestamp="1639239666771" />
+    <state width="1348" height="278" key="GridCell.Tab.1.left" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.left/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
-    <state width="1348" height="278" key="GridCell.Tab.1.right" timestamp="1639239439015">
+    <state width="1348" height="278" key="GridCell.Tab.1.left/0.0.1368.864@0.0.1368.864" timestamp="1639239666771" />
+    <state width="1348" height="278" key="GridCell.Tab.1.right" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="278" key="GridCell.Tab.1.right/0.0.1368.864@0.0.1368.864" timestamp="1639239439015" />
+    <state width="1348" height="278" key="GridCell.Tab.1.right/0.0.1368.864@0.0.1368.864" timestamp="1639239666771" />
     <state x="305" y="57" key="SettingsEditor" timestamp="1638367479097">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
@@ -293,21 +297,6 @@
           <url>file://$PROJECT_DIR$/Limited action space/fast_value_iteration.py</url>
           <line>138</line>
           <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
-          <line>226</line>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
-          <line>215</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Dynamic betting/evaluate_performance.py</url>
-          <line>233</line>
-          <option name="timeStamp" value="24" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -102,7 +102,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         max_bet = self.allowed_bets[-1]
 
         if self.strategy == 'risky':
-            recommended_bet = max_bet if (expected_return > 0) else min_bet
+            recommended_bet = max_bet if (expected_return > 0) else min_bet  # can adapt threshold
         elif self.strategy == 'proportional':
             recommended_bet = expected_return * max_bet
             # round to next allowed value (up or down)

@@ -18,8 +18,8 @@ class QAgent(agent):
         self.epsilon = 0.2 # GLIE policy parameter
         self.S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
         self.H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
-        self.H[0], self.H[1], self.H[2] = 10, -10, 0 # Q(State,H) when State is terminal (win/lose/draw); what would happen if we set them to zero?
-        self.S[0], self.S[1], self.S[2] = 10, -10, 0 # Q(State,S) when State is terminal (win/lose/draw); what would happen if we set them to zero?
+        self.H[0], self.H[1], self.H[2] = 1, -1, 0 # Q(State,H) when State is terminal (win/lose/draw); what would happen if we set them to zero?
+        self.S[0], self.S[1], self.S[2] = 1, -1, 0 # Q(State,S) when State is terminal (win/lose/draw); what would happen if we set them to zero?
         self.gamma = 1 # we have a single reward at the end => no need to discount anything 
         self.alpha = alpha # learning rate; TODO: 1) perform hyperparameter optimization; 2) see what happens if alpha decays in time ->
         # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy  

@@ -84,4 +84,3 @@ class HiLo(Dynamic_betting_agent):
             recommended_bet = self.true_count * self.hilo_increment
 
         return min(max_bet, max(min_bet, recommended_bet))
-

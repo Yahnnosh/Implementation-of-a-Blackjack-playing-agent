@@ -149,47 +149,29 @@ if __name__ == '__main__':
         double_QAgent()
     ]'''
     static_policies = [
-        QAgent(alpha=0.01),
-        table_agent()
+        QAgent(alpha=0.01)
     ]
 
     # 2) full policy (static, dynamic)
-    '''full_policies = [
+    full_policies = [
         (static_policies[0], None),
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky')),
-        (static_policies[1], None),
-        (static_policies[1], Model_based_dynamic_betting_policy(static_policies[0],
-                                                                min_bet=min_bet,
-                                                                max_bet=max_bet,
-                                                                increment=increment,
-                                                                strategy='risky')),
-    ]'''
-    full_policies = [
+    ]
+    '''full_policies = [
         (static_policies[0], None),
         (static_policies[0], HiLo(static_policies[0],
                                   min_bet=min_bet,
                                   max_bet=max_bet,
                                   increment=increment,
-                                  hilo_increment='infty')),
-        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
-                                                                min_bet=min_bet,
-                                                                max_bet=max_bet,
-                                                                increment=increment,
-                                                                strategy='risky')),
-        (static_policies[1], None),
-        (static_policies[1], HiLo(static_policies[0],
-                                  min_bet=min_bet,
-                                  max_bet=max_bet,
-                                  increment=increment,
-                                  hilo_increment='infty'))
-    ]
+                                  hilo_increment=1))
+    ]'''
 
     # Select rounds
-    training_rounds = 1000000
+    training_rounds = 100000
     testing_rounds = 10000
 
     # Training phase (static policies)

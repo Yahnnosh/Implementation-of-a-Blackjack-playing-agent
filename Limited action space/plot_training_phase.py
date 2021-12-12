@@ -34,7 +34,7 @@ def test(agent,  testing_rounds):
     Tests agent over 'training_rounds'
     :param agent: agent to test
     :param testing_rounds: total rounds for testing
-    :return: mean win rate over testing_rounds
+    :return: mean loss per round
     """
     # reset card counting agent
     if isinstance(policy, count_agent):
@@ -42,7 +42,8 @@ def test(agent,  testing_rounds):
 
     # params
     casino = dealer()
-    n_wins = 0
+    '''n_wins = 0'''
+    total_rewards = []
 
     # simulate
     for training_round in range(training_rounds):
@@ -51,13 +52,16 @@ def test(agent,  testing_rounds):
         reward = episode['reward']
 
         # update params
-        if reward > 0:
-            n_wins += 1
+        '''if reward > 0:
+            n_wins += 1'''
+
+        total_rewards.append(reward)
 
     # calculate performance params
-    mean_win_rate = round(n_wins / testing_rounds, 3)
+    '''mean_win_rate = round(n_wins / testing_rounds, 3)'''
+    mean_loss_per_round = round(sum(total_rewards) / testing_rounds, 3)
 
-    return mean_win_rate
+    return mean_loss_per_round
 
 
 def get_name(policy) -> str:
@@ -97,7 +101,7 @@ if __name__ == '__main__':
     print('Starting training')
     for policy in policies:
         casino = dealer()
-        mean_win_rate = []
+        loss_per_rounds = []
 
         for t in tqdm(range(training_rounds), leave=False, desc=get_name(policy), file=sys.stdout, disable=False):
             # test before continue training
@@ -105,7 +109,7 @@ if __name__ == '__main__':
                 # sarsa needs explicit call
                 if isinstance(policy, sarsa_agent):
                     policy.set_evaluating()
-                mean_win_rate.append(test(policy, testing_rounds=testing_rounds))
+                loss_per_rounds.append(test(policy, testing_rounds=testing_rounds))
                 # sarsa needs explicit call
                 if isinstance(policy, sarsa_agent):
                     policy.reset_evaluating()
@@ -114,10 +118,10 @@ if __name__ == '__main__':
             casino.play_round(policy, bet=1, learning=True)  # train agent
 
         print('Finished training for', get_name(policy))
-        plt.plot(mean_win_rate, label=get_name(policy))
+        plt.plot([i for i in range(len(loss_per_rounds))], loss_per_rounds, label=get_name(policy))
 
     plt.legend(loc='upper right')
     plt.xlabel('rounds')
-    plt.ylabel('mean win rate')
+    plt.ylabel('mean loss per round')
 
     plt.show()
