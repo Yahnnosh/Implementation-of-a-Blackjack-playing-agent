@@ -26,18 +26,19 @@ from mc_agent import mc_agent
 from dealer import dealer
 
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 import sys
+from multiprocessing import Process, Manager
 
-def test(agent, testing_rounds):
+
+def test(policy, testing_rounds):
     """
     Tests agent over 'training_rounds'
     :param agent: agent to test
     :param testing_rounds: total rounds for testing
-    :return: mean loss per round
+    :return: mean win rate over testing_rounds
     """
     # reset card counting agent
-    if isinstance(agent, count_agent):
+    if isinstance(policy, count_agent):
         policy.reset_counting()
 
     # params
@@ -48,7 +49,7 @@ def test(agent, testing_rounds):
     # simulate
     for testing_round in range(testing_rounds):
         # play one round
-        episode = casino.play_round(agent, bet=1, learning=False)  # testing independent from training
+        episode = casino.play_round(policy, bet=1, learning=False)  # testing independent from training
         reward = episode['reward']
 
         # update params
@@ -63,6 +64,26 @@ def test(agent, testing_rounds):
 
     return mean_loss_per_round
 
+def train_with_test(policy, training_rounds, testing_rounds, training_rounds_before_testing, mean_win_rates):
+    casino = dealer()
+    mean_win_rate = []
+
+    for t in range(training_rounds + 1):
+        # test before continue training
+        if (t % training_rounds_before_testing == 0) and (t != 0):
+            # sarsa needs explicit call
+            if isinstance(policy, sarsa_agent):
+                policy.set_evaluating()
+            mean_win_rate.append(test(policy, testing_rounds=testing_rounds))
+            # sarsa needs explicit call
+            if isinstance(policy, sarsa_agent):
+                policy.reset_evaluating()
+
+        # train
+        casino.play_round(policy, bet=1, learning=True)  # train agent
+
+    print('Finished training for', get_name(policy))
+    mean_win_rates[get_name(policy)] = mean_win_rate
 
 def get_name(policy) -> str:
     """
@@ -94,35 +115,30 @@ if __name__ == '__main__':
 
     # Select rounds
     training_rounds = 100000
-    testing_rounds = 10000   # the higher the more accurate but will also take longer
+    testing_rounds = 100000   # the higher the more accurate but will also take longer
     training_rounds_before_testing = 1000   # the higher the smoother the curve but will also take longer
 
-    # Training phase
+    # Training phase (multiprocessed)
     print('Starting training')
+
+    manager = Manager()
+    mean_loss_per_round = manager.dict()
+    processes = []
     for policy in policies:
-        casino = dealer()
-        loss_per_rounds = []
+        p = Process(target=train_with_test,
+                    args=(policy, training_rounds, testing_rounds, training_rounds_before_testing, mean_loss_per_round))
+        processes.append(p)
+        p.start()
 
-        for t in tqdm(range(training_rounds), leave=False, desc=get_name(policy), file=sys.stdout, disable=False):
-            # test before continue training
-            if (t % training_rounds_before_testing == 0) and (t != 0):
-                # sarsa needs explicit call
-                if isinstance(policy, sarsa_agent):
-                    policy.set_evaluating()
-                loss_per_rounds.append(test(policy, testing_rounds=testing_rounds))
-                # sarsa needs explicit call
-                if isinstance(policy, sarsa_agent):
-                    policy.reset_evaluating()
+    for process in processes:
+        process.join()
 
-            # train
-            casino.play_round(policy, bet=1, learning=True)  # train agent
-
-        print('Finished training for', get_name(policy))
-        plt.plot([i * training_rounds_before_testing for i in range(len(loss_per_rounds))],
-                 loss_per_rounds, label=get_name(policy))
-
+    for agent in mean_loss_per_round:
+        plt.plot([t for t in range(training_rounds_before_testing, training_rounds + 1, training_rounds_before_testing)],
+                 mean_loss_per_round[agent], label=agent)
     plt.legend(loc='upper right')
     plt.xlabel('rounds')
-    plt.ylabel('mean loss per round')
+    plt.ylabel('mean win rate')
+    plt.hlines(0, xmin=training_rounds_before_testing, xmax=training_rounds, colors='grey', linestyles='dotted')
 
     plt.show()

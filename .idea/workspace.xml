@@ -9,12 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamic betting/hilo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/hilo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamic betting/model_based.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamic betting/model_based.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/Q_learning_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/Q_learning_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/double_q.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/double_q.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,11 +52,12 @@
       <recent name="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Implementation-of-a-Blackjack-playing-agent\Full action space" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Blackjack\Implementation-of-a-Blackjack-playing-agent\Limited action space" />
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Implementation-of-a-Blackjack-playing-agent\Limited action space\simulation_data\old" />
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.plot_training_phase">
+  <component name="RunManager" selected="Python.plot_training_phase_multiproc (1)">
     <configuration name="evaluate_performance (1)" type="PythonConfigurationType" factoryName="Python" singleton="true" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -74,48 +71,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamic betting/evaluate_performance.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="get_table_from_agent" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Implementation of a Blackjack playing agent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/get_table_from_agent.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="hilo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Implementation of a Blackjack playing agent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Dynamic betting" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamic betting/hilo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -166,6 +121,48 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="plot_training_phase_multiproc (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Implementation of a Blackjack playing agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Limited action space" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Limited action space/plot_training_phase_multiproc.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="plot_training_phase_multiproc" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Implementation of a Blackjack playing agent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/temp" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Blackjack\Implementation-of-a-Blackjack-playing-agent\Limited action space\plot_training_phase_multiproc.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="simulate" type="PythonConfigurationType" factoryName="Python" singleton="false" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -190,18 +187,18 @@
     <list>
       <item itemvalue="Python.simulate" />
       <item itemvalue="Python.evaluate_performance (1)" />
-      <item itemvalue="Python.get_table_from_agent" />
       <item itemvalue="Python.model_based" />
       <item itemvalue="Python.plot_training_phase" />
-      <item itemvalue="Python.hilo" />
+      <item itemvalue="Python.plot_training_phase_multiproc" />
+      <item itemvalue="Python.plot_training_phase_multiproc (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.plot_training_phase_multiproc (1)" />
+        <item itemvalue="Python.plot_training_phase_multiproc" />
         <item itemvalue="Python.plot_training_phase" />
         <item itemvalue="Python.evaluate_performance (1)" />
         <item itemvalue="Python.model_based" />
-        <item itemvalue="Python.hilo" />
-        <item itemvalue="Python.get_table_from_agent" />
       </list>
     </recent_temporary>
   </component>
@@ -249,22 +246,22 @@
       <screen x="0" y="0" width="1368" height="864" />
     </state>
     <state x="465" y="187" key="FileChooserDialogImpl/0.0.1368.864@0.0.1368.864" timestamp="1638548578434" />
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom" timestamp="1639322335372">
+    <state width="1348" height="224" key="GridCell.Tab.0.bottom" timestamp="1639325936162">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639322335372" />
-    <state width="1348" height="224" key="GridCell.Tab.0.center" timestamp="1639322335371">
+    <state width="1348" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639325936162" />
+    <state width="1348" height="224" key="GridCell.Tab.0.center" timestamp="1639325936161">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639322335371" />
-    <state width="1348" height="224" key="GridCell.Tab.0.left" timestamp="1639322335371">
+    <state width="1348" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639325936161" />
+    <state width="1348" height="224" key="GridCell.Tab.0.left" timestamp="1639325936160">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639322335371" />
-    <state width="1348" height="224" key="GridCell.Tab.0.right" timestamp="1639322335372">
+    <state width="1348" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639325936160" />
+    <state width="1348" height="224" key="GridCell.Tab.0.right" timestamp="1639325936161">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639322335372" />
+    <state width="1348" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639325936161" />
     <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
