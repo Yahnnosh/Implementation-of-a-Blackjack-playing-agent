@@ -16,11 +16,11 @@ class double_QAgent(agent):
         self.Q_S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
         self.Q_H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
         
-        self.Q1_H[0], self.Q1_H[1], self.Q1_H[2] = 1, -1, 0
-        self.Q1_S[0], self.Q1_S[1], self.Q1_S[2] = 1, -1, 0
+        self.Q1_H[0], self.Q1_H[1], self.Q1_H[2] = 10, -10, 0 
+        self.Q1_S[0], self.Q1_S[1], self.Q1_S[2] = 10, -10, 0 
 
-        self.Q2_H[0], self.Q2_H[1], self.Q2_H[2] = 1, -1, 0
-        self.Q2_S[0], self.Q2_S[1], self.Q2_S[2] = 1, -1, 0
+        self.Q2_H[0], self.Q2_H[1], self.Q2_H[2] = 10, -10, 0 
+        self.Q2_S[0], self.Q2_S[1], self.Q2_S[2] = 10, -10, 0 
 
         self.Q_H[0], self.Q_H[1], self.Q_H[2] = 0, 0, 0 
         self.Q_S[0], self.Q_S[1], self.Q_S[2] = 0, 0, 0 

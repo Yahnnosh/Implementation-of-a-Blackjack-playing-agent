@@ -55,9 +55,6 @@ class sarsa_agent(agent):
     def set_evaluating(self):
         self.evaluating = True
 
-    def reset_evaluating(self):
-        self.evaluating = False
-
     def policy(self, hand):
         if self.evaluating == True:
             self.act_based_on_previous_q = False

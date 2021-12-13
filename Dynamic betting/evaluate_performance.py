@@ -22,16 +22,14 @@ from card_counting import count_agent  # optimal baseline
 from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
 from Q_learning_agent import QAgent
-from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from model_based import Model_based_dynamic_betting_policy
-from hilo import HiLo
 
 from dealer import dealer
 
 
-def simulate(static_policy, dynamic_policy, rounds, ax0, ax1, starting_money=1000):
+def simulate(static_policy, dynamic_policy, rounds, ax0, ax1):
     """
     Calculates empirical mean win rate, empirical long term profitability
     (i.e. the agent starts with 1000$, the remaining money after the rounds
@@ -49,7 +47,7 @@ def simulate(static_policy, dynamic_policy, rounds, ax0, ax1, starting_money=100
 
     # params
     casino = dealer()
-    bank_account = [starting_money]  # starting money
+    bank_account = [1000]  # starting money
     n_wins = 0
     game_over = False
     total_rewards = []
@@ -140,16 +138,13 @@ if __name__ == '__main__':
     min_bet = 1
     max_bet = 100
     increment = 1
-    starting_money = 10000
 
     # Select policies
     # 1) static betting policies
-    '''static_policies = [
-        QAgent(alpha=0.01),
-        double_QAgent()
-    ]'''
     static_policies = [
-        QAgent(alpha=0.01)
+        QAgent(alpha=0.01),
+        mc_agent(),
+        sarsa_agent()
     ]
 
     # 2) full policy (static, dynamic)
@@ -158,17 +153,18 @@ if __name__ == '__main__':
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
-                                                                increment=increment,
-                                                                strategy='risky')),
+                                                                increment=increment)),
+        (static_policies[1], None),
+        (static_policies[1], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment)),
+        (static_policies[2], None),
+        (static_policies[2], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment))
     ]
-    '''full_policies = [
-        (static_policies[0], None),
-        (static_policies[0], HiLo(static_policies[0],
-                                  min_bet=min_bet,
-                                  max_bet=max_bet,
-                                  increment=increment,
-                                  hilo_increment=1))
-    ]'''
 
     # Select rounds
     training_rounds = 100000
@@ -207,13 +203,13 @@ if __name__ == '__main__':
             dynamic.reset()
 
         mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round \
-            = simulate(static, dynamic, testing_rounds, ax0, ax1, starting_money=starting_money)
+            = simulate(static, dynamic, testing_rounds, ax0, ax1)
 
         print(get_name(static), '+', get_name(dynamic), ':', '\t', mean_win_rate,
               '\t\t', long_term_profitability, '$\t\t', mean_loss_per_round, '$', '(+-', std_loss_per_round, '$)')
 
     # additional code for plot
-    ax0.hlines(starting_money, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
+    ax0.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     ax0.legend(loc='upper right')
     ax0.set_xlabel('rounds')
     ax0.set_ylabel('bank account')

@@ -3,42 +3,38 @@ Model-based dynamic betting policy
 (creates new MDP before each round of Blackjack)
 ------------------------------------------------
 WARNING:
-- requires value function or Q function of the applied static betting policy
-- performance of this agent is highly dependent on the accuracy of the Q or
-value function of the static betting policy
+- requires value function or q function of the applied static betting policy
+- use pretrained static betting policy as inaccurate value functions results
+in bad bets
 ----------------------------------------------------------------------------
 FOR NOW ONLY WORKS WITH Q-LEARNING (limited action space)!
 """
 
 # Import agents
-from dynamic_betting_agent import Dynamic_betting_agent
 from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 
-class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
-    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1, strategy='proportional'):
+class Model_based_dynamic_betting_policy():
+    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1):
         """
         Deterministic model-based dynamic betting stratey π(s) = a
         where s = deck before round, a = betting amount
         (performance depends on accuracy of V(s) or Q(s,a) of static betting policy)
-        :param static_betting_policy: augmented static betting policy
+        :param static_betting_policy: augmented pretrained (highly recommended!) static betting policy
         :param min_bet: minimum betting amount
         :param max_bet: maximum betting amount
         :param increment: allowed bet increments
-        :param strategy: heuristic for optimal bet, allowed: 'risky', 'proportional', 'proportional_down'
         """
-        super().__init__(static_betting_policy)
-
         # legality
         assert min_bet > 0 and max_bet > 0 and increment > 0
 
         # dynamic betting policy params
         self.allowed_bets = [bet for bet in range(min_bet, max_bet, increment)]
-        self.strategy = strategy
 
         # static betting policy params
-        self.V = None   # requires reset after static policy is trained
+        self.static_betting_policy = static_betting_policy
+        self.V = self.get_V()
 
     def reset(self):
         """
@@ -47,7 +43,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         """
         self.V = self.get_V()
 
-    def bet(self, deck):
+    def bet(self, deck, strategy='proportional'):
         """
         Returns optimal bet under the static betting policy
         (accuracy depends on accuracy of V(s) or Q(s,a) of static betting policy)
@@ -59,7 +55,6 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
                   '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
 
-        # 1) Calculate expected return for next round under static betting policy
         # draw first hand
         for i, card1 in enumerate(values):
             # check legality
@@ -92,20 +87,15 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                     probability_hand = probability_card2 * deck_card2[k] / sum(deck_card2)
 
                     # evaluate expected return under hand
-                    # if Blackjack needs explicit reward (as agent hasn't learn from Blackjack)
-                    expected_return_hand = 1.5 if (self.evaluate([card1, card2]) == 21) \
-                        else self.V[card1, card2, dealer_card]
-                    expected_return += probability_hand * expected_return_hand
+                    expected_return += probability_hand * self.V[card1, card2, dealer_card]
 
-        # 2) Heuristics for optimal bet based on calculated expected return
         min_bet = self.allowed_bets[0]
         max_bet = self.allowed_bets[-1]
-
-        if self.strategy == 'risky':
-            recommended_bet = max_bet if (expected_return > 0) else min_bet  # can adapt threshold
-        elif self.strategy == 'proportional':
+        if strategy == 'risky':
+            recommended_bet = max_bet if (expected_return > 0) else min_bet
+        elif strategy == 'proportional':
             recommended_bet = expected_return * max_bet
-            # round to next allowed value (up or down)
+            # round to next allowed value
             if (recommended_bet > min_bet) and (recommended_bet < max_bet):   # otherwise cut to min/max
                 # not very efficient but should be ok
                 self.allowed_bets.append(recommended_bet)
@@ -117,20 +107,60 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                 self.allowed_bets.remove(recommended_bet)
                 recommended_bet = self.allowed_bets[index + 1] if distance_to_upper < distance_to_lower \
                     else self.allowed_bets[index - 1]
-        elif self.strategy == 'proportional_down':
-            recommended_bet = expected_return * max_bet
             # round down to next allowed value (safer?)
-            if (recommended_bet > min_bet) and (recommended_bet < max_bet):  # otherwise cut to min/max
+            '''if (recommended_bet > min_bet) and (recommended_bet < max_bet):  # otherwise cut to min/max
                 # not very efficient but should be ok
                 self.allowed_bets.append(recommended_bet)
                 self.allowed_bets.sort()
                 index = self.allowed_bets.index(recommended_bet)
                 self.allowed_bets.remove(recommended_bet)
-                recommended_bet = self.allowed_bets[index - 1]
+                recommended_bet = self.allowed_bets[index - 1]'''
+
         else:
             raise ValueError
 
         return min(max_bet, max(min_bet, recommended_bet))
+
+    def soft(self, hand):
+        """
+        Returns True if hand is soft (one ace counts as 11)
+        :param hand: [card1, card2, ..., cardN] where card in ['2', '3', ..., 'K', 'A']
+        :return: True if hand is soft else False
+        """
+        values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
+                  '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
+        return self.evaluate(hand) - sum([values[card] for card in hand]) == 10
+
+    def evaluate(self, hand):
+        """
+        Returns value of hand
+        :param hand: [card1, card2, ..., cardN] where card in ['2', '3', ..., 'K', 'A']
+        :return: Value of hand
+        """
+        values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
+                  '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
+        val = sum([values[card] for card in hand])
+        if 'A' in hand:
+            return (val + 10) if (val + 10 <= 21) else val  # only 1 ace in hand can ever be used as 11
+        else:
+            return val
+
+    def state_approx(self, hand):
+        """
+        Approximates state to single number (index of state_approx vector
+        (starting from 0!)) - warning: does not assign to terminal states! -
+        --------------------------------------------------------------------
+        state_approx vector = [win, loss, draw,
+        [4, 2, 0], [4, 2, 1], [4, 3, 0], [4, 3, 1], ... ,
+        [4, 11, 0], [4, 11, 1], ..., [21, 11, 0], [21, 11, 1]]^T
+        where [x, y, z] = [sum of values of agent's hand, value of dealer's hand, bool(agent hand soft)]
+        :param hand: hand = [[card1, card2, ..., cardN], card_dealer]
+        :return index of approximated state in state_approx vector (starting from 0!)
+        """
+        agent_hand = hand[0]
+        dealer_hand = hand[1]
+        x, y, z = self.evaluate(agent_hand), self.evaluate([dealer_hand]), self.soft(agent_hand)
+        return int((3 + (x - 4) * 20) + ((y - 2) * 2) + z)
 
     def get_V(self):
         """
@@ -153,14 +183,5 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                     V[card1, card2, dealer_card] = max(
                         Q_hit[self.state_approx([[card1, card2], dealer_card])],
                         Q_stand[self.state_approx([[card1, card2], dealer_card])])
-
-        # TODO: needs adaptation for full action space
-        # normalize into -1 < V(s) < +1
-        V_min = min(V.values())
-        V_max = max(V.values())
-
-        normalize = lambda x: -1 + (x - V_min) / (V_max - V_min) * 2
-        for hand in V:
-            V[hand] = normalize(V[hand])
 
         return V
