@@ -20,17 +20,23 @@ Contains:
 - **value_iteration.py**: agent that performs VI on each round
 - **fast_value_iteration.py**: same agent as value_iteration.py but faster (computes only reachable state space)
 - **Q_learning_agent.py**: agent that performs offline Q-learning (see page 131 in Sutton book) 
+- **double_q.py**: agent that performs offline double Q-learning
 - **sarsa_agent.py**: agent that performs online SARSA control (see page 130 in Sutton book) 
 - **mc_agent.py**: agent that performs Monte Carlo ES (see page 99 in Sutton book)
 
 **Additional functions**:
-- **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate and emp. long term profitability
+- **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate, emp. long term profitability and emp. loss per round (mean, std)
 - **get_table_from_agent.py**: plots the tables for all card pairs (hard, soft) for a specific (model-based) policy
+- **plot_training_phase.py**: plots training phase for RL agents
+- **plot_training_phase_multiproc.py**: plots training phase for RL agents using multiprocessing (one process/agent)
 
 
 ## Full action space
 In this setting the action space is expanded to the full action space A={hit, stand, split, double, insurance}.
 Contains:
+
+**Environment**:
+- **dealer.py**: Blackjack environment
 
 **Baselines**:
 - **table_policy.py** (hard baseline): agent that acts according to the fixed policy from soft_table.csv, hard_table.csv and split_table.csv
@@ -39,9 +45,17 @@ Contains:
 **Agents**:
 - **agent.py**: interface for all agents
 
+**Additional functions**:
+- **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate, emp. long term profitability and emp. loss per round (mean, std)
+
 
 ## Dynamic betting
 In this setting the static betting strategy is augmented to the full policy π = (π_static, π_dynamic).
 Contains:
 
+**Agents**:
+- **dynamic_betting_agent**: interface for all dynamic betting agents
 - **model_based.py**: Calculates the expected return of the next round under the static policy by having access to the deck distribution before the round. Different heuristics can be applied based on the expected return of the next round to find the optimal betting amount.
+
+**Additional functions**:
+- **evaluate_performance.py**: evaluation of policy performance based on emp. mean win rate, emp. long term profitability and emp. loss per round (mean, std)
