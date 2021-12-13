@@ -114,9 +114,9 @@ if __name__ == '__main__':
     ]
 
     # Select rounds
-    training_rounds = 100000
+    training_rounds = 1000000
     testing_rounds = 100000   # the higher the more accurate but will also take longer
-    training_rounds_before_testing = 1000   # the higher the smoother the curve but will also take longer
+    training_rounds_before_testing = 1000  # the higher the smoother the curve but will also take longer
 
     # Training phase (multiprocessed)
     print('Starting training')
@@ -138,7 +138,7 @@ if __name__ == '__main__':
                  mean_loss_per_round[agent], label=agent)
     plt.legend(loc='upper right')
     plt.xlabel('rounds')
-    plt.ylabel('mean win rate')
+    plt.ylabel('mean loss per round')
     plt.hlines(0, xmin=training_rounds_before_testing, xmax=training_rounds, colors='grey', linestyles='dotted')
 
     plt.show()

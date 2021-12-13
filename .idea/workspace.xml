@@ -8,9 +8,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="be2fc251-4f39-4267-935d-8569739e7c72" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Full action space/Q_learning_agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Full action space/get_table_from_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/plot_training_phase.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Full action space/table_policy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Full action space/table_policy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Limited action space/plot_training_phase_multiproc.py" beforeDir="false" afterPath="$PROJECT_DIR$/Limited action space/plot_training_phase_multiproc.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,12 +45,13 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Full action space" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="Csv.Editor.Settings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Blackjack\Implementation-of-a-Blackjack-playing-agent\Full action space" />
       <recent name="C:\Users\jjung\OneDrive\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Implementation-of-a-Blackjack-playing-agent\Full action space" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -57,7 +60,7 @@
       <recent name="D:\Dokumente\ETH\FoRL\Implementation of a Blackjack playing agent\Limited action space" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.plot_training_phase_multiproc (1)">
+  <component name="RunManager" selected="Python.get_table_from_agent">
     <configuration name="evaluate_performance (1)" type="PythonConfigurationType" factoryName="Python" singleton="true" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -79,7 +82,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="model_based" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="get_table_from_agent" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="Implementation of a Blackjack playing agent" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -87,11 +90,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Dynamic betting" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Full action space" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamic betting/model_based.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Full action space/get_table_from_agent.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -187,18 +190,18 @@
     <list>
       <item itemvalue="Python.simulate" />
       <item itemvalue="Python.evaluate_performance (1)" />
-      <item itemvalue="Python.model_based" />
       <item itemvalue="Python.plot_training_phase" />
       <item itemvalue="Python.plot_training_phase_multiproc" />
       <item itemvalue="Python.plot_training_phase_multiproc (1)" />
+      <item itemvalue="Python.get_table_from_agent" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.get_table_from_agent" />
         <item itemvalue="Python.plot_training_phase_multiproc (1)" />
         <item itemvalue="Python.plot_training_phase_multiproc" />
         <item itemvalue="Python.plot_training_phase" />
         <item itemvalue="Python.evaluate_performance (1)" />
-        <item itemvalue="Python.model_based" />
       </list>
     </recent_temporary>
   </component>
@@ -230,10 +233,10 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="140" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1639233070290">
+    <state x="140" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1639386763070">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state x="140" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1368.864@0.0.1368.864" timestamp="1639233070290" />
+    <state x="140" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1368.864@0.0.1368.864" timestamp="1639386763070" />
     <state x="478" y="272" key="#xdebugger.evaluate" timestamp="1639239502406">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
@@ -246,22 +249,22 @@
       <screen x="0" y="0" width="1368" height="864" />
     </state>
     <state x="465" y="187" key="FileChooserDialogImpl/0.0.1368.864@0.0.1368.864" timestamp="1638548578434" />
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom" timestamp="1639325936162">
+    <state width="889" height="224" key="GridCell.Tab.0.bottom" timestamp="1639390411116">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639325936162" />
-    <state width="1348" height="224" key="GridCell.Tab.0.center" timestamp="1639325936161">
+    <state width="889" height="224" key="GridCell.Tab.0.bottom/0.0.1368.864@0.0.1368.864" timestamp="1639390411116" />
+    <state width="889" height="224" key="GridCell.Tab.0.center" timestamp="1639390411114">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639325936161" />
-    <state width="1348" height="224" key="GridCell.Tab.0.left" timestamp="1639325936160">
+    <state width="889" height="224" key="GridCell.Tab.0.center/0.0.1368.864@0.0.1368.864" timestamp="1639390411114" />
+    <state width="889" height="224" key="GridCell.Tab.0.left" timestamp="1639390411113">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639325936160" />
-    <state width="1348" height="224" key="GridCell.Tab.0.right" timestamp="1639325936161">
+    <state width="889" height="224" key="GridCell.Tab.0.left/0.0.1368.864@0.0.1368.864" timestamp="1639390411113" />
+    <state width="889" height="224" key="GridCell.Tab.0.right" timestamp="1639390411115">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
-    <state width="1348" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639325936161" />
+    <state width="889" height="224" key="GridCell.Tab.0.right/0.0.1368.864@0.0.1368.864" timestamp="1639390411115" />
     <state width="1348" height="278" key="GridCell.Tab.1.bottom" timestamp="1639239666771">
       <screen x="0" y="0" width="1368" height="864" />
     </state>
