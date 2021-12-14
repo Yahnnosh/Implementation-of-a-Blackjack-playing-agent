@@ -50,8 +50,6 @@ class QAgent(agent):
         # Q-values with biggest values
         Q_values_max = {}
         while True:
-            print("br")
-            print(allowed_actions)
             key_max = max(Q_values_allowed, key=Q_values_allowed.get) # the action with biggest Q-value   
             Q_values_max[key_max] = Q_values_allowed.pop(key_max) 
             if Q_values_allowed:
@@ -65,7 +63,6 @@ class QAgent(agent):
 
 
     def learn(self, episode):
-        print(episode)
         actions = episode['actions']
         agent_hands = episode['hands']
         reward = episode['reward']
@@ -91,7 +88,6 @@ class QAgent(agent):
             
             current_state_index = self.state_approx([current_agent_hand, dealer_card]) # index of the current state 
             next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index 
-            print(next_state_index)
             action = actions.pop(0) # the action which was done in the current state 
 
             Q_max = max(self.Hit[next_state_index], self.Stand[next_state_index], self.Split[next_state_index], 

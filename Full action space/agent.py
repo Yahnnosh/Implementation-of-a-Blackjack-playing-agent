@@ -70,9 +70,5 @@ class agent(metaclass=ABCMeta):
         agent_hand = hand[0]
         dealer_hand = hand[1]
         x, y, z = self.evaluate(agent_hand), self.evaluate([dealer_hand]), self.soft(agent_hand)
-        print("calculations")
-        print(x)
-        print(y)
-        print(z)
         return int((3 + (x - 4) * 20) + ((y - 2) * 2) + z)
         #raise NotImplementedError

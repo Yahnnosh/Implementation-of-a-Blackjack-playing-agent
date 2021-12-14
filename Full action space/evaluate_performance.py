@@ -87,14 +87,14 @@ def simulate(policy, rounds, plot=False):
 if __name__ == '__main__':
     # Select policies
     policies = [
-       # table_agent(),
+        table_agent(),
         QAgent()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 100
-    testing_rounds = 100
+    training_rounds = 1000000
+    testing_rounds = 100000
 
     # Training phase
     print('Starting training')
@@ -108,8 +108,8 @@ if __name__ == '__main__':
                 casino.play_round(policy, bet=1, learning=True) # train agent
             print('Finished training for', policy_names[i])
             # sarsa needs explicit call
-            if isinstance(policy, sarsa_agent):
-                policy.set_evaluating()
+           # if isinstance(policy, sarsa_agent):
+             #   policy.set_evaluating()
         else:
             # agent has not implemented learn
             pass

@@ -191,9 +191,11 @@ class dealer:
                 allowed_actions.append('insurance') # agent has an option to place side bet 
             if self.split(agent_hand) and (splitting == False): # if agent can split and if this is the first split 
                 allowed_actions.append('split') # then he is allowed to split 
-
-        action = agent.policy(state, allowed_actions) # agent's first action 
-        episode['actions'].append(action)
+            
+            action = agent.policy(state, allowed_actions) # agent's first action 
+            episode['actions'].append(action)
+        else:
+            action = 'no_action' # TODO change 
 
         if action == 'insurance': # if agent decided to buy the insurance 
             allowed_actions.remove('insurance') # he is not able to buy the insurance again in this round 
@@ -246,7 +248,7 @@ class dealer:
                     dealer_hand.append(self.draw(agent))
                     episode['dealer'].append(dealer_hand.copy())
 
-                # check is the dealer is busted 
+                # check if the dealer is busted 
                 if self.busted(dealer_hand):
                     reward += bet
                     episode['reward'] = reward
@@ -302,18 +304,28 @@ class dealer:
 
         # The `agent` plays until either `agent_busted` is True or it decides to stand, which happens iff `action` is
         # set to `s`.
-        
+
         agent_busted = False
-        action = 'hit'
+
+        if action == 'hit':
+            agent_hand.append(self.draw(agent))  # draw card
+            episode['hands'].append(agent_hand.copy())
+            agent_busted = self.busted(agent_hand)  # check if busted
+
         allowed_actions = ['hit','stand'] # only two actions are allowed now   
         
         while (not agent_busted) and (not action == 'stand'):
             # Initialization of the `state` which will be used by the `agent` to decide and update its policies. Note
             # that the agent does not know both the cards of the `dealer` but he has access to only one of them.
+            
             state = [agent_hand, dealer_hand[0]]
-
             action = agent.policy(state, allowed_actions) # agent hits or stands 
             episode['actions'].append(action)
+
+            if action == 'hit':
+                agent_hand.append(self.draw(agent))  # draw card
+                episode['hands'].append(agent_hand.copy())
+                agent_busted = self.busted(agent_hand)  # check if busted
 
             # TODO: Add comments for what happens if `agent` is a `model_based_agent`.
             #if isinstance(agent, model_based_agent):
@@ -332,10 +344,7 @@ class dealer:
             # (1) the `agent` draws a card from the `self.deck`;
             # (2) `episode['hands']` gets updated; and
             # (3) we check if the agent is busted.
-            if action == 'hit':
-                agent_hand.append(self.draw(agent))  # draw card
-                episode['hands'].append(agent_hand.copy())
-                agent_busted = self.busted(agent_hand)  # check if busted
+            
 
             #if isinstance(agent, sarsa_agent) and (action == 'h'):  # SARSA is online method => we constantly learn!
                # agent.learn(episode) 
