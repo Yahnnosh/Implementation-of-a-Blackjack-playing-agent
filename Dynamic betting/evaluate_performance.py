@@ -25,6 +25,7 @@ from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from model_based import Model_based_dynamic_betting_policy
+from Hi
 
 from dealer import dealer
 
@@ -143,8 +144,7 @@ if __name__ == '__main__':
     # 1) static betting policies
     static_policies = [
         QAgent(alpha=0.01),
-        mc_agent(),
-        sarsa_agent()
+        table_agent()
     ]
 
     # 2) full policy (static, dynamic)
@@ -153,17 +153,10 @@ if __name__ == '__main__':
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
-                                                                increment=increment)),
+                                                                increment=increment,
+                                                                strategy='risky')),
         (static_policies[1], None),
-        (static_policies[1], Model_based_dynamic_betting_policy(static_policies[0],
-                                                                min_bet=min_bet,
-                                                                max_bet=max_bet,
-                                                                increment=increment)),
-        (static_policies[2], None),
-        (static_policies[2], Model_based_dynamic_betting_policy(static_policies[0],
-                                                                min_bet=min_bet,
-                                                                max_bet=max_bet,
-                                                                increment=increment))
+        (static_policies[1], HiLo)
     ]
 
     # Select rounds
