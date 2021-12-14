@@ -16,7 +16,7 @@ from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 
 class Model_based_dynamic_betting_policy():
-    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1):
+    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1, risk=0):
         """
         Deterministic model-based dynamic betting stratey π(s) = a
         where s = deck before round, a = betting amount
@@ -31,6 +31,7 @@ class Model_based_dynamic_betting_policy():
 
         # dynamic betting policy params
         self.allowed_bets = [bet for bet in range(min_bet, max_bet, increment)]
+        self.risk = risk
 
         # static betting policy params
         self.static_betting_policy = static_betting_policy
@@ -88,6 +89,9 @@ class Model_based_dynamic_betting_policy():
 
                     # evaluate expected return under hand
                     expected_return += probability_hand * self.V[card1, card2, dealer_card]
+
+        # add risk (to encourage more bets)
+        expected_return += self.risk
 
         min_bet = self.allowed_bets[0]
         max_bet = self.allowed_bets[-1]
