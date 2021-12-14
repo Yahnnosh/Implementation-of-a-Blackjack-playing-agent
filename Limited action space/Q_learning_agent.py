@@ -17,7 +17,10 @@ class QAgent(agent):
         self.S[0], self.S[1], self.S[2] = 1, -1, 0 # Q(State,S) when State is terminal (win/lose/draw); what would happen if we set them to zero?
         self.gamma = 1 # we have a single reward at the end => no need to discount anything 
         self.alpha = alpha # learning rate
-        self.rand = 0 
+        self.rand = 0
+
+    def policy(self, hand):
+        return self.old_policy(hand)
 
     def new_policy(self, hand): # this uses old state approximation 
         # Q-learning is an off-policy TD control method and can work in both online/offline regimes.
@@ -33,10 +36,10 @@ class QAgent(agent):
             return 's'
         elif H_total == S_total:
             self.rand += 1 
-            if (self.rand % 1000 == 0):
+            '''if (self.rand % 1000 == 0):
                 print("rand", self.rand)
                 print(H_total)
-                print(S_total)
+                print(S_total)'''
             return random.choice(['h', 's'])
 
 
@@ -60,7 +63,7 @@ class QAgent(agent):
                 if H_total < S_total:
                     return 's'
             self.rand += 1 
-            print("rand", self.rand)
+            '''print("rand", self.rand)'''
             return random.choice(['h', 's'])
 
     def learn(self, episode):

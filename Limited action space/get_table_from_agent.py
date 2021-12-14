@@ -116,13 +116,13 @@ def plot_table_soft(agent):
 if __name__ == '__main__':
     # Pick policy
     #policy = QAgent()
-    #policy = table_agent()
-    policy = sarsa_agent()
+    policy = table_agent()
+    #policy = sarsa_agent()
     #policy = mc_agent()
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 100000
+    training_rounds = 10000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
