@@ -16,7 +16,7 @@ from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 
 class Model_based_dynamic_betting_policy():
-    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1, risk=0):
+    def __init__(self, static_betting_policy, min_bet=1, max_bet=100, increment=1, risk=0, strategy='risky'):
         """
         Deterministic model-based dynamic betting stratey π(s) = a
         where s = deck before round, a = betting amount
@@ -31,6 +31,7 @@ class Model_based_dynamic_betting_policy():
 
         # dynamic betting policy params
         self.allowed_bets = [bet for bet in range(min_bet, max_bet, increment)]
+        self.strategy = strategy
         self.risk = risk
 
         # static betting policy params
@@ -95,9 +96,9 @@ class Model_based_dynamic_betting_policy():
 
         min_bet = self.allowed_bets[0]
         max_bet = self.allowed_bets[-1]
-        if strategy == 'risky':
+        if self.strategy == 'risky':
             recommended_bet = max_bet if (expected_return > 0) else min_bet
-        elif strategy == 'proportional':
+        elif self.strategy == 'proportional':
             recommended_bet = expected_return * max_bet
             # round to next allowed value
             if (recommended_bet > min_bet) and (recommended_bet < max_bet):   # otherwise cut to min/max
@@ -111,14 +112,16 @@ class Model_based_dynamic_betting_policy():
                 self.allowed_bets.remove(recommended_bet)
                 recommended_bet = self.allowed_bets[index + 1] if distance_to_upper < distance_to_lower \
                     else self.allowed_bets[index - 1]
+        elif self.strategy == 'proportional_down':
             # round down to next allowed value (safer?)
-            '''if (recommended_bet > min_bet) and (recommended_bet < max_bet):  # otherwise cut to min/max
+            recommended_bet = expected_return * max_bet
+            if (recommended_bet > min_bet) and (recommended_bet < max_bet):  # otherwise cut to min/max
                 # not very efficient but should be ok
                 self.allowed_bets.append(recommended_bet)
                 self.allowed_bets.sort()
                 index = self.allowed_bets.index(recommended_bet)
                 self.allowed_bets.remove(recommended_bet)
-                recommended_bet = self.allowed_bets[index - 1]'''
+                recommended_bet = self.allowed_bets[index - 1]
 
         else:
             raise ValueError

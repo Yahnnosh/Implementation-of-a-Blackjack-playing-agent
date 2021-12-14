@@ -25,7 +25,7 @@ from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from model_based import Model_based_dynamic_betting_policy
-from Hi
+from hilo import HiLo
 
 from dealer import dealer
 
@@ -128,6 +128,13 @@ def get_name(policy) -> str:
     for character in str(policy):
         if writing:
             if character == '.':
+                if isinstance(policy, HiLo):
+                    name += '(' + str(policy.hilo_increment) + ')'
+                if isinstance(policy, Model_based_dynamic_betting_policy):
+                    if policy.strategy == 'risky':
+                        name += '(' + 'infty' ')'
+                    else:
+                        name += '(' + 'prop' + ')'
                 return name
             name += character
         if character == '<':
@@ -156,12 +163,26 @@ if __name__ == '__main__':
                                                                 increment=increment,
                                                                 strategy='risky')),
         (static_policies[1], None),
-        (static_policies[1], HiLo)
+        (static_policies[1], HiLo(static_policies[1],
+                                  min_bet=1,
+                                  max_bet=100,
+                                  increment=1,
+                                  hilo_increment=1)),
+        (static_policies[1], HiLo(static_policies[1],
+                                  min_bet=1,
+                                  max_bet=100,
+                                  increment=1,
+                                  hilo_increment=10)),
+        (static_policies[1], HiLo(static_policies[1],
+                                  min_bet=1,
+                                  max_bet=100,
+                                  increment=1,
+                                  hilo_increment='infty'))
     ]
 
     # Select rounds
-    training_rounds = 100000
-    testing_rounds = 10000
+    training_rounds = 1000
+    testing_rounds = 1000
 
     # Training phase (static policies)
     print('Starting training')
