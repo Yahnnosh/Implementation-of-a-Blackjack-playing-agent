@@ -20,9 +20,9 @@ class QAgent(agent):
         self.rand = 0
 
     def policy(self, hand):
-        return self.old_policy(hand)
+        return self.new_policy(hand)
 
-    def new_policy(self, hand): # this uses old state approximation 
+    def old_policy(self, hand): # this uses old state approximation
         # Q-learning is an off-policy TD control method and can work in both online/offline regimes.
 
         old_state_index = self.state_approx(hand) # we return the current state index
@@ -43,7 +43,7 @@ class QAgent(agent):
             return random.choice(['h', 's'])
 
 
-    def old_policy(self, hand): # this uses new state approximation 
+    def new_policy(self, hand): # this uses new state approximation
         # Q-learning is an off-policy TD control method and can work in both online/offline regimes.
 
         old_state_index = self.state_approx(hand) # we return the current state index

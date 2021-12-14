@@ -181,8 +181,8 @@ if __name__ == '__main__':
     ]
 
     # Select rounds
-    training_rounds = 1000
-    testing_rounds = 1000
+    training_rounds = 10000000
+    testing_rounds = 100000
 
     # Training phase (static policies)
     print('Starting training')
