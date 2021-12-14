@@ -65,4 +65,14 @@ class agent(metaclass=ABCMeta):
         :return index of approximated state in state_approx vector (starting from 0!)
         """
         # TODO: implement for full action space
-        raise NotImplementedError
+
+        # now the same state approximation as for limited action space
+        agent_hand = hand[0]
+        dealer_hand = hand[1]
+        x, y, z = self.evaluate(agent_hand), self.evaluate([dealer_hand]), self.soft(agent_hand)
+        print("calculations")
+        print(x)
+        print(y)
+        print(z)
+        return int((3 + (x - 4) * 20) + ((y - 2) * 2) + z)
+        #raise NotImplementedError

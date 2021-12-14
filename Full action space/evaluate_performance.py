@@ -9,6 +9,7 @@ metrics:
 
 # Import all agents
 from table_policy import table_agent        # hard baseline
+from Q_learning_agent import QAgent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -86,13 +87,14 @@ def simulate(policy, rounds, plot=False):
 if __name__ == '__main__':
     # Select policies
     policies = [
-        table_agent()
+       # table_agent(),
+        QAgent()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
     training_rounds = 100
-    testing_rounds = 1000000
+    testing_rounds = 100
 
     # Training phase
     print('Starting training')
