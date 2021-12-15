@@ -50,9 +50,9 @@ class QAgent_improved(agent):
         state_index = (old_state_index, number_of_cards - 2, splittable)
         #state_index = (old_state_index, splittable)
 
-        print(state_index)
+        '''print(state_index)
         print(allowed_actions)
-        time.sleep(1)
+        time.sleep(1)'''
 
         Q_stand = self.Stand[state_index]
         Q_hit = self.Hit[state_index]

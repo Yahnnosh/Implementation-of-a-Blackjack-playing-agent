@@ -69,7 +69,6 @@ Random questions:
 
 import random
 from table_policy import table_agent
-from card_counting import count_agent
 
 
 def show(reward, agent_hand, dealer_hand):

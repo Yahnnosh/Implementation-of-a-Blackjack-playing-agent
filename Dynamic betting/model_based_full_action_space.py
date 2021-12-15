@@ -139,7 +139,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
         :return: V(s)
         """
         # Q function
-        Q_hit, Q_stand = self.static_betting_policy.get_Q()
+        Q_hit, Q_stand, Q_split, Q_double = self.static_betting_policy.get_Q()
         V = {}
 
         values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
@@ -151,9 +151,10 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                 # draw dealer card
                 for dealer_card in values:
                     # evaluate hand
-                    state_index = (self.state_approx([[card1, card2], dealer_card]), 0)    # TODO: only for new_policy
+                    splittable = 1 if card1 == card2 else 0
+                    state_index = (self.state_approx([[card1, card2], dealer_card]), 0, splittable)    # TODO: only for new_policy
                     V[card1, card2, dealer_card] = max(
-                        Q_hit[state_index], Q_stand[state_index])
+                        Q_hit[state_index], Q_stand[state_index], Q_split[state_index], Q_double[state_index])
 
         # TODO: needs adaptation for full action space
         # normalize into -1 < V(s) < +1

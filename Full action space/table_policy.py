@@ -53,9 +53,9 @@ class table_agent(agent):
 
 
         actions = {
-            's' : 'stand',
-            'h' : 'hit',
-            'd' : 'doubling'
+            's': 'stand',
+            'h': 'hit',
+            'd': 'double'
         }
         
         action = actions[action]

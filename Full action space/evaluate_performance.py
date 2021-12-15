@@ -10,6 +10,7 @@ metrics:
 # Import all agents
 from table_policy import table_agent        # hard baseline
 from Q_learning_agent import QAgent
+from Q_learning_agent_improved import QAgent_improved
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -34,7 +35,7 @@ def simulate(policy, rounds, plot=False):
 
     # params
     casino = dealer()
-    bank_account = [1000000]  # starting money
+    bank_account = [1000]  # starting money
     n_wins = 0
     game_over = False
     total_rewards = []
@@ -42,9 +43,8 @@ def simulate(policy, rounds, plot=False):
     # simulate
     # (tqdm shows progress bar)
     for j in tqdm(range(rounds), leave=False, desc=str(type(policy))[8:].split('.')[0], file=sys.stdout, disable=True):
-        # bet: static or dynamic
-        #bet = policy.bet if isinstance(policy, count_agent) else 1  # TODO: change this for add. dyn. policy
-        bet = 1 # the bet is static for now for full action space 
+        # bet
+        bet = 1
 
         # check if enough money for next round
         curr_bank_account = bank_account[-1]
@@ -88,13 +88,13 @@ if __name__ == '__main__':
     # Select policies
     policies = [
         table_agent(),
-        QAgent()
+        QAgent_improved()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 1000000
-    testing_rounds = 100000
+    training_rounds = 10000000
+    testing_rounds = 1000000
 
     # Training phase
     print('Starting training')
@@ -107,9 +107,6 @@ if __name__ == '__main__':
             for t in range(training_rounds):
                 casino.play_round(policy, bet=1, learning=True) # train agent
             print('Finished training for', policy_names[i])
-            # sarsa needs explicit call
-           # if isinstance(policy, sarsa_agent):
-             #   policy.set_evaluating()
         else:
             # agent has not implemented learn
             pass

@@ -11,10 +11,11 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import sys
 import numpy as np
+from model_based import Model_based_dynamic_betting_policy
+from hilo import HiLo
 
+# For limited action space
 sys.path.append('../Limited action space')
-
-# Import all agents
 from random_policy import random_agent  # low baseline
 from dealer_policy import dealer_policy  # medium baseline
 from table_policy import table_agent  # hard baseline
@@ -24,9 +25,6 @@ from fast_value_iteration import fast_value_iteration
 from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
-from model_based import Model_based_dynamic_betting_policy
-from hilo import HiLo
-
 from dealer import dealer
 
 
@@ -162,6 +160,24 @@ if __name__ == '__main__':
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky')),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky',
+                                                                risk=0.1)),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky',
+                                                                risk=0.15)),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky',
+                                                                risk=0.2)),
         (static_policies[1], None),
         (static_policies[1], HiLo(static_policies[1],
                                   min_bet=1,
@@ -181,7 +197,7 @@ if __name__ == '__main__':
     ]
 
     # Select rounds
-    training_rounds = 10000000
+    training_rounds = 1000000
     testing_rounds = 100000
 
     # Training phase (static policies)

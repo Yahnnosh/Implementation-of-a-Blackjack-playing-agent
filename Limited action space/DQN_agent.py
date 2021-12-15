@@ -17,7 +17,7 @@ LongTensor = torch.LongTensor
 ByteTensor = torch.ByteTensor
 
 # hyperparameters
-BATCH_SIZE = 32 # TODO: change to 256 after debugging 
+BATCH_SIZE = 256 # TODO: change to 256 after debugging
 GAMMA = 0.999
 # EPS_START = 1
 EPS_START = 0.05
@@ -25,7 +25,7 @@ EPS_END = 0.05
 EPS_DECAY = 20000
 WEIGHT_DECAY = 0.0001
 
-NUM_LAYERS = 4
+NUM_LAYERS = 12
 # k = np.rint(NUM_LAYERS / 2 + 0.5)
 k = 13
 num_episodes = 800000

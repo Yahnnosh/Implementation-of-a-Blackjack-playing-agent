@@ -4,6 +4,7 @@ Plots a table for all agent hand / dealer face up card combinations
 
 # Import all agents
 from Q_learning_agent import QAgent
+from Q_learning_agent_improved import QAgent_improved
 from table_policy import table_agent
 
 from dealer import dealer
@@ -166,12 +167,13 @@ def plot_table_split(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    policy = QAgent()
+    #policy = QAgent()
     #policy = table_agent()
+    policy = QAgent_improved()
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 1000000
+    training_rounds = 10000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
