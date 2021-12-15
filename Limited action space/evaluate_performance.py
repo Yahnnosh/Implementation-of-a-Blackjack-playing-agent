@@ -115,7 +115,7 @@ if __name__ == '__main__':
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 100000
+    training_rounds = 1000000
     testing_rounds = 100000
 
     #agent = table_agent()

@@ -36,7 +36,7 @@ LongTensor = torch.LongTensor
 ByteTensor = torch.ByteTensor
 
 # hyperparameters
-BATCH_SIZE = 256 # TODO: change to 256 after debugging 
+BATCH_SIZE = 32 # TODO: change to 256 after debugging 
 GAMMA = 0.999
 # EPS_START = 1
 EPS_START = 0.05
@@ -44,7 +44,7 @@ EPS_END = 0.05
 EPS_DECAY = 20000
 WEIGHT_DECAY = 0.0001
 
-NUM_LAYERS = 11
+NUM_LAYERS = 4
 # k = np.rint(NUM_LAYERS / 2 + 0.5)
 k = 13
 num_episodes = 800000
@@ -214,7 +214,7 @@ class DQNAgent(agent):
 		state_approx = state_approx.view(1,-1)
 		self.model.eval()
 		Q_stand, Q_hit = self.model(state_approx)[0].detach()
-	
+		
 		# greedily return the action
 		if Q_stand > Q_hit:
 			action = 's'
@@ -280,6 +280,8 @@ class DQNAgent(agent):
 		agent_hands = episode['hands']
 		#reward = episode['reward']
 		dealer_card = episode['dealer'][0][0]
+		if self.counter % 1000 == 0:
+			print(self.counter)
 
 		if not actions: 
 			return
@@ -309,6 +311,8 @@ class DQNAgent(agent):
 
 			if (self.counter % 4) == 0: # every fourth step
 				self.optimize() 
+
+			self.counter += 1
 
 
 		# TODO: implement the policy method (epsilon greedy)
