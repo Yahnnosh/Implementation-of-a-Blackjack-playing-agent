@@ -142,7 +142,7 @@ if __name__ == '__main__':
     ]
 
     # 2) full policy (static, dynamic)
-    full_policies = [
+    '''full_policies = [
         (static_policies[0], None),
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
@@ -165,11 +165,26 @@ if __name__ == '__main__':
                                   max_bet=100,
                                   increment=1,
                                   hilo_increment='infty'))
+    ]'''
+    full_policies = [
+        (static_policies[0], None),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky',
+                                                                risk=-0.05)),
+        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
+                                                                min_bet=min_bet,
+                                                                max_bet=max_bet,
+                                                                increment=increment,
+                                                                strategy='risky',
+                                                                risk=-0.1)),
     ]
 
     # Select rounds
     training_rounds = 1000000
-    testing_rounds = 100000
+    testing_rounds = 1000000
 
     # Training phase (static policies)
     print('Starting training')
@@ -206,7 +221,7 @@ if __name__ == '__main__':
               '\t\t', long_term_profitability, '$\t\t', mean_loss_per_round, '$', '(+-', std_loss_per_round, '$)')
 
     # additional code for plot
-    ax0.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
+    ax0.hlines(starting_money, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     ax0.legend(loc='upper right')
     ax0.set_xlabel('rounds')
     ax0.set_ylabel('bank account')

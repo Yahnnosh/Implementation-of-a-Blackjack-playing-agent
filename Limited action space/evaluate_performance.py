@@ -27,6 +27,10 @@ import sys
 import numpy as np
 import statistics
 import pandas as pd
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+KMP_DUPLICATE_LIB_OK = True
+KMP_INIT_AT_FORK = False
 
 def simulate(policy, rounds, plot=False):
     """
@@ -39,7 +43,7 @@ def simulate(policy, rounds, plot=False):
     :return: rounded mean win rate, remaining money, mean loss per round, std loss per round
     """
     # reset card counting agent
-    if isinstance(policy,count_agent):
+    if isinstance(policy, count_agent):
         policy.reset_counting()
 
     # params
@@ -115,8 +119,8 @@ if __name__ == '__main__':
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 1000
-    testing_rounds = 100
+    training_rounds = 10000000
+    testing_rounds = 100000
 
     #agent = table_agent()
     

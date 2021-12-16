@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from agent  import agent
+from agent import agent
 
 import torch
 import torch.nn as nn
@@ -207,8 +207,8 @@ class DQNAgent(agent):
 		agent_hands = episode['hands']
 		#reward = episode['reward']
 		dealer_card = episode['dealer'][0][0]
-		if self.counter % 1000 == 0:
-			print(self.counter)
+		'''if self.counter % 1000 == 0:
+			print(self.counter)'''
 
 		if not actions: 
 			return
