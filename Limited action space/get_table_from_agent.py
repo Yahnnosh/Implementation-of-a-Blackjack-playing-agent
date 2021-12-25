@@ -12,10 +12,13 @@ from fast_value_iteration import fast_value_iteration
 from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
+from Q_learning_UCB import QAgent_UCB
 
 from dealer import dealer
 import matplotlib.pyplot as plt
 import math
+from tqdm import tqdm
+import sys
 
 def plot_table_hard(agent):
     """
@@ -41,12 +44,20 @@ def plot_table_hard(agent):
     # Get action for each combination
     actions = []
     sublist = []
+    visits = []  # TODO: only for debugging
+    visits_sublist = []  # TODO: only for debugging
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
+        q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
+        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
+        visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
+                              + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
+            visits.append(visits_sublist)  # TODO: only for debugging
+            visits_sublist = []  # TODO: only for debugging
 
     # Plot table (no 21 as the agent cannot do any action)
     columns = [str(i) for i in range(2, 11)]
@@ -59,11 +70,25 @@ def plot_table_hard(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Hard hand')
-    plt.table(cellText=actions,
+    table = plt.table(cellText=visits,  # TODO: only for debugging (otherwise: actions)
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+    table.auto_set_font_size(False)
+    table.set_fontsize(5)
+
+    # for LaTeX
+    '''green = '\cellcolor[HTML]{58D68D}'
+    blue = '\cellcolor[HTML]{3498DB}'
+    counter = 20
+    for sublist in actions:
+        line = str(counter)
+        for action in sublist:
+            color = green if action == 's' else blue
+            line += ' & ' + color + action
+        print(line + '\\\\' + '\\hline')
+        counter -= 1'''
 
 def plot_table_soft(agent):
     """
@@ -89,12 +114,20 @@ def plot_table_soft(agent):
     # Get action for each combination
     actions = []
     sublist = []
+    visits = []   # TODO: only for debugging
+    visits_sublist = []  # TODO: only for debugging
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
+        q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
+        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
+        visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
+                              + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
+            visits.append(visits_sublist)  # TODO: only for debugging
+            visits_sublist = []  # TODO: only for debugging
 
     # Plot table (no 21 as the agent cannot do any action)
     columns = [str(i) for i in range(2, 11)]
@@ -104,32 +137,48 @@ def plot_table_soft(agent):
     blue = '#23427F'
     green = '#167F45'
     colors = [[(blue if value == 'h' else green) for value in sublist] for sublist in actions]
+
     plt.axis('tight')
     plt.axis('off')
     plt.title('Soft hand')
-    plt.table(cellText=actions,
+    table = plt.table(cellText=visits,  # TODO: only for debugging (otherwise: actions)
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+    table.auto_set_font_size(False)
+    table.set_fontsize(5)
+
+    # for LaTeX
+    '''green = '\cellcolor[HTML]{58D68D}'
+    blue = '\cellcolor[HTML]{3498DB}'
+    counter = 20
+    for sublist in actions:
+        line = str(counter)
+        for action in sublist:
+            color = green if action == 's' else blue
+            line += ' & ' + color + action
+        print(line + '\\\\' + '\\hline')
+        counter -= 1'''
 
 if __name__ == '__main__':
     # Pick policy
-    #policy = QAgent()
-    policy = table_agent()
+    policy = QAgent_UCB(alpha=0.01)
+    #policy = table_agent()
     #policy = sarsa_agent()
     #policy = mc_agent()
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 10000000
+    training_rounds = 1000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
         print('Starting training')
         casino = dealer()
         # agent has implemented learn
-        for t in range(training_rounds):
+        for t in tqdm(range(training_rounds), leave=False, desc=policy_name,
+                      file=sys.stdout, disable=False):
             casino.play_round(policy, bet=1, learning=True)  # train agent
         print('Finished training for', policy_name)
         # sarsa needs explicit call

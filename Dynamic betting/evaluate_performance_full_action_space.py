@@ -137,8 +137,7 @@ if __name__ == '__main__':
     # Select policies
     # 1) static betting policies
     static_policies = [
-        QAgent_improved(),
-        table_agent()
+        QAgent_improved()
     ]
 
     # 2) full policy (static, dynamic)
@@ -173,18 +172,12 @@ if __name__ == '__main__':
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky',
-                                                                risk=-0.05)),
-        (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
-                                                                min_bet=min_bet,
-                                                                max_bet=max_bet,
-                                                                increment=increment,
-                                                                strategy='risky',
-                                                                risk=-0.1)),
+                                                                risk=0)),
     ]
 
     # Select rounds
-    training_rounds = 1000000
-    testing_rounds = 1000000
+    training_rounds = 10000000
+    testing_rounds = 100000
 
     # Training phase (static policies)
     print('Starting training')

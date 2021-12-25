@@ -18,7 +18,7 @@ from Q_learning_agent import QAgent
 from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
-from DQN_agent import DQNAgent
+#from DQN_agent import DQNAgent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -106,21 +106,21 @@ if __name__ == '__main__':
     # Select policies
     policies = [
         #double_QAgent(),
-        #random_agent(),
-        #dealer_policy(),
+        random_agent(),
+        dealer_policy(),
         #table_agent(),
         #count_agent(),
-        #mc_agent(),
-        #sarsa_agent(),
+        mc_agent(),
+        sarsa_agent(),
         #QAgent()
-        DQNAgent()
+        #DQNAgent()
         ]
     
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 10000000
-    testing_rounds = 100000
+    training_rounds = 1000000
+    testing_rounds = 1000000
 
     #agent = table_agent()
     

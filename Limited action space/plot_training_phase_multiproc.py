@@ -22,6 +22,7 @@ from Q_learning_agent import QAgent
 from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
+from Q_learning_UCB import QAgent_UCB
 
 from dealer import dealer
 
@@ -30,7 +31,7 @@ import sys
 from multiprocessing import Process, Manager
 
 
-def test(policy, testing_rounds):
+def _test(policy, testing_rounds):
     """
     Tests agent over 'training_rounds'
     :param agent: agent to test
@@ -74,7 +75,7 @@ def train_with_test(policy, training_rounds, testing_rounds, training_rounds_bef
             # sarsa needs explicit call
             if isinstance(policy, sarsa_agent):
                 policy.set_evaluating()
-            mean_win_rate.append(test(policy, testing_rounds=testing_rounds))
+            mean_win_rate.append(_test(policy, testing_rounds=testing_rounds))
             # sarsa needs explicit call
             if isinstance(policy, sarsa_agent):
                 policy.reset_evaluating()
@@ -107,16 +108,14 @@ def get_name(policy) -> str:
 if __name__ == '__main__':
     # Select policies
     policies = [
-        mc_agent(),
-        sarsa_agent(),
         QAgent(alpha=0.01),
-        double_QAgent()
+        QAgent_UCB()
     ]
 
     # Select rounds
-    training_rounds = 1000000
+    training_rounds = 10000000
     testing_rounds = 100000   # the higher the more accurate but will also take longer
-    training_rounds_before_testing = 1000  # the higher the smoother the curve but will also take longer
+    training_rounds_before_testing = 10000  # the higher the smoother the curve but will also take longer
 
     # Training phase (multiprocessed)
     print('Starting training')

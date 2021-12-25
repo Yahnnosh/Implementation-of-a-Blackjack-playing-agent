@@ -62,6 +62,23 @@ def plot_table_hard(agent):
               colLabels=columns,
               loc='upper left')
 
+    # for LaTeX
+    green = '\cellcolor[HTML]{58D68D}'
+    blue = '\cellcolor[HTML]{3498DB}'
+    orange = '\cellcolor[HTML]{F5B041}'
+    counter = 20
+    for sublist in actions:
+        line = str(counter)
+        for action in sublist:
+            color = blue
+            if action == 'stand':
+                color = green
+            elif action == 'double':
+                color = orange
+            line += ' & ' + color + action[0]
+        print(line + '\\\\' + '\\hline')
+        counter -= 1
+
 def plot_table_soft(agent):
     """
     Plots a table for all agent hand / dealer face up card soft combinations
@@ -112,6 +129,23 @@ def plot_table_soft(agent):
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+
+    # for LaTeX
+    green = '\cellcolor[HTML]{58D68D}'
+    blue = '\cellcolor[HTML]{3498DB}'
+    orange = '\cellcolor[HTML]{F5B041}'
+    counter = 20
+    for sublist in actions:
+        line = str(counter)
+        for action in sublist:
+            color = blue
+            if action == 'stand':
+                color = green
+            elif action == 'double':
+                color = orange
+            line += ' & ' + color + action[0]
+        print(line + '\\\\' + '\\hline')
+        counter -= 1
 
 def plot_table_split(agent):
     """
@@ -164,6 +198,18 @@ def plot_table_split(agent):
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+
+    # for LaTeX
+    yellow = '\cellcolor[HTML]{F4D03F}'
+    counter = 20
+    for sublist in actions:
+        line = str(counter)
+        for action in sublist:
+            color = yellow if action == 'split' else ''
+            a = 's' if action == 'split' else '-'
+            line += ' & ' + color + a
+        print(line + '\\\\' + '\\hline')
+        counter -= 1
 
 if __name__ == '__main__':
     # Pick policy
