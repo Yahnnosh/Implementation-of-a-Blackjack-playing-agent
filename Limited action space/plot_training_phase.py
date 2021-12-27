@@ -22,6 +22,7 @@ from Q_learning_agent import QAgent
 from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
+from DQN_agent import DQNAgent
 
 from dealer import dealer
 
@@ -29,7 +30,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import sys
 
-def test(agent, testing_rounds):
+def _test(agent, testing_rounds):
     """
     Tests agent over 'training_rounds'
     :param agent: agent to test
@@ -83,19 +84,18 @@ def get_name(policy) -> str:
         if character == '<':
             writing = True
 
+
 if __name__ == '__main__':
     # Select policies
     policies = [
-        mc_agent(),
-        sarsa_agent(),
         QAgent(alpha=0.01),
-        double_QAgent()
+        DQNAgent()
     ]
 
     # Select rounds
     training_rounds = 100000
-    testing_rounds = 10000   # the higher the more accurate but will also take longer
-    training_rounds_before_testing = 1000   # the higher the smoother the curve but will also take longer
+    testing_rounds = 100000   # the higher the more accurate but will also take longer
+    training_rounds_before_testing = 10000   # the higher the smoother the curve but will also take longer
 
     # Training phase
     print('Starting training')
@@ -109,7 +109,7 @@ if __name__ == '__main__':
                 # sarsa needs explicit call
                 if isinstance(policy, sarsa_agent):
                     policy.set_evaluating()
-                loss_per_rounds.append(test(policy, testing_rounds=testing_rounds))
+                loss_per_rounds.append(_test(policy, testing_rounds=testing_rounds))
                 # sarsa needs explicit call
                 if isinstance(policy, sarsa_agent):
                     policy.reset_evaluating()
