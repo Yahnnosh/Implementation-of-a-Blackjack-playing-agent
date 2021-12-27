@@ -13,6 +13,7 @@ from Q_learning_agent import QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from Q_learning_UCB import QAgent_UCB
+from DQN_agent import DQNAgent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -163,14 +164,15 @@ def plot_table_soft(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    policy = QAgent_UCB(alpha=0.01)
+    policy = DQNAgent()
+    #policy = QAgent_UCB(alpha=0.01)
     #policy = table_agent()
     #policy = sarsa_agent()
     #policy = mc_agent()
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 1000000
+    training_rounds = 100000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
