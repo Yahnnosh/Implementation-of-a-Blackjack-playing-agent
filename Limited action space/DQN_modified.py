@@ -17,32 +17,24 @@ import sys
 from agent import agent
 from dealer import dealer
 
-#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device = torch.device('cpu')
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # TODO: make it work
+#device = torch.device('cpu')
 print('Computing on:', device)
 
-FloatTensor = torch.FloatTensor
-LongTensor = torch.LongTensor
-ByteTensor = torch.ByteTensor
-
 # hyperparameters
-BATCH_SIZE = 256
+BATCH_SIZE = 256    # TODO: higher? -> GPU
 GAMMA = 0.999
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 200
-WEIGHT_DECAY = 0.0001
+EPS_DECAY = 200    # TODO: higher? (init: 200)
+WEIGHT_DECAY = 0.0001   # TODO: higher? (init: 0.0001)
 
-NUM_LAYERS = 12
-k = 13
-num_episodes = 800000
-start_period = 0
-decay_period = num_episodes - 150000 - start_period
-learning_rate = 0.0001
+NUM_LAYERS = 12  # TODO: higher? (init: 12)
+k = 13  # TODO: higher? (init: 13)
+learning_rate = 0.0001  # TODO: higher? (init: 0.0001)
 # how often to take gradient descent steps
-C = 4
-
-graph_interval = 10000
+C = 4   # TODO: higher? (init: 4)
 
 n_in = 4
 n_out = 2
@@ -61,6 +53,7 @@ for i in layers_size.keys():
     if i < NUM_LAYERS - 1:
         modules.append(nn.BatchNorm1d(layers_size[i]))
         modules.append(nn.ReLU())
+        #modules.append(nn.Dropout(p=0.1 + 0.05 * (i + 1)))  # TODO: useful?
 
 
 class Memory:  # memory buffer
@@ -89,21 +82,39 @@ class Memory:  # memory buffer
 class DQN(nn.Module):
     def __init__(self, modules):
         super(DQN, self).__init__()
-        for layer, module in enumerate(modules):
+        for layer, module in enumerate(modules):    # TODO: more complex network?
             self.add_module("layer_" + str(layer), module)
+        '''width1 = 100
+        width2 = 100
+        width3 = 60
+        width4 = 20
+        self.fc1 = nn.Linear(4, width1)
+        self.bn1 = nn.BatchNorm1d(width1)
+        self.fc2 = nn.Linear(width1, width2)
+        self.bn2 = nn.BatchNorm1d(width2)
+        self.fc3 = nn.Linear(width2, width3)
+        self.bn3 = nn.BatchNorm1d(width3)
+        self.fc4 = nn.Linear(width3, width4)
+        self.bn4 = nn.BatchNorm1d(width4)
+        self.fc5 = nn.Linear(width4, 2)'''
 
     def forward(self, x):
         x = x.to(device)
         for layer in self.children():
             x = layer(x)
         return x
-
+        '''x = F.relu(self.bn1(self.fc1(x)))
+        x = F.relu(self.bn2(self.fc2(x)))
+        x = F.relu(self.bn3(self.fc3(x)))
+        x = F.relu(self.bn4(self.fc4(x)))
+        x = self.fc5(x)
+        return x'''
 
 class DQNAgent(agent):
     def __init__(self):
-        self.model = DQN(modules).to(device)   # neural network with Stanford architecture
-        self.memory = Memory(20000)     # memory buffer
-        self.gamma = 1
+        self.target_model = DQN(modules).to(device)  # neural network used for loss function
+        self.model = DQN(modules).to(device)  # neural network with Stanford architecture
+        self.memory = Memory(10000)  # memory buffer    # TODO: smaller? (init: 20k)
         self.counter = 0
         self.optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=WEIGHT_DECAY)
         self.training = True
@@ -144,7 +155,7 @@ class DQNAgent(agent):
         if len(self.memory.memory) < BATCH_SIZE:
             return  # not enough experiences to generate the batch
         self.model.train()  # this tells Pytorch that we are in the training regime
-        sample = self.memory.sample(BATCH_SIZE)     # sample a batch of experiences from the buffer
+        sample = self.memory.sample(BATCH_SIZE)  # sample a batch of experiences from the buffer
         batch = list(zip(*sample))
 
         state_batch = torch.stack(batch[0])
@@ -164,7 +175,7 @@ class DQNAgent(agent):
         mask_next_state_batch = torch.tensor([0 if v is None else 1 for v in next_state_batch], device=device)
         to_nn_next_state_batch = [v if v is not None else torch.tensor([0, 0, 0, 0]) for v in next_state_batch]
         to_nn_next_state_batch = torch.stack(to_nn_next_state_batch).float().to(device)
-        V_s = self.model(to_nn_next_state_batch)
+        V_s = self.target_model(to_nn_next_state_batch)
         V_s, _ = torch.max(V_s, dim=1)
         V_s = V_s * mask_next_state_batch
         '''observed_sa = reward_batch + self.gamma * V_s'''
@@ -216,8 +227,9 @@ class DQNAgent(agent):
             experience = (current_state, action, reward, next_state)
             self.memory.push(experience)  # stores the experience in the memory buffer
 
+            self.optimize()
             if (self.counter % 4) == 0:  # every fourth step
-                self.optimize()
+                self.target_model.load_state_dict(self.model.state_dict())  # update target network
 
             self.counter += 1
 
@@ -228,21 +240,43 @@ if __name__ == '__main__':
     casino = dealer()
 
     # Select training round
-    training_rounds = 100000
+    training_rounds = 10000
 
     # Training phase
-    loss_per_round = []
+    rewards = []
     mean_loss_per_round = []
+
+    # live update
+    window = training_rounds // 10  # moving window with size 10% of total training rounds
+    with tqdm(total=training_rounds + 1) as pbar:
+        for t in range(training_rounds + 1):
+            if t > window:
+                wins = sum([1 if reward > 0 else 0 for reward in rewards[-window:]])
+                mean_win_rate = wins / window
+                pbar.set_description('Mean win rate: ' + str(mean_win_rate))
+
+                mean_loss = round(sum(rewards[-window:]) / window, 3)
+                mean_loss_per_round.append(mean_loss)
+
+            episode = casino.play_round(model, bet=1, learning=True)
+            reward = episode['reward']
+            rewards.append(reward)
+
+            pbar.update(1)
+    '''
+    # update at intervals
     for t in tqdm(range(training_rounds + 1), leave=False, desc='DQN', file=sys.stdout):
         # every 10% of training rounds show performance
-        if (t % (training_rounds / 10) == 0) and (t != 0):
-            mean_loss = round(sum(loss_per_round) / len(loss_per_round), 3)
-            print('\nMean loss per round: ', mean_loss, '$')
+        if (t % (training_rounds / 100) == 0) and (t != 0):
+            wins = sum([1 if reward > 0 else 0 for reward in rewards])
+            mean_win_rate = wins / len(rewards)
+            mean_loss = round(sum(rewards) / len(rewards), 3)
+            print('\nMean loss per round: ', mean_loss, '$', ' - Mean win rate: ', mean_win_rate)
             mean_loss_per_round.append(mean_loss)
-            loss_per_round = []
+            rewards = []
         episode = casino.play_round(model, bet=1, learning=True)
         reward = episode['reward']
-        loss_per_round.append(reward)
+        rewards.append(reward)'''
 
     plt.plot(mean_loss_per_round)
     plt.xlabel('rounds')

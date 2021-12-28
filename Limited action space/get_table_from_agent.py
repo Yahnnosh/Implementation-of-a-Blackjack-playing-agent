@@ -45,20 +45,12 @@ def plot_table_hard(agent):
     # Get action for each combination
     actions = []
     sublist = []
-    visits = []  # TODO: only for debugging
-    visits_sublist = []  # TODO: only for debugging
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
-        q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
-        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
-        visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
-                              + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
-            visits.append(visits_sublist)  # TODO: only for debugging
-            visits_sublist = []  # TODO: only for debugging
 
     # Plot table (no 21 as the agent cannot do any action)
     columns = [str(i) for i in range(2, 11)]
@@ -71,7 +63,7 @@ def plot_table_hard(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Hard hand')
-    table = plt.table(cellText=visits,  # TODO: only for debugging (otherwise: actions)
+    table = plt.table(cellText=actions,
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
@@ -115,20 +107,12 @@ def plot_table_soft(agent):
     # Get action for each combination
     actions = []
     sublist = []
-    visits = []   # TODO: only for debugging
-    visits_sublist = []  # TODO: only for debugging
     for i, hand in enumerate(hands):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
-        q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
-        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
-        visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
-                              + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
             actions.append(sublist)
             sublist = []
-            visits.append(visits_sublist)  # TODO: only for debugging
-            visits_sublist = []  # TODO: only for debugging
 
     # Plot table (no 21 as the agent cannot do any action)
     columns = [str(i) for i in range(2, 11)]
@@ -142,7 +126,7 @@ def plot_table_soft(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Soft hand')
-    table = plt.table(cellText=visits,  # TODO: only for debugging (otherwise: actions)
+    table = plt.table(cellText=actions,
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
