@@ -1,20 +1,28 @@
 # Q-learning agent for full action space supports the following actions:
 # 1) doubling-down
-# 2) splitting 
-# TODO: 
-# 3) insurance 
-# 4) surrender 
+# 2) splitting
+# TODO:
+# 3) insurance
+# 4) surrender
 
-# do not forget to check allowed actions 
+# do not forget to check allowed actions
 
 from agent import agent
 import numpy as np
 import random
-import time 
+import pandas as pd
 
-class QAgent(agent):
+# converting csv tables to dictionaries
+double_hard_table = pd.read_csv("double_hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is allowed
+double_soft_table = pd.read_csv("double_soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is allowed
+hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is not allowed
+soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is not allowed
+split_table = pd.read_csv("split_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is splittable
 
-    def __init__(self, alpha=0.01, strategy='greedy'):
+
+class Sarsa_agent(agent):
+
+    def __init__(self, alpha=0.01):
         self.NUMBER_OF_STATES = 363  # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
 
         # Q-values
@@ -24,69 +32,51 @@ class QAgent(agent):
         self.Double = np.zeros((self.NUMBER_OF_STATES, 2, 2))  # this is Q(State, Doubling)
 
         # Q-values of terminal states
-        self.Stand[0], self.Stand[1], self.Stand[2] = 1, -1, 0 
-        self.Hit[0], self.Hit[1], self.Hit[2] = 1, -1, 0 
-        self.Split[0], self.Split[1], self.Split[2] = 1, -1, 0 
-        self.Double[0], self.Double[1], self.Double[2] = 1, -1, 0 
-        
+        self.Stand[0], self.Stand[1], self.Stand[2] = 1, -1, 0
+        self.Hit[0], self.Hit[1], self.Hit[2] = 1, -1, 0
+        self.Split[0], self.Split[1], self.Split[2] = 1, -1, 0
+        self.Double[0], self.Double[1], self.Double[2] = 1, -1, 0
+
         self.gamma = 1  # we have a single reward at the end => no need to discount anything
         self.alpha = alpha  # learning rate
 
-        # policy
-        assert (strategy == 'greedy') or (strategy == 'softmax')
-        self.strategy = strategy
-
     def policy(self, hand, allowed_actions):  # given hand and allowed actions, take a certain action
-        old_state_index = self.state_approx(hand)  # this is state index given by old state approximation
-        splittable = 1 if 'split' in allowed_actions else 0  # if the agent's hand is splittable or not
-        first_hand = int(len(hand[0]) == 2)  # number of cards in an agent hand
-        state_index = (old_state_index, first_hand, splittable)
+        agent_hand = hand[0]
+        dealer_hand = hand[1]
 
-        Q_stand = self.Stand[state_index]
-        Q_hit = self.Hit[state_index]
-        Q_split = self.Split[state_index]
-        Q_double = self.Double[state_index]
-       
-        # Q-values of all actions for the given state 
-        Q_values = {'stand': [Q_stand], 'hit': [Q_hit], 'split': [Q_split], 'double': [Q_double]}  
-       
-        # Q-values of allowed actions 
-        Q_values_allowed = {}
-        for key in Q_values:
-            if key in allowed_actions:
-                Q_values_allowed[key] = Q_values[key]
+        # translate 10 face values for table use
+        if dealer_hand in {"J", "Q", "K"}:
+            dealer_hand = "10"
 
-        # greedy policy
-        if self.strategy == 'greedy':
-            # Q-values with biggest values
-            Q_values_max = {}
-            while True:
-                key_max = max(Q_values_allowed, key=Q_values_allowed.get)  # the action with biggest Q-value
-                Q_values_max[key_max] = Q_values_allowed.pop(key_max)
-                if Q_values_allowed:
-                    if Q_values_max[key_max] > max(Q_values_allowed.values()): # if Q values of other allowed actions are less
-                        break
-                else:
-                    break
+        agent_sum = self.evaluate(agent_hand)  # total card value of the agent
 
-            action = random.choice(list(Q_values_max))  # we choose random action among those with highest Q values
-            return action
+        # check if splittable
+        if 'split' in allowed_actions:
+            if agent_hand[0] in {"J", "Q", "K"}:
+                agent_hand[0] = "10"
+            if split_table[dealer_hand][agent_hand[0]]:  # if splitting recommended
+                return 'split'
 
-        # softmax policy
-        elif self.strategy == 'softmax':
-            def softmax(x):
-                temperature = 1
-                temp = np.array(x) * temperature
-                y = np.exp(temp)
-                f_x = y / np.sum(np.exp(temp))
-                return f_x
-
-            action = random.choices(population=list(Q_values_allowed),
-                                    weights=softmax(list(Q_values_allowed.values())))
-            return action[0]
-
+        if 'double' in allowed_actions:
+            if self.soft(agent_hand):
+                action = double_soft_table[dealer_hand][agent_sum]
+            else:
+                action = double_hard_table[dealer_hand][agent_sum]
         else:
-            raise NotImplementedError
+            if self.soft(agent_hand):
+                action = soft_table[dealer_hand][agent_sum]
+            else:
+                action = hard_table[dealer_hand][agent_sum]
+
+        actions = {
+            's': 'stand',
+            'h': 'hit',
+            'd': 'double'
+        }
+
+        action = actions[action]
+
+        return action
 
     def learn(self, episode):
         actions = episode['actions']
@@ -94,11 +84,12 @@ class QAgent(agent):
         reward = episode['reward']
         dealer_card = episode['dealer'][0][0]
 
-        if not actions: # actions list can be empty if either agent or dealer has a blackjack => nothing to learn here, just return 
+        if not actions:  # actions list can be empty if either agent or dealer has a blackjack => nothing to learn here, just return
             return
 
         if len(actions) != len(agent_hands):  # then and only then the agent busted
-            del agent_hands[-1] # so we remove the last hand of the agent from the episode because it doesn't carry any useful information (it is just lose state)
+            del agent_hands[
+                -1]  # so we remove the last hand of the agent from the episode because it doesn't carry any useful information (it is just lose state)
 
         if reward > 0:  # if the reward was positive, we won
             final_state_index = 0  # the index of the terminal win state
@@ -106,7 +97,7 @@ class QAgent(agent):
             final_state_index = 1  # the index of the terminal lose state
         elif reward == 0:
             final_state_index = 2  # the index of the terminal draw state
-       
+
         while agent_hands:  # while there is something we can learn from
             # current state, next state
             current_agent_hand = agent_hands.pop(0)  # current hand
@@ -154,8 +145,6 @@ class QAgent(agent):
         return self.Stand, self.Hit, self.Split, self.Double
 
     def split(self, hand):
-        hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten
+        hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand]  # all face cards are worth ten
         return hand[0] == hand[1]
 
-if __name__ == '__main__':
-    agent = QAgent() 

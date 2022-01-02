@@ -137,8 +137,12 @@ class double_QAgent(agent):
                     else:
                         self.Q2_S[current_state_index] += self.alpha * (reward + self.gamma * self.Q1_H[next_state_index]
                          - self.Q2_S[current_state_index])
-            self.update_q()
-
 
     def get_Q(self):
+        self.update_q()
         return self.Q_H, self.Q_S
+
+    def get_Q_hand(self, hand):
+        self.update_q()
+        state_index = self.state_approx(hand)
+        return self.Q_H[state_index], self.Q_S[state_index]

@@ -21,6 +21,37 @@ import math
 from tqdm import tqdm
 import sys
 
+def latexify(actions):
+    # colors for actions
+    green = '\cellcolor[HTML]{58D68D}'  # stand
+    blue = '\cellcolor[HTML]{3498DB}'   # hit
+
+    # header
+    print('\n\n'
+          '\\begin{table}[]'
+          '\n\t\centering'
+          '\n\t\scalebox{1}{'
+          '\n\t\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}'
+          '\n\t\t\hline'
+          '\n\t\t& 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & A\\\\'
+          '\n\t\t\\hline')
+
+    # table content
+    counter = 20    # top hand value in table
+    for sublist in actions:
+        line = '\t\t' + str(counter)
+        for action in sublist:
+            color = green if action == 's' else blue
+            line += ' & ' + color + action
+        print(line + '\\\\' + '\\hline')
+        counter -= 1
+
+    # footer
+    print('\t\\end{tabular}'
+          '\n\t}'
+          '\n\t\\caption{}'
+          '\n\\end{table}')
+
 def plot_table_hard(agent):
     """
     Plots a table for all agent hand / dealer face up card hard combinations
@@ -72,16 +103,7 @@ def plot_table_hard(agent):
     table.set_fontsize(5)
 
     # for LaTeX
-    '''green = '\cellcolor[HTML]{58D68D}'
-    blue = '\cellcolor[HTML]{3498DB}'
-    counter = 20
-    for sublist in actions:
-        line = str(counter)
-        for action in sublist:
-            color = green if action == 's' else blue
-            line += ' & ' + color + action
-        print(line + '\\\\' + '\\hline')
-        counter -= 1'''
+    latexify(actions)
 
 def plot_table_soft(agent):
     """
@@ -135,28 +157,20 @@ def plot_table_soft(agent):
     table.set_fontsize(5)
 
     # for LaTeX
-    '''green = '\cellcolor[HTML]{58D68D}'
-    blue = '\cellcolor[HTML]{3498DB}'
-    counter = 20
-    for sublist in actions:
-        line = str(counter)
-        for action in sublist:
-            color = green if action == 's' else blue
-            line += ' & ' + color + action
-        print(line + '\\\\' + '\\hline')
-        counter -= 1'''
+    latexify(actions)
 
 if __name__ == '__main__':
     # Pick policy
-    policy = DQNAgent()
+    #policy = DQNAgent()
     #policy = QAgent_UCB(alpha=0.01)
+    #policy = QAgent()
     #policy = table_agent()
-    #policy = sarsa_agent()
-    #policy = mc_agent()
+    policy = sarsa_agent(strategy='table')
+    #policy = mc_agent(strategy='random')
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 100000
+    training_rounds = 10000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:

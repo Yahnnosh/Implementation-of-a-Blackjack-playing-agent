@@ -24,21 +24,32 @@ import random
 import statistics
 
 class mc_agent(agent):
-    def __init__(self):
+    def __init__(self, strategy='greedy'):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.Q_S = np.zeros(self.NUMBER_OF_STATES)
         self.Q_H = np.zeros(self.NUMBER_OF_STATES)
         self.Q_S_count = np.zeros(self.NUMBER_OF_STATES) # count state-action visitations 
-        self.Q_H_count = np.zeros(self.NUMBER_OF_STATES) # count state-action visitations 
+        self.Q_H_count = np.zeros(self.NUMBER_OF_STATES) # count state-action visitations
+        assert (strategy == 'greedy') or (strategy == 'random')
+        self.strategy = strategy
 
-    def policy(self, hand): # greedy policy based on the current estimate of Q functions
-        state_index = self.state_approx(hand) 
-        if self.Q_H[state_index] > self.Q_S[state_index]:
-            return 'h'
-        elif self.Q_H[state_index] < self.Q_S[state_index]:
-            return 's'
-        elif self.Q_H[state_index] == self.Q_S[state_index]:
+    def policy(self, hand):
+        # greedy policy based on the current estimate of Q functions
+        if self.strategy == 'greedy':
+            state_index = self.state_approx(hand)
+            if self.Q_H[state_index] > self.Q_S[state_index]:
+                return 'h'
+            elif self.Q_H[state_index] < self.Q_S[state_index]:
+                return 's'
+            elif self.Q_H[state_index] == self.Q_S[state_index]:
+                return random.choice(['h', 's'])
+
+        # random action for each state
+        elif self.strategy == 'random':
             return random.choice(['h', 's'])
+
+        else:
+            raise NotImplementedError
 
     def learn(self, episode):
         actions = episode['actions']

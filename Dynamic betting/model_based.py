@@ -151,7 +151,8 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                 # draw dealer card
                 for dealer_card in values:
                     # evaluate hand
-                    state_index = (self.state_approx([[card1, card2], dealer_card]), 0)    # TODO: only for new_policy
+                    '''state_index = (self.state_approx([[card1, card2], dealer_card]), 0)    # TODO: only for new_policy'''
+                    state_index = (self.state_approx([[card1, card2], dealer_card]))  # TODO: only for new_policy
                     V[card1, card2, dealer_card] = max(
                         Q_hit[state_index], Q_stand[state_index])
 

@@ -6,12 +6,12 @@ import time
 
 class QAgent_UCB(agent):
 
-    def __init__(self, alpha=0.01, UCB_hyperparam=0.5):
+    def __init__(self, alpha=0.01, UCB_hyperparam=2**0.5):
         self.NUMBER_OF_STATES = 363  # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.S = np.zeros(self.NUMBER_OF_STATES)  # this is Q(State, S)
         self.H = np.zeros(self.NUMBER_OF_STATES)  # this is Q(State, H)
-        self.S_visitations = np.zeros(self.NUMBER_OF_STATES)
-        self.H_visitations = np.zeros(self.NUMBER_OF_STATES)
+        self.S_visitations = np.zeros(self.NUMBER_OF_STATES)    # N(s, a = stand)
+        self.H_visitations = np.zeros(self.NUMBER_OF_STATES)    # N(s, a = hit)
         self.H[0], self.H[1], self.H[2] =\
             1, -1, 0  # Q(State,H) when State is terminal (win/lose/draw); what would happen if we set them to zero?
         self.S[0], self.S[1], self.S[2] =\
@@ -29,13 +29,14 @@ class QAgent_UCB(agent):
         hit_visitations = max(1, self.H_visitations[state_index])
         stand_visitations = max(1, self.S_visitations[state_index])
 
+        # UCB
         Q_hit = self.H[state_index] + self.UCB_hyperparam * (np.log(state_visitations) / hit_visitations)**0.5
-        Q_hit = min(1, Q_hit) if Q_hit > 0 else max(-1, Q_hit) # TODO: check if useful
         Q_stand = self.S[state_index] + self.UCB_hyperparam * (np.log(state_visitations) / stand_visitations)**0.5
-        Q_stand = min(1, Q_stand) if Q_stand > 0 else max(-1, Q_stand) # TODO: check if useful
 
-        if (stand_visitations >= 1000) and (hit_visitations >= 3):  # TODO: away for debugging
-            a = 1    # TODO: away for debugging
+        # clipping
+        '''Q_hit = min(1, Q_hit) if Q_hit > 0 else max(-1, Q_hit) # TODO: check if useful
+        Q_stand = min(1, Q_stand) if Q_stand > 0 else max(-1, Q_stand) # TODO: check if useful'''
+
         if Q_hit == Q_stand:
             return random.choice(['h', 's'])
         else:
@@ -90,7 +91,7 @@ class QAgent_UCB(agent):
                         reward + self.gamma * max(self.H[next_state_index], self.S[next_state_index]) - self.H[
                     current_state_index])
                 value = self.H[current_state_index]
-                self.H[current_state_index] = min(1, value) if value > 0 else max(-1, value) # TODO: check if useful
+                '''self.H[current_state_index] = min(1, value) if value > 0 else max(-1, value) # TODO: check if useful'''
                 self.H_visitations[current_state_index] += 1
 
             elif action == 's':  # if the action was state the we update corresponding Q(State, S) function
@@ -98,7 +99,7 @@ class QAgent_UCB(agent):
                         reward + self.gamma * max(self.H[next_state_index], self.S[next_state_index]) - self.S[
                     current_state_index])
                 value = self.S[current_state_index]
-                self.S[current_state_index] = min(1, value) if value > 0 else max(-1, value) # TODO: check if useful
+                '''self.S[current_state_index] = min(1, value) if value > 0 else max(-1, value) # TODO: check if useful'''
                 self.S_visitations[current_state_index] += 1
 
             # uncomment if we want alpha decay self.alpha = (1/ (1/alpha + 1))

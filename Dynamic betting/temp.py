@@ -150,12 +150,12 @@ if __name__ == '__main__':
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky',
-                                                                risk=0)),
+                                                                risk=0.56)),
     ]
 
     # Select rounds
-    training_rounds = 10000
-    testing_rounds = 1000
+    training_rounds = 1000000
+    testing_rounds = 1000000
 
     # Training phase (static policies)
     print('Starting training')
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     # Testing phase
     print('\nStarting testing')
-    fig, (ax0, ax1) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [5, 1]})
+    fig, (ax0, ax1, ax3) = plt.subplots(3, 1, gridspec_kw={'height_ratios': [5, 1, 1]})
     # simulate for each policy
     for tuple in full_policies:
         static = tuple[0]
@@ -184,6 +184,7 @@ if __name__ == '__main__':
         # retrain dynamic policy (to use trained static policy)
         if dynamic is not None:
             dynamic.reset()
+            dynamic.record()
 
         mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round \
             = simulate(static, dynamic, testing_rounds, ax0, ax1, starting_money)
@@ -200,5 +201,17 @@ if __name__ == '__main__':
     ax1.set_ylim(min_bet, max_bet)
     ax1.set_xlabel('rounds')
     ax1.set_ylabel('bet')
+
+    for tuple in full_policies:
+        static = tuple[0]
+        dynamic = tuple[1]
+
+        # retrain dynamic policy (to use trained static policy)
+        if dynamic is not None:
+            dynamic.show_record(ax3)
+
+    ax3.hlines(0, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
+    ax3.set_xlabel('rounds')
+    ax3.set_ylabel('expected return')
 
     plt.show()

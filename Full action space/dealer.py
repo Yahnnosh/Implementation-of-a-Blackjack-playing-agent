@@ -136,8 +136,8 @@ class dealer:
 
     # Return True if cards can be splitted 
     def split(self, hand): 
-    	hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten 
-    	return hand[0] == hand[1]
+        hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten
+        return hand[0] == hand[1]
 
     # Evaluates and returns the value of `hand`. If an ace is in `hand` then we check if that ace could be used as an
     # 11 and return the sum of the values of the cards + 10.

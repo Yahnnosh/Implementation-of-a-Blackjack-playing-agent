@@ -26,10 +26,15 @@
 from agent import agent
 import numpy as np
 import random
+import pandas as pd
+
+# converting csv tables to dictionaries (used for policy = table policy)
+hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard
+soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft
 
 class sarsa_agent(agent):
 
-    def __init__(self):
+    def __init__(self, strategy='greedy'):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
         self.H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
@@ -41,6 +46,8 @@ class sarsa_agent(agent):
         self.act_based_on_previous_q = False # this variable decides if we act based on previous (or current) state action value function 
         self.stored_action = '' # this is the action for the current step which is determined from the previous estimate of the q function
         self.evaluating = False # used for evaluating the already trained sarsa agent where it is set to True
+        assert (strategy == 'greedy') or (strategy == 'table')
+        self.strategy = strategy
 
     def greedy_policy(self, hand): # usual greedy policy; it returns the action based on the current estimate of the state-action value function
         state_index = self.state_approx(hand) # we return the current state index
@@ -56,13 +63,35 @@ class sarsa_agent(agent):
         self.evaluating = True
 
     def policy(self, hand):
-        if self.evaluating == True:
-            self.act_based_on_previous_q = False
-        if self.act_based_on_previous_q:
-            return self.stored_action # then we act according to the q function from the previous iteration 
+        # greedy policy
+        if self.strategy == 'greedy':
+            if self.evaluating == True:
+                self.act_based_on_previous_q = False
+            if self.act_based_on_previous_q:
+                return self.stored_action # then we act according to the q function from the previous iteration
+            else:
+                self.act_based_on_previous_q = True # after we will act based on the previous q
+                return self.greedy_policy(hand) # but now we act according to the most recent q function
+
+        # table policy
+        elif self.strategy == 'table':
+            agent_hand = hand[0]
+            dealer_hand = hand[1]
+
+            if dealer_hand in {"J", "Q", "K"}:  # they all have the same value
+                dealer_hand = "10"
+
+            agent_sum = self.evaluate(agent_hand)  # total card value of the agent
+
+            if self.soft(agent_hand):
+                action = soft_table[dealer_hand][agent_sum]
+            else:
+                action = hard_table[dealer_hand][agent_sum]
+
+            return action
+
         else:
-            self.act_based_on_previous_q = True # after we will act based on the previous q 
-            return self.greedy_policy(hand) # but now we act according to the most recent q function
+            raise NotImplementedError
 
     def learn(self, episode):
         #print("learning starts")

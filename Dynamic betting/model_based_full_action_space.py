@@ -9,6 +9,7 @@ value function of the static betting policy
 ----------------------------------------------------------------------------
 FOR NOW ONLY WORKS WITH Q-LEARNING (limited action space)!
 """
+import matplotlib.pyplot as plt
 
 # Import agents
 from dynamic_betting_agent import Dynamic_betting_agent
@@ -37,6 +38,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
 
         # static betting policy params
         self.V = None   # requires reset after static policy is trained
+        self.recording, self.data = False, []   # for visualizing
 
     def reset(self):
         """
@@ -101,6 +103,8 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
 
         # TODO: change risk here for encouraging higher bets (more risky play)
         expected_return += self.risk
+        if self.recording:  # TODO: record
+            self.data.append(expected_return)   # TODO: record
 
         if self.strategy == 'risky':
             recommended_bet = max_bet if (expected_return > 0) else min_bet  # can adapt threshold
@@ -152,7 +156,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                 for dealer_card in values:
                     # evaluate hand
                     splittable = 1 if card1 == card2 else 0
-                    state_index = (self.state_approx([[card1, card2], dealer_card]), 0, splittable)    # TODO: only for new_policy
+                    state_index = (self.state_approx([[card1, card2], dealer_card]), 1, splittable)    # TODO: only for new_policy
                     V[card1, card2, dealer_card] = max(
                         Q_hit[state_index], Q_stand[state_index], Q_split[state_index], Q_double[state_index])
 
@@ -166,3 +170,9 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
             V[hand] = normalize(V[hand])
 
         return V
+
+    def record(self):
+        self.recording = True
+
+    def show_record(self, ax):
+        ax.plot(self.data)

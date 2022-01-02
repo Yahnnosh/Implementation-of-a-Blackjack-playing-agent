@@ -113,7 +113,7 @@ if __name__ == '__main__':
     ]
 
     # Select rounds
-    training_rounds = 10000000
+    training_rounds = 1000000
     testing_rounds = 100000   # the higher the more accurate but will also take longer
     training_rounds_before_testing = 10000  # the higher the smoother the curve but will also take longer
 
