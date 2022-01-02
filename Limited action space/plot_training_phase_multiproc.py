@@ -23,6 +23,7 @@ from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from Q_learning_UCB import QAgent_UCB
+from SARSA_policy import SARSA_agent
 
 from dealer import dealer
 
@@ -108,12 +109,12 @@ def get_name(policy) -> str:
 if __name__ == '__main__':
     # Select policies
     policies = [
-        QAgent(alpha=0.01),
-        QAgent_UCB()
+        double_QAgent(strategy='e-greedy'),
+        SARSA_agent(strategy='e-greedy')
     ]
 
     # Select rounds
-    training_rounds = 1000000
+    training_rounds = 100000
     testing_rounds = 100000   # the higher the more accurate but will also take longer
     training_rounds_before_testing = 10000  # the higher the smoother the curve but will also take longer
 

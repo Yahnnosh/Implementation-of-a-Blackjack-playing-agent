@@ -27,6 +27,7 @@ from agent import agent
 import numpy as np
 import random
 import pandas as pd
+import math
 
 # converting csv tables to dictionaries (used for policy = table policy)
 hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard
@@ -36,18 +37,28 @@ class sarsa_agent(agent):
 
     def __init__(self, strategy='greedy'):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
+
+        # Initialization: Q-values
         self.S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
         self.H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
         self.H[0], self.H[1], self.H[2] = 0, 0, 0 # state action value functions of the terminal states are always zero under SARSA algorithm 
-        self.S[0], self.S[1], self.S[2] = 0, 0, 0 # state action value functions of the terminal states are always zero under SARSA algorithm 
+        self.S[0], self.S[1], self.S[2] = 0, 0, 0 # state action value functions of the terminal states are always zero under SARSA algorithm
+
         self.gamma = 1 # we have a single reward at the end => no need to discount anything 
         self.alpha = 0.01 # learning rate; TODO: 1) perform hyperparameter optimization; 2) see what happens if alpha decays in time ->  
-        # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy  
+        # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy
+
+        # Helper params
         self.act_based_on_previous_q = False # this variable decides if we act based on previous (or current) state action value function 
         self.stored_action = '' # this is the action for the current step which is determined from the previous estimate of the q function
         self.evaluating = False # used for evaluating the already trained sarsa agent where it is set to True
-        assert (strategy == 'greedy') or (strategy == 'table')
-        self.strategy = strategy
+
+        # Policy params
+        assert (strategy == 'table') or (strategy == 'greedy') \
+               or (strategy == 'e-greedy') or (strategy == 'softmax')
+        self.strategy = strategy  # policy
+        self.epsilon = 0.5
+        self.epsilon_decay = 0.99996
 
     def greedy_policy(self, hand): # usual greedy policy; it returns the action based on the current estimate of the state-action value function
         state_index = self.state_approx(hand) # we return the current state index
@@ -63,6 +74,8 @@ class sarsa_agent(agent):
         self.evaluating = True
 
     def policy(self, hand):
+        state_index = self.state_approx(hand)  # current state index
+
         # greedy policy
         if self.strategy == 'greedy':
             if self.evaluating == True:
@@ -89,6 +102,35 @@ class sarsa_agent(agent):
                 action = hard_table[dealer_hand][agent_sum]
 
             return action
+
+        # epsilon-greedy policy
+        elif self.strategy == 'e-greedy':
+            # act randomly
+            if np.random.rand() < self.epsilon:
+                action = random.choice(['h', 's'])
+            # act greedily
+            else:
+                if self.H[state_index] > self.S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
+                    action = 'h'
+                elif self.H[state_index] < self.S[state_index]:
+                    action = 's'
+                elif self.H[state_index] == self.S[state_index]:
+                    action = random.choice(['h', 's'])
+
+            self.epsilon *= self.epsilon_decay
+            return action
+
+        # softmax policy
+        elif self.strategy == 'softmax':
+
+            def softmax(x):
+                temperature = 1
+                denom = sum([math.exp(temperature * q) for q in x])
+                return [math.exp(temperature * q) / denom for q in x]
+
+            action = random.choices(population=['h', 's'],
+                                    weights=softmax([self.H[state_index], self.S[state_index]]))
+            return action[0]
 
         else:
             raise NotImplementedError
@@ -142,3 +184,17 @@ class sarsa_agent(agent):
 
     def get_Q(self):
         return self.H, self.S
+
+    def get_Q_hand(self, hand):
+        state_index = self.state_approx(hand)
+        return self.H[state_index], self.S[state_index]
+
+    def save_Q(self):
+        for action, q in {'hit': self.H, 'stand': self.S}.items():
+            name = 'sarsa-' + action
+            df = pd.DataFrame(q)
+            df.to_csv('Models/' + name + '.csv')
+
+    def load_Q(self, filename_hit, filename_stand):
+        H, S = pd.read_csv(filename_hit), pd.read_csv(filename_stand)
+        self.H, self.S = list(H.to_numpy()[:, 1]), list(S.to_numpy()[:, 1])

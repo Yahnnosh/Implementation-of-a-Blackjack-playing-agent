@@ -15,6 +15,7 @@ from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from Q_learning_UCB import QAgent_UCB
 from DQN_agent import DQNAgent
+from SARSA_policy import SARSA_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -52,7 +53,7 @@ def plot_table_hard(agent):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
         q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
-        hits, stands = 0,0#agent.get_visitations(hand)  # TODO: only for debugging
+        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
         visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
                               + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
@@ -78,7 +79,7 @@ def plot_table_hard(agent):
               colLabels=columns,
               loc='upper left')
     table.auto_set_font_size(False)
-    table.set_fontsize(5)
+    table.set_fontsize(7)
 
     # for LaTeX
     '''green = '\cellcolor[HTML]{58D68D}'
@@ -122,7 +123,7 @@ def plot_table_soft(agent):
         # make breaks so that table plotting works (convert to matrix form)
         sublist.append(agent.policy(hand))
         q_h, q_s = policy.get_Q_hand(hand)   # TODO: only for debugging
-        hits, stands = 0,0#agent.get_visitations(hand)  # TODO: only for debugging
+        hits, stands = agent.get_visitations(hand)  # TODO: only for debugging
         visits_sublist.append(str(int(hits)) + '(' + str(round(q_h, 1)) + ')\n'
                               + str(int(stands)) + '(' + str(round(q_s, 1)) + ')')  # TODO: only for debugging
         if (i + 1) % 10 == 0:
@@ -149,7 +150,7 @@ def plot_table_soft(agent):
               colLabels=columns,
               loc='upper left')
     table.auto_set_font_size(False)
-    table.set_fontsize(5)
+    table.set_fontsize(7)
 
     # for LaTeX
     '''green = '\cellcolor[HTML]{58D68D}'
@@ -167,15 +168,16 @@ if __name__ == '__main__':
     # Pick policy
     #policy = DQNAgent()
     #policy = QAgent_UCB()
-    policy = double_QAgent()
+    #policy = double_QAgent(alpha=0.01, strategy='e-greedy')
     #policy = QAgent()
     #policy = table_agent()
-    #policy = sarsa_agent()
-    #policy = mc_agent()
+    #policy = sarsa_agent(strategy='e-greedy')
+    #policy = mc_agent(strategy='random')
+    policy = SARSA_agent(strategy='softmax')
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
-    training_rounds = 10000000
+    training_rounds = 1000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
@@ -192,6 +194,10 @@ if __name__ == '__main__':
     else:
         # agent has not implemented learn
         pass
+
+    #policy.activate_greedy()
+    policy.activate_greedy()
+    policy.save_Q()
 
     # Plot table hard
     fig = plt.figure()

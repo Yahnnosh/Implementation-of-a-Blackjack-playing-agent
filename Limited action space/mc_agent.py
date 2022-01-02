@@ -33,6 +33,9 @@ class mc_agent(agent):
         assert (strategy == 'greedy') or (strategy == 'random')
         self.strategy = strategy
 
+    def activate_greedy(self):
+        self.strategy = 'greedy'
+
     def policy(self, hand):
         # greedy policy based on the current estimate of Q functions
         if self.strategy == 'greedy':
@@ -84,3 +87,6 @@ class mc_agent(agent):
     def get_Q(self):
         return self.Q_H, self.Q_S
 
+    def get_Q_hand(self, hand):
+        state_index = self.state_approx(hand)
+        return self.Q_H[state_index], self.Q_S[state_index]
