@@ -173,7 +173,7 @@ if __name__ == '__main__':
     #policy = table_agent()
     #policy = sarsa_agent(strategy='e-greedy')
     #policy = mc_agent(strategy='random')
-    policy = SARSA_agent(strategy='softmax')
+    policy = SARSA_agent(alpha=0.005, strategy='softmax')
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase

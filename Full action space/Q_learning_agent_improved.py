@@ -129,7 +129,7 @@ class QAgent_improved(agent):
             
             # current and next state given in old state approximation 
             old_current_state_index = self.state_approx([current_agent_hand, dealer_card]) 
-            old_next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index 
+            old_next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index
         
             # new state approximation 
             #current_state_index = (old_current_state_index, current_splittable)    
@@ -172,4 +172,5 @@ class QAgent_improved(agent):
         return hand[0] == hand[1]
 
 if __name__ == '__main__':
-    agent = QAgent() 
+    agent = QAgent_improved()
+    print(1)

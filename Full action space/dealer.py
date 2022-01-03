@@ -191,8 +191,15 @@ class dealer:
             if self.split(agent_hand) and (splitting == False): # if agent can split and if this is the first split 
                 allowed_actions.append('split') # then he is allowed to split 
             
-            action = agent.policy(state, allowed_actions) # agent's first action 
-            episode['actions'].append(action)
+            action = agent.policy(state, allowed_actions) # agent's first action
+            if self.blackjack(dealer_hand):
+                reward = 0  # So, if a dealer hits Blackjack then reward = 0
+                episode['reward'] = reward
+                if learning:
+                    agent.learn(episode)
+                return episode
+            else:   # otherwise would punish action even though didnt affect outcome    # TODO: remove above if line from all actions below
+                episode['actions'].append(action)
         else:
             action = 'no_action' # TODO change 
 
@@ -201,12 +208,14 @@ class dealer:
             if self.blackjack(dealer_hand):
                 reward = 0 # So, if a dealer hits Blackjack then reward = 0 
                 episode['reward'] = reward
-                agent.learn(episode)
+                if learning:
+                    agent.learn(episode)
                 return episode
             else: 
                 reward = -bet/2 # agent loses the side bet but the game continues 
                 action = agent.policy(state, allowed_actions) # agent takes second action
                 episode['actions'].append(action)
+                return episode
      
         if (action == 'split'): 
             # construct two hands and play them sequentially 
@@ -218,8 +227,9 @@ class dealer:
 
             # reward of the splitting episode is just a sum of the rewards of "daughter" hands 
             reward += episode1['reward'] + episode2['reward']
-            episode['reward'] = reward 
-            agent.learn(episode)
+            episode['reward'] = reward
+            if learning:
+                agent.learn(episode)
             return episode
 
         if (action == 'double'):     
@@ -227,19 +237,22 @@ class dealer:
             if self.blackjack(dealer_hand): # if the dealer has a natural, the agent loses everything
                 reward += -bet
                 episode['reward'] = reward
-                agent.learn(episode)
+                if learning:
+                    agent.learn(episode)
                 return episode
             else: 
                 # we just play usual game after doubling down with the only exception 
                 # that we hit only one time
 
-                agent_hand.append(self.draw(agent)) # the agent must hit and stand if doubling down 
+                agent_hand.append(self.draw(agent)) # the agent must hit and stand if doubling down
+                episode['hands'].append(agent_hand.copy())
                 agent_busted = self.busted(agent_hand) # check if the agent is busted or not 
         			
                 if agent_busted:
                     reward += -bet
                     episode['reward'] = reward
-                    agent.learn(episode)
+                    if learning:
+                        agent.learn(episode)
                     return episode 
 			
                 # next the dealer takes his cards 
@@ -251,7 +264,8 @@ class dealer:
                 if self.busted(dealer_hand):
                     reward += bet
                     episode['reward'] = reward
-                    agent.learn(episode)
+                    if learning:
+                        agent.learn(episode)
                     return episode 
 
                 # compare values of hands of agent and dealer  
@@ -264,7 +278,8 @@ class dealer:
                 elif self.evaluate(agent_hand) == self.evaluate(dealer_hand):
                     reward += 0
                 episode['reward'] = reward
-                agent.learn(episode)
+                if learning:
+                    agent.learn(episode)
                 return episode
 
         # Check for blackjacks using the following rules:

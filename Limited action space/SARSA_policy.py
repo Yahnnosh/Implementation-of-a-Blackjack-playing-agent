@@ -20,7 +20,7 @@ class SARSA_agent(agent):
         self.H_visitations = np.zeros(self.NUMBER_OF_STATES)  # N(s, hit)
 
         self.gamma = 1  # discount factor
-        self.alpha = 0.01  # learning rate
+        self.alpha = alpha  # learning rate
 
         # Policy params
         assert (strategy == 'random') or (strategy == 'greedy') \

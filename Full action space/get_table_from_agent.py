@@ -6,6 +6,7 @@ Plots a table for all agent hand / dealer face up card combinations
 from Q_learning_agent import QAgent
 from Q_learning_agent_improved import QAgent_improved
 from table_policy import table_agent
+from SARSA_policy import SARSA_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -57,11 +58,13 @@ def plot_table_hard(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Hard hand')
-    plt.table(cellText=actions,
+    table = plt.table(cellText=actions,
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+    table.auto_set_font_size(False)
+    table.set_fontsize(7)
 
     # for LaTeX
     green = '\cellcolor[HTML]{58D68D}'
@@ -125,11 +128,13 @@ def plot_table_soft(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Soft hand')
-    plt.table(cellText=actions,
+    table = plt.table(cellText=actions,
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+    table.auto_set_font_size(False)
+    table.set_fontsize(7)
 
     # for LaTeX
     green = '\cellcolor[HTML]{58D68D}'
@@ -194,11 +199,13 @@ def plot_table_split(agent):
     plt.axis('tight')
     plt.axis('off')
     plt.title('Splittable hand')
-    plt.table(cellText=actions,
+    table = plt.table(cellText=actions,
               cellColours=colors,
               rowLabels=rows,
               colLabels=columns,
               loc='upper left')
+    table.auto_set_font_size(False)
+    table.set_fontsize(7)
 
     # for LaTeX
     yellow = '\cellcolor[HTML]{F4D03F}'
@@ -214,7 +221,8 @@ def plot_table_split(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    policy = QAgent(strategy='greedy')
+    #policy = QAgent(strategy='greedy')
+    policy = SARSA_agent(strategy='softmax')
     #policy = table_agent()
     #policy = QAgent_improved()
     policy_name = str(type(policy))[8:].split('.')[0]
@@ -244,3 +252,4 @@ if __name__ == '__main__':
     plt.subplot(1, 3, 3)
     plot_table_split(policy)
     plt.show()
+    print(1)    # for debugging (pause)
