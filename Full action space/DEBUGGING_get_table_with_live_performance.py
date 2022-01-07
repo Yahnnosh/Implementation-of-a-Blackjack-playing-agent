@@ -3,10 +3,10 @@ Plots a table for all agent hand / dealer face up card combinations
 """
 
 # Import all agents
-from Q_learning_agent import QAgent
-from Q_learning_agent_improved import QAgent_improved
+from Q_learning import QAgent
+from Q_learning_agent_old import QAgent
 from table_policy import table_agent
-from SARSA_policy import SARSA_agent
+from sarsa_agent import SARSA_agent
 
 from dealer import dealer
 import matplotlib.pyplot as plt

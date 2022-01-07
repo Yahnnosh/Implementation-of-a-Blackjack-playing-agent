@@ -9,8 +9,8 @@ metrics:
 
 # Import all agents
 from table_policy import table_agent        # hard baseline
-from Q_learning_agent import QAgent
-from Q_learning_agent_improved import QAgent_improved
+from Q_learning import QAgent
+from Q_learning_agent_old import QAgent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     # Select policies
     policies = [
         table_agent(),
-        QAgent_improved()
+        QAgent()
         ]
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 

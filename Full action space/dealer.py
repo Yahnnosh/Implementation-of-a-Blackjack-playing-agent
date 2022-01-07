@@ -66,7 +66,6 @@ Random questions:
 """
 
 
-
 import random
 from table_policy import table_agent
 

@@ -1,11 +1,13 @@
 from agent import agent
 import numpy as np
 import random
-import time 
+import time
+import math
 
 class QAgent(agent):
 
-    def __init__(self, alpha=0.01):
+    def __init__(self, alpha=0.01, strategy='random', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.MAX_NUMBER_OF_CARDS = 9
         self.epsilon = 0.2 # GLIE policy parameter
@@ -18,6 +20,16 @@ class QAgent(agent):
         self.gamma = 1 # we have a single reward at the end => no need to discount anything 
         self.alpha = alpha # learning rate
         self.rand = 0
+
+        # Policy params
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb')
+        self.strategy = strategy  # policy
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.temperature = temperature
+        self.ucb_param = ucb_param
 
     def policy(self, hand):
         return self.new_policy(hand)

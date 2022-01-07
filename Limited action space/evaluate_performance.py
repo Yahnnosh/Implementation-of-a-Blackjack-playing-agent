@@ -14,12 +14,12 @@ from table_policy import table_agent        # hard baseline
 from card_counting import count_agent       # optimal baseline
 from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
-from Q_learning_agent import QAgent
+from Q_learning_agent_old import QAgent
 from double_q import double_QAgent
-from sarsa_agent import sarsa_agent
+from sarsa_agent_old import sarsa_agent
+from sarsa_agent import SARSA_agent
 from mc_agent import mc_agent
-#from DQN_agent import DQNAgent
-from Q_learning_UCB import QAgent_UCB
+from DQN_agent import DQNAgent
 
 from dealer import dealer
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 KMP_DUPLICATE_LIB_OK = True
 KMP_INIT_AT_FORK = False
 
-def simulate(policy, rounds, plot=False):
+def simulate(policy, rounds, plot=False, starting_money=1000):
     """
     Calculates empirical mean win rate, empirical long term profitability
     (i.e. the agent starts with 1000$, the remaining money after the rounds
@@ -49,7 +49,7 @@ def simulate(policy, rounds, plot=False):
 
     # params
     casino = dealer()
-    bank_account = [1000000]   # starting money
+    bank_account = [starting_money]   # starting money
     n_wins = 0
     n_losses = 0
     game_over = False
@@ -113,18 +113,20 @@ if __name__ == '__main__':
         #count_agent(),
         #mc_agent(),
         #sarsa_agent(),
-        QAgent(),
-        QAgent_UCB(),
+        #QAgent(),
+        #QAgent_UCB(),
         #DQNAgent()
+        double_QAgent()
         ]
     
     policy_names = [str(type(policy))[8:].split('.')[0] for policy in policies]
 
     # Select rounds
-    training_rounds = 1000000
-    testing_rounds = 100000
+    training_rounds = 100000
+    testing_rounds = 10000
 
-    #agent = table_agent()
+    # Bank account
+    money = 10000
     
     # Training phase
     print('Starting training')
@@ -144,32 +146,6 @@ if __name__ == '__main__':
             # agent has not implemented learn
             pass
 
-    '''
-    loss_per_round = []
-
-    print("testing")
-    for i, policy in enumerate(policies):
-        for _ in range(10):
-            mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round = simulate(policy, testing_rounds, plot=False)
-            loss_per_round.append(mean_loss_per_round)
-            print(mean_loss_per_round)
-        print("calculations")
-        mean = statistics.mean(loss_per_round)
-        stdev = statistics.stdev(loss_per_round)
-        print(mean)
-        print(stdev)
-        loss_per_round = []
-        
-        df_H = pd.DataFrame(policy.H_visitations) 
-        df_S = pd.DataFrame(policy.S_visitations)                
-
-        df_H.to_csv('H_visitations.csv') 
-        df_S.to_csv('S_visitations.csv') 
-
-    '''  
-
-    policies[0].training = False
-
     # Testing phase
     print('\nStarting testing')
     # for prettier table (aligned)
@@ -178,7 +154,7 @@ if __name__ == '__main__':
     # simulate for each policy
     for i, policy in enumerate(policies):
         mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round \
-            = simulate(policy, testing_rounds, plot=True)
+            = simulate(policy, testing_rounds, plot=True, starting_money=money)
         # for prettier table (aligned)
         extra_white_space = ''
         for _ in range(max_string_length - len(policy_names[i])):
@@ -186,8 +162,8 @@ if __name__ == '__main__':
         print(policy_names[i] + ':' + extra_white_space, '\t', mean_win_rate,
               '\t\t', long_term_profitability, '$\t\t', mean_loss_per_round, '$', '(+-', std_loss_per_round, '$)')
     # additional code for plot
-    plt.hlines(1000, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
+    plt.hlines(money, xmin=0, xmax=testing_rounds, colors='grey', linestyles='dotted')
     plt.legend(loc='upper right')
     plt.xlabel('rounds')
     plt.ylabel('bank account')
-    # plt.show()
+    plt.show()

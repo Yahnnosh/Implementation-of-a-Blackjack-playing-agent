@@ -12,9 +12,10 @@ import numpy as np
 import random
 import time 
 
-class QAgent_improved(agent):
+class QAgent(agent):
 
-    def __init__(self, alpha=0.01):
+    def __init__(self, alpha=0.01, strategy='random', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.MAX_NUMBER_OF_CARDS = 9
 
@@ -29,7 +30,6 @@ class QAgent_improved(agent):
         #self.Hit = np.zeros((self.NUMBER_OF_STATES, 2)) # this is Q(State, Hit)
         #self.Split = np.zeros((self.NUMBER_OF_STATES, 2)) # this is Q(State, Split)
         #self.Double = np.zeros((self.NUMBER_OF_STATES, 2)) # this is Q(State, Doubling)
-
 
         # Q-values of terminal states
         self.Stand[0], self.Stand[1], self.Stand[2] = 1, -1, 0 
@@ -172,5 +172,5 @@ class QAgent_improved(agent):
         return hand[0] == hand[1]
 
 if __name__ == '__main__':
-    agent = QAgent_improved()
+    agent = QAgent()
     print(1)

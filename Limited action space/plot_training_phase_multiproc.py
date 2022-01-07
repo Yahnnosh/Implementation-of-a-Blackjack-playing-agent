@@ -18,12 +18,12 @@ from table_policy import table_agent        # hard baseline
 from card_counting import count_agent       # optimal baseline
 from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
-from Q_learning_agent import QAgent
+from Q_learning_agent_old import QAgent
 from double_q import double_QAgent
-from sarsa_agent import sarsa_agent
+from sarsa_agent_old import sarsa_agent
 from mc_agent import mc_agent
-from Q_learning_UCB import QAgent_UCB
-from SARSA_policy import SARSA_agent
+from Q_learning import QAgent_UCB
+from sarsa_agent import SARSA_agent
 
 from dealer import dealer
 

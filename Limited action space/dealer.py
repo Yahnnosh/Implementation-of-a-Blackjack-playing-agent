@@ -23,8 +23,8 @@ from table_policy import table_agent
 from card_counting import count_agent
 from model_based_agent import model_based_agent
 from value_iteration import value_iteration
-from sarsa_agent import sarsa_agent
-from SARSA_policy import SARSA_agent
+from sarsa_agent_old import sarsa_agent
+from sarsa_agent import SARSA_agent
 
 
 def show(reward, agent_hand, dealer_hand):

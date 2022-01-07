@@ -159,8 +159,10 @@ class double_QAgent(agent):
             # Update Qa based on Qb
             if action == 'h':  # if the action was hit the we update corresponding Q(State, H) function
                 Qa_H[current_state_index] += self.alpha * (reward + self.gamma * Q_max - Qa_H[current_state_index])
+                self.H_visitations[current_state_index] += 1
             else:
                 Qa_S[current_state_index] += self.alpha * (reward + self.gamma * Q_max - Qa_S[current_state_index])
+                self.S_visitations[current_state_index] += 1
 
     def get_Q(self):
         self.update_q()
@@ -170,3 +172,7 @@ class double_QAgent(agent):
         self.update_q()
         state_index = self.state_approx(hand)
         return self.Q_H[state_index], self.Q_S[state_index]
+
+    def get_visitations(self, hand):
+        state_index = self.state_approx(hand)
+        return self.H_visitations[state_index], self.S_visitations[state_index]

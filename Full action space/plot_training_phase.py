@@ -12,7 +12,7 @@ metrics:
 """
 
 # Import all agents
-from Q_learning_agent_improved import QAgent_improved
+from Q_learning_agent_old import QAgent
 
 from dealer import dealer
 
@@ -73,7 +73,7 @@ def get_name(policy) -> str:
 if __name__ == '__main__':
     # Select policies
     policies = [
-        QAgent_improved()
+        QAgent()
     ]
 
     # Select rounds

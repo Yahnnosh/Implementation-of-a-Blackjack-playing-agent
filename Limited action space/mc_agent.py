@@ -22,34 +22,89 @@ from agent import agent
 import numpy as np
 import random
 import statistics
+import math
 
 class mc_agent(agent):
-    def __init__(self, strategy='greedy'):
+    def __init__(self, strategy='greedy', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
         self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
         self.Q_S = np.zeros(self.NUMBER_OF_STATES)
         self.Q_H = np.zeros(self.NUMBER_OF_STATES)
         self.Q_S_count = np.zeros(self.NUMBER_OF_STATES) # count state-action visitations 
         self.Q_H_count = np.zeros(self.NUMBER_OF_STATES) # count state-action visitations
-        assert (strategy == 'greedy') or (strategy == 'random')
-        self.strategy = strategy
+
+        # Policy params
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb')
+        self.strategy = strategy  # policy
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.temperature = temperature
+        self.ucb_param = ucb_param
 
     def activate_greedy(self):
         self.strategy = 'greedy'
 
     def policy(self, hand):
-        # greedy policy based on the current estimate of Q functions
-        if self.strategy == 'greedy':
-            state_index = self.state_approx(hand)
-            if self.Q_H[state_index] > self.Q_S[state_index]:
+        # state approximation
+        state_index = self.state_approx(hand)
+
+        # random policy
+        if self.strategy == 'random':
+            return random.choice(['h', 's'])
+
+        # greedy policy
+        elif self.strategy == 'greedy':
+            if self.Q_H[state_index] > self.Q_S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
                 return 'h'
             elif self.Q_H[state_index] < self.Q_S[state_index]:
                 return 's'
             elif self.Q_H[state_index] == self.Q_S[state_index]:
                 return random.choice(['h', 's'])
 
-        # random action for each state
-        elif self.strategy == 'random':
-            return random.choice(['h', 's'])
+        # softmax policy
+        elif self.strategy == 'softmax':
+            def softmax(x):
+                temperature = 1
+                denom = sum([math.exp(temperature * q) for q in x])
+                return [math.exp(temperature * q) / denom for q in x]
+
+            action = random.choices(population=['h', 's'],
+                                    weights=softmax([self.Q_H[state_index], self.Q_S[state_index]]))
+            return action[0]
+
+        # epsilon-greedy policy
+        elif self.strategy == 'e-greedy':
+            # act randomly
+            if np.random.rand() < self.epsilon:
+                action = random.choice(['h', 's'])
+            # act greedily
+            else:
+                if self.Q_H[state_index] > self.Q_S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
+                    action = 'h'
+                elif self.Q_H[state_index] < self.Q_S[state_index]:
+                    action = 's'
+                elif self.Q_H[state_index] == self.Q_S[state_index]:
+                    action = random.choice(['h', 's'])
+
+            self.epsilon *= self.epsilon_decay
+            return action
+
+        # UCB
+        elif self.strategy == 'ucb':
+            state_visitations = max(1, self.Q_H_count[state_index] + self.Q_S_count[state_index])
+            hit_visitations = max(1, self.Q_H_count[state_index])
+            stand_visitations = max(1, self.Q_S_count[state_index])
+
+            # UCB
+            Q_hit = self.Q_H[state_index] + self.ucb_param * (np.log(state_visitations) / hit_visitations) ** 0.5
+            Q_stand = self.Q_S[state_index] + self.ucb_param * (np.log(state_visitations) / stand_visitations) ** 0.5
+
+            if Q_hit == Q_stand:
+                return random.choice(['h', 's'])
+            else:
+                return 'h' if Q_hit > Q_stand else 's'
 
         else:
             raise NotImplementedError
@@ -90,3 +145,7 @@ class mc_agent(agent):
     def get_Q_hand(self, hand):
         state_index = self.state_approx(hand)
         return self.Q_H[state_index], self.Q_S[state_index]
+
+    def get_visitations(self, hand):
+        state_index = self.state_approx(hand)
+        return self.Q_H_count[state_index], self.Q_S_count[state_index]

@@ -1,90 +1,101 @@
-# SARSA is on-policy TD control method that resembles policy iteration 
-# it is always online, meaning that the policy updates after each action, meaning that there are multiple updates even in a single episode 
-# That is in contrast to off-policy Q learning method that updates state action value function only after the whole episode ends! 
-
-# How should we act in the episode under SARSA method?
-# 1) random initialization of Q(s,a) for all states and actions 
-# 2) observe initial state "s" and choose action "a" according to the greedy policy on Q function from the first step
-# Loop:
-# 3) take action "a" and observe the next state "s_next" 
-# 4) then we choose action "a_next" from "s_next" using greedy-policy from Q
-# 5) update Q function as Q(s,a) <- Q(s,a) + alpha[reward + gamma * Q(s_next, a_next) - Q(s, a)]   
-# 6) update s <- s_next and a <- a_next 
-
-# so the tricky thing we should remember is that in 3) we act according to the greedy policy based on the previous estimate of the state-action value function 
-# and not based on the current estimate.
-
-# in other words: we take first action in an episode based on the most recent estimate of q function  
-# but later it is based on the previous estimate
-
-# therefore, SARSA must understand when the episode (round) ends
-# the end of an episode can be determined from the reward variable; if it is zero list, then it is not yet the end of the episode
-# but when the reward is 0/1/-1 integer, then it reveals that we are at the end of the episode 
-
-# the win rate is around 42.5% (vs 43.5% optimal)
-
 from agent import agent
 import numpy as np
 import random
-import pandas as pd
 import math
+import pandas as pd
+
 
 # converting csv tables to dictionaries (used for policy = table policy)
 hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard
 soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft
 
-class sarsa_agent(agent):
 
-    def __init__(self, strategy='greedy'):
-        self.NUMBER_OF_STATES = 363 # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
+class SARSA_agent(agent):
+
+    def __init__(self, alpha=0.01, strategy='random', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
+        self.NUMBER_OF_STATES = 363
 
         # Initialization: Q-values
-        self.S = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, S)
-        self.H = np.zeros(self.NUMBER_OF_STATES) # this is Q(State, H)
-        self.H[0], self.H[1], self.H[2] = 0, 0, 0 # state action value functions of the terminal states are always zero under SARSA algorithm 
-        self.S[0], self.S[1], self.S[2] = 0, 0, 0 # state action value functions of the terminal states are always zero under SARSA algorithm
+        self.Q_S = np.zeros(self.NUMBER_OF_STATES)  # Q(state, stand)
+        self.Q_H = np.zeros(self.NUMBER_OF_STATES)  # Q(state, hit)
+        self.Q_H[0], self.Q_H[1], self.Q_H[2] = 10, -10, 0  # terminal states
+        self.Q_S[0], self.Q_S[1], self.Q_S[2] = 10, -10, 0  # terminal states
 
-        self.gamma = 1 # we have a single reward at the end => no need to discount anything 
-        self.alpha = 0.01 # learning rate; TODO: 1) perform hyperparameter optimization; 2) see what happens if alpha decays in time ->  
-        # -> to guarantee convergence of the state-action value function; now it doesn't converge to 43.5% win rate of the optimal (table) policy
+        # Initialization: state visitations
+        self.S_visitations = np.zeros(self.NUMBER_OF_STATES)  # N(s, stand)
+        self.H_visitations = np.zeros(self.NUMBER_OF_STATES)  # N(s, hit)
 
-        # Helper params
-        self.act_based_on_previous_q = False # this variable decides if we act based on previous (or current) state action value function 
-        self.stored_action = '' # this is the action for the current step which is determined from the previous estimate of the q function
-        self.evaluating = False # used for evaluating the already trained sarsa agent where it is set to True
+        self.gamma = 1  # discount factor
+        self.alpha = alpha  # learning rate
 
         # Policy params
-        assert (strategy == 'table') or (strategy == 'greedy') \
-               or (strategy == 'e-greedy') or (strategy == 'softmax')
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb') or (strategy == 'table')
         self.strategy = strategy  # policy
-        self.epsilon = 0.5
-        self.epsilon_decay = 0.99996
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.temperature = temperature
+        self.ucb_param = ucb_param
 
-    def greedy_policy(self, hand): # usual greedy policy; it returns the action based on the current estimate of the state-action value function
-        state_index = self.state_approx(hand) # we return the current state index
-        if self.H[state_index] > self.S[state_index]: # if Q(State, H) > Q(State, S) then we hit 
-            action = 'h'
-        elif self.H[state_index] < self.S[state_index]:
-            action = 's'
-        elif self.H[state_index] == self.S[state_index]:
-            action = random.choice(['h', 's'])
-        return action
+    def policy(self, hand, overwrite=False):
+        state_index = self.state_approx(hand) if not overwrite else hand    # current state index
 
-    def set_evaluating(self):
-        self.evaluating = True
-
-    def policy(self, hand):
-        state_index = self.state_approx(hand)  # current state index
+        # random policy
+        if self.strategy == 'random':
+            return random.choice(['h', 's'])
 
         # greedy policy
-        if self.strategy == 'greedy':
-            if self.evaluating == True:
-                self.act_based_on_previous_q = False
-            if self.act_based_on_previous_q:
-                return self.stored_action # then we act according to the q function from the previous iteration
+        elif self.strategy == 'greedy':
+            if self.Q_H[state_index] > self.Q_S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
+                return 'h'
+            elif self.Q_H[state_index] < self.Q_S[state_index]:
+                return 's'
+            elif self.Q_H[state_index] == self.Q_S[state_index]:
+                return random.choice(['h', 's'])
+
+        # softmax policy
+        elif self.strategy == 'softmax':
+            def softmax(x):
+                denom = sum([math.exp(self.temperature * q) for q in x])
+                return [math.exp(self.temperature * q) / denom for q in x]
+
+            action = random.choices(population=['h', 's'],
+                                    weights=softmax([self.Q_H[state_index], self.Q_S[state_index]]))
+            return action[0]
+
+        # epsilon-greedy policy
+        elif self.strategy == 'e-greedy':
+            # act randomly
+            if np.random.rand() < self.epsilon:
+                action = random.choice(['h', 's'])
+            # act greedily
             else:
-                self.act_based_on_previous_q = True # after we will act based on the previous q
-                return self.greedy_policy(hand) # but now we act according to the most recent q function
+                if self.Q_H[state_index] > self.Q_S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
+                    action = 'h'
+                elif self.Q_H[state_index] < self.Q_S[state_index]:
+                    action = 's'
+                elif self.Q_H[state_index] == self.Q_S[state_index]:
+                    action = random.choice(['h', 's'])
+
+            self.epsilon *= self.epsilon_decay
+            return action
+
+        # UCB
+        elif self.strategy == 'ucb':
+            state_visitations = max(1, self.H_visitations[state_index] + self.S_visitations[state_index])
+            hit_visitations = max(1, self.H_visitations[state_index])
+            stand_visitations = max(1, self.S_visitations[state_index])
+
+            # UCB
+            Q_hit = self.Q_H[state_index] + self.ucb_param * (np.log(state_visitations) / hit_visitations) ** 0.5
+            Q_stand = self.Q_S[state_index] + self.ucb_param * (np.log(state_visitations) / stand_visitations) ** 0.5
+
+            if Q_hit == Q_stand:
+                return random.choice(['h', 's'])
+            else:
+                return 'h' if Q_hit > Q_stand else 's'
 
         # table policy
         elif self.strategy == 'table':
@@ -103,98 +114,72 @@ class sarsa_agent(agent):
 
             return action
 
-        # epsilon-greedy policy
-        elif self.strategy == 'e-greedy':
-            # act randomly
-            if np.random.rand() < self.epsilon:
-                action = random.choice(['h', 's'])
-            # act greedily
-            else:
-                if self.H[state_index] > self.S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
-                    action = 'h'
-                elif self.H[state_index] < self.S[state_index]:
-                    action = 's'
-                elif self.H[state_index] == self.S[state_index]:
-                    action = random.choice(['h', 's'])
-
-            self.epsilon *= self.epsilon_decay
-            return action
-
-        # softmax policy
-        elif self.strategy == 'softmax':
-
-            def softmax(x):
-                temperature = 1
-                denom = sum([math.exp(temperature * q) for q in x])
-                return [math.exp(temperature * q) / denom for q in x]
-
-            action = random.choices(population=['h', 's'],
-                                    weights=softmax([self.H[state_index], self.S[state_index]]))
-            return action[0]
-
         else:
             raise NotImplementedError
 
+    def activate_greedy(self):
+        self.strategy = 'greedy'
+
     def learn(self, episode):
-        #print("learning starts")
-        #print(episode)
         actions = episode['actions']
         agent_hands = episode['hands']
         reward = episode['reward']
         dealer_card = episode['dealer'][0][0]
 
-        if not actions: # actions list can be empty if either agent or dealer has a blackjack => nothing to learn here, just return 
+        if not actions:  # actions list can be empty if either agent or dealer has a blackjack -> nothing to learn
             return
 
-        if not isinstance(reward, int): # if reward = [] that means that the episode has not finished yet 
-            reward = 0 # we didn't observe the reward yet = 0 reward
-            if self.evaluate(episode['hands'][-1]) > 21: # we don't learn if the agent was busted but the reward has not been yet observed 
-                return
-        else:
-            self.act_based_on_previous_q = False # means that the episode ends; in a new episode we will act based on the most recent update of the q function 
+        if len(actions) != len(agent_hands):  # then and only then the agent busted
+            del agent_hands[-1]  # busted hand is equal to terminal lose state, do not need it
 
-            if len(actions) != len(agent_hands): # it holds when and only when the agent busted 
-                del agent_hands[-1] # so we remove the last hand of the agent from the episode because it doesn't carry any useful information for us (it is just lose state)
+        if reward > 0:  # if the reward was positive, we won
+            final_state_index = 0  # the index of the terminal win state
+        elif reward < 0:
+            final_state_index = 1  # the index of the terminal lose state
+        elif reward == 0:
+            final_state_index = 2  # the index of the terminal draw state
 
-            if reward > 0: # if the reward was positive, we won
-                final_state_index = 0 # the index of the terminal win state
-            elif reward < 0:
-                final_state_index = 1 # the index of the terminal lose state
-            elif reward == 0:
-                final_state_index = 2 # the index of the terminal draw state  
-       
-        current_agent_hand = agent_hands.pop(0) # current agent hand 
-        next_agent_hand = agent_hands[0] if agent_hands else None # next agent hand
+        while agent_hands:  # while there is something we can learn from
+            # State s_t
+            current_agent_hand = agent_hands.pop(0)  # current hand
+            current_state_index = self.state_approx([current_agent_hand, dealer_card])  # index of the current state
 
-        next_state = [next_agent_hand, dealer_card] # next state
-            
-        current_state_index = self.state_approx([current_agent_hand, dealer_card]) # index of the current state 
-        next_state_index = self.state_approx(next_state) if agent_hands else final_state_index # the next state can be either the state 
-        # correposponding to the next_agent_hand or it can be the terminal_state 
+            # State s_{t+1}
+            next_agent_hand = agent_hands[0] if agent_hands else None  # next hand
+            next_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index
 
-        action = actions.pop(0) # the action which was done in the current state      
-        self.stored_action = self.greedy_policy(next_state) if agent_hands else None # the action we take in the next state (if the next state is from this episode)
-            
-        # updated of state action value functions:    
-        if action == 'h': # if the action was hit the we update corresponding Q(State, H) function
-            self.H[current_state_index] += self.alpha * (reward + self.gamma * self.H[next_state_index] - self.H[current_state_index])
-            
-        elif action == 's': # if the action was state the we update corresponding Q(State, S) function
-            self.S[current_state_index] += self.alpha * (reward + self.gamma * self.S[next_state_index] - self.S[current_state_index])
+            # Action a_t
+            action = actions.pop(0)  # the action which was done in the current state
+
+            # Find Q value of next state
+            action_next = self.policy(next_state_index, overwrite=True)
+            Q_next = {'h': self.Q_H[next_state_index], 's': self.Q_S[next_state_index]}[action_next]
+
+            # Update Q(s_t, a_t)
+            if action == 'h':
+                self.Q_H[current_state_index] += self.alpha * (reward + self.gamma * Q_next - self.Q_H[current_state_index])
+                self.H_visitations[current_state_index] += 1
+            else:
+                self.Q_S[current_state_index] += self.alpha * (reward + self.gamma * Q_next - self.Q_S[current_state_index])
+                self.S_visitations[current_state_index] += 1
 
     def get_Q(self):
-        return self.H, self.S
+        return self.Q_H, self.Q_S
 
     def get_Q_hand(self, hand):
         state_index = self.state_approx(hand)
-        return self.H[state_index], self.S[state_index]
+        return self.Q_H[state_index], self.Q_S[state_index]
+
+    def get_visitations(self, hand):
+        state_index = self.state_approx(hand)
+        return self.H_visitations[state_index], self.S_visitations[state_index]
 
     def save_Q(self):
-        for action, q in {'hit': self.H, 'stand': self.S}.items():
+        for action, q in {'hit': self.Q_H, 'stand': self.Q_S}.items():
             name = 'sarsa-' + action
             df = pd.DataFrame(q)
             df.to_csv('Models/' + name + '.csv')
 
     def load_Q(self, filename_hit, filename_stand):
-        H, S = pd.read_csv(filename_hit), pd.read_csv(filename_stand)
-        self.H, self.S = list(H.to_numpy()[:, 1]), list(S.to_numpy()[:, 1])
+        Q_H, Q_S = pd.read_csv(filename_hit), pd.read_csv(filename_stand)
+        self.Q_H, self.Q_S = list(Q_H.to_numpy()[:, 1]), list(Q_S.to_numpy()[:, 1])
