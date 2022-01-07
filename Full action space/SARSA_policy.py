@@ -4,6 +4,15 @@ import random
 import math
 import pandas as pd
 
+
+# converting csv tables to dictionaries
+double_hard_table = pd.read_csv("double_hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is allowed
+double_soft_table = pd.read_csv("double_soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is allowed
+hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is not allowed
+soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is not allowed
+split_table = pd.read_csv("split_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is splittable
+
+
 class SARSA_agent(agent):
 
     def __init__(self, alpha=0.005, strategy='random'):
@@ -22,12 +31,15 @@ class SARSA_agent(agent):
 
         # Policy params
         assert (strategy == 'random') or (strategy == 'greedy') \
-               or (strategy == 'softmax') or (strategy == 'e-greedy') or (strategy == 'ucb')
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb') or (strategy == 'table')
         self.strategy = strategy  # policy
         self.epsilon = 0.5
         #self.epsilon_decay = 0.99996  # so that prob(random action) lower than 1% after 100k rounds
         self.epsilon_decay = 0.99999
         self.temperature = 5
+        '''self.temperature_min = 5
+        self.temperature_decay = 0.999999'''
         self.ucb_param = 2**0.5
 
     def action_mapping(self, action):
@@ -66,6 +78,9 @@ class SARSA_agent(agent):
             action = random.choices(population=['hit', 'stand', 'split', 'double'],
                                     weights=softmax(q_values))  # TODO: can this break for the extremely unlikely case that it returns an invalid action?
 
+            '''# TODO: temperature decay - worth it?
+            self.temperature = max(self.temperature_min, self.temperature * self.temperature_decay)'''
+
             assert action[0] in allowed_actions # TODO: necessary
             return action[0]
 
@@ -100,6 +115,44 @@ class SARSA_agent(agent):
                 return random.choice(['h', 's'])
             else:
                 return 'h' if Q_hit > Q_stand else 's'
+
+        elif self.strategy == 'table':
+            agent_hand = hand[0]
+            dealer_hand = hand[1]
+
+            # translate 10 face values for table use
+            if dealer_hand in {"J", "Q", "K"}:
+                dealer_hand = "10"
+
+            agent_sum = self.evaluate(agent_hand)  # total card value of the agent
+
+            # check if splittable
+            if 'split' in allowed_actions:
+                if agent_hand[0] in {"J", "Q", "K"}:
+                    agent_hand[0] = "10"
+                if split_table[dealer_hand][agent_hand[0]]:  # if splitting recommended
+                    return 'split'
+
+            if 'double' in allowed_actions:
+                if self.soft(agent_hand):
+                    action = double_soft_table[dealer_hand][agent_sum]
+                else:
+                    action = double_hard_table[dealer_hand][agent_sum]
+            else:
+                if self.soft(agent_hand):
+                    action = soft_table[dealer_hand][agent_sum]
+                else:
+                    action = hard_table[dealer_hand][agent_sum]
+
+            actions = {
+                's': 'stand',
+                'h': 'hit',
+                'd': 'double'
+            }
+
+            action = actions[action]
+
+            return action
 
         else:
             raise NotImplementedError
@@ -150,7 +203,14 @@ class SARSA_agent(agent):
                 allowed_actions.append('double')
             if splittable:
                 allowed_actions.append('split')
-            action_next = self.action_mapping(self.policy(next_state_index, allowed_actions, overwrite=True))
+
+            if self.strategy == 'table':
+                if next_agent_hand is None:
+                    action_next = 0  # action irrelevant for terminal state
+                else:
+                    action_next = self.action_mapping(self.policy([next_agent_hand, dealer_card], allowed_actions, overwrite=True))
+            else:
+                action_next = self.action_mapping(self.policy(next_state_index, allowed_actions, overwrite=True))
             Q_next = self.Q[next_state_index][action_next]
 
             # Update current Q-value
@@ -164,8 +224,8 @@ class SARSA_agent(agent):
         hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand]  # all face cards are worth ten
         return hand[0] == hand[1]
 
-    def get_Q(self):    # TODO
-        return self.Q_H, self.Q_S
+    def get_Q(self):    # TODO:
+        return (self.Q[:, :, :, a] for a in range(4))   # TODO: hope this works
 
     def get_Q_hand(self, hand):
         old_state_index = self.state_approx(hand)

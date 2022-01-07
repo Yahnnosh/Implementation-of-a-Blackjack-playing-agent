@@ -24,6 +24,7 @@ from card_counting import count_agent
 from model_based_agent import model_based_agent
 from value_iteration import value_iteration
 from sarsa_agent import sarsa_agent
+from SARSA_policy import SARSA_agent
 
 
 def show(reward, agent_hand, dealer_hand):
@@ -44,13 +45,14 @@ def show(reward, agent_hand, dealer_hand):
 
 
 class dealer:
-    def __init__(self):
-        self.N_DECKS = 6
-        self.PENETRATION = 0.8
+    def __init__(self, decks=6, penetration=0.8, infinity=False):
+        self.N_DECKS = decks
+        self.PENETRATION = penetration
         self.VALUES = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
                        '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 1}
         self.deck = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] * (4 * self.N_DECKS)
         self.shuffle()
+        self.infinity = infinity  # simulates infinite deck
 
     def shuffle(self):
         random.shuffle(self.deck)
@@ -67,6 +69,9 @@ class dealer:
 
     # Draws a single card from `self.deck`.
     def draw(self, agent):
+        if self.infinity:
+            return random.choice(['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'])
+
         # check if deck needs to be reshuffled for next round   # TODO: legal?
         self.check_deck(agent)
 

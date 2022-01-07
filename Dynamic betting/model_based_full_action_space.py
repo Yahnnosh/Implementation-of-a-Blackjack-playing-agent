@@ -156,7 +156,7 @@ class Model_based_dynamic_betting_policy(Dynamic_betting_agent):
                 for dealer_card in values:
                     # evaluate hand
                     splittable = 1 if card1 == card2 else 0
-                    state_index = (self.state_approx([[card1, card2], dealer_card]), 1, splittable)    # TODO: only for new_policy
+                    state_index = (self.state_approx([[card1, card2], dealer_card]), splittable, 1)    # TODO: only for new_policy
                     V[card1, card2, dealer_card] = max(
                         Q_hit[state_index], Q_stand[state_index], Q_split[state_index], Q_double[state_index])
 

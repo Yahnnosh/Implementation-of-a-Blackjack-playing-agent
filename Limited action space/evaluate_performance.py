@@ -191,4 +191,3 @@ if __name__ == '__main__':
     plt.xlabel('rounds')
     plt.ylabel('bank account')
     # plt.show()
-  

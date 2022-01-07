@@ -16,7 +16,7 @@ import sys
 from tqdm import trange, tqdm
 
 
-debugging = True
+debugging = False
 
 
 # TODO: for additional actions
@@ -142,10 +142,10 @@ def plot_table_hard(agent):
                   colLabels=columns,
                   loc='upper left')
         table.auto_set_font_size(False)
-        table.set_fontsize(7)
+        table.set_fontsize(6)
 
     # for LaTeX
-    '''green = '\cellcolor[HTML]{58D68D}'
+    green = '\cellcolor[HTML]{58D68D}'
     blue = '\cellcolor[HTML]{3498DB}'
     orange = '\cellcolor[HTML]{F5B041}'
     counter = 20
@@ -159,7 +159,7 @@ def plot_table_hard(agent):
                 color = orange
             line += ' & ' + color + action[0]
         print(line + '\\\\' + '\\hline')
-        counter -= 1'''
+        counter -= 1
 
 def plot_table_soft(agent):
     """
@@ -252,10 +252,10 @@ def plot_table_soft(agent):
                           colLabels=columns,
                           loc='upper left')
         table.auto_set_font_size(False)
-        table.set_fontsize(7)
+        table.set_fontsize(6)
 
     # for LaTeX
-    '''green = '\cellcolor[HTML]{58D68D}'
+    green = '\cellcolor[HTML]{58D68D}'
     blue = '\cellcolor[HTML]{3498DB}'
     orange = '\cellcolor[HTML]{F5B041}'
     counter = 20
@@ -269,7 +269,7 @@ def plot_table_soft(agent):
                 color = orange
             line += ' & ' + color + action[0]
         print(line + '\\\\' + '\\hline')
-        counter -= 1'''
+        counter -= 1
 
 def plot_table_split(agent):
     """
@@ -363,10 +363,10 @@ def plot_table_split(agent):
                           colLabels=columns,
                           loc='upper left')
         table.auto_set_font_size(False)
-        table.set_fontsize(7)
+        table.set_fontsize(6)
 
     # for LaTeX
-    '''yellow = '\cellcolor[HTML]{F4D03F}'
+    yellow = '\cellcolor[HTML]{F4D03F}'
     counter = 20
     for sublist in actions:
         line = str(counter)
@@ -375,12 +375,17 @@ def plot_table_split(agent):
             a = 's' if action == 'split' else '-'
             line += ' & ' + color + a
         print(line + '\\\\' + '\\hline')
-        counter -= 1'''
+        counter -= 1
 
 if __name__ == '__main__':
     # Pick policy
     policy = SARSA_agent(strategy='softmax')
     policy_name = str(type(policy))[8:].split('.')[0]
+
+    # Pick casino params
+    decks = 6
+    penetration = 0.8
+    infinity = True # if use infinity above is meaningless
 
     '''for i in range(1000):
         episode = {'hands': [['10', 'Q']], 'dealer': [['3', '4'], ['3', '4', '5'], ['3', '4', '5', 'K']], 'actions': ['stand'], 'reward': 1}
@@ -391,12 +396,12 @@ if __name__ == '__main__':
     exit()'''
 
     # Training phase
-    training_rounds = 1000       000
+    training_rounds = 1000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
         print('Starting training')
-        casino = dealer()
+        casino = dealer(decks=decks, penetration=penetration, infinity=infinity)
         # agent has implemented learn
 
         # Training phase
@@ -406,7 +411,7 @@ if __name__ == '__main__':
         window = training_rounds // 10  # moving window with size 10% of total training rounds
         with tqdm(total=training_rounds + 1, file=sys.stdout) as pbar:
             for t in range(training_rounds + 1):
-                if t > window:
+                if (t >= window) and (t % window == 0):
                     wins = sum([1 if reward > 0 else 0 for reward in rewards[-window:]])
                     '''mean_win_rate = wins / window
                     pbar.set_description('Mean win rate: ' + str(mean_win_rate))'''
@@ -421,6 +426,8 @@ if __name__ == '__main__':
 
                 pbar.update(1)
         print('Finished training for', policy_name)
+        fig2 = plt.figure()
+        plt.plot(mean_loss_per_round)
     else:
         # agent has not implemented learn
         pass

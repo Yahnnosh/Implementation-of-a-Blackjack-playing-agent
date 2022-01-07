@@ -20,6 +20,7 @@ sys.path.append('../Full action space')
 from table_policy import table_agent  # hard baseline
 from Q_learning_agent_improved import QAgent_improved
 from sarsa_agent import Sarsa_agent
+from SARSA_policy import SARSA_agent
 from dealer import dealer
 
 
@@ -139,23 +140,28 @@ if __name__ == '__main__':
     # Select policies
     # 1) static betting policies
     static_policies = [
-        Sarsa_agent()
+        SARSA_agent(strategy='table')
     ]
 
     # 2) full policy (static, dynamic)
     full_policies = [
         (static_policies[0], None),
+        (static_policies[0], HiLo(static_policies[0],
+                                  min_bet=min_bet,
+                                  max_bet=max_bet,
+                                  increment=increment,
+                                  hilo_increment='infty')),
         (static_policies[0], Model_based_dynamic_betting_policy(static_policies[0],
                                                                 min_bet=min_bet,
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky',
-                                                                risk=0)),
+                                                                risk=5)),
     ]
 
     # Select rounds
-    training_rounds = 10000
-    testing_rounds = 1000
+    training_rounds = 100000
+    testing_rounds = 10000
 
     # Training phase (static policies)
     print('Starting training')

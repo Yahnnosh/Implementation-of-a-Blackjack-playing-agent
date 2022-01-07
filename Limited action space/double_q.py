@@ -5,7 +5,8 @@ import math
 
 class double_QAgent(agent):
 
-    def __init__(self, alpha=0.01, strategy='random'):
+    def __init__(self, alpha=0.01, strategy='random', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
         self.NUMBER_OF_STATES = 363 
 
         # Initialization: Q1
@@ -26,15 +27,23 @@ class double_QAgent(agent):
         self.alpha = 0.01   # learning rate
         self.beta = 0.5  # update probability (see double Q algo)
 
+        # Initialization: state visitations
+        self.S_visitations = np.zeros(self.NUMBER_OF_STATES)  # N(s, a = stand)
+        self.H_visitations = np.zeros(self.NUMBER_OF_STATES)  # N(s, a = hit)
+
+        # Policy params
         assert (strategy == 'random') or (strategy == 'greedy') \
-               or (strategy == 'softmax') or (strategy == 'e-greedy')
-        self.strategy = strategy    # policy
-        self.epsilon = 0.5
-        #self.epsilon_decay = 0.99996  # so that prob(random action) lower than 1% after 100k rounds
-        self.epsilon_decay = 0.9999
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb')
+        self.strategy = strategy  # policy
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.temperature = temperature
+        self.ucb_param = ucb_param
 
     def policy(self, hand):
-        state_index = self.state_approx(hand)  # current state index
+        # state approximation
+        state_index = self.state_approx(hand)
 
         # random policy
         if self.strategy == 'random':
@@ -82,8 +91,28 @@ class double_QAgent(agent):
             self.epsilon *= self.epsilon_decay
             return action
 
+        # UCB
+        elif self.strategy == 'ucb':
+            self.update_q()
+
+            state_visitations = max(1, self.H_visitations[state_index] + self.S_visitations[state_index])
+            hit_visitations = max(1, self.H_visitations[state_index])
+            stand_visitations = max(1, self.S_visitations[state_index])
+
+            # UCB
+            Q_hit = self.Q_H[state_index] + self.ucb_param * (np.log(state_visitations) / hit_visitations) ** 0.5
+            Q_stand = self.Q_S[state_index] + self.ucb_param * (np.log(state_visitations) / stand_visitations) ** 0.5
+
+            if Q_hit == Q_stand:
+                return random.choice(['h', 's'])
+            else:
+                return 'h' if Q_hit > Q_stand else 's'
+
         else:
             raise NotImplementedError
+
+    def activate_greedy(self):
+        self.strategy = 'greedy'
 
     def update_q(self):
         self.Q_S = (self.Q1_S + self.Q2_S)/2

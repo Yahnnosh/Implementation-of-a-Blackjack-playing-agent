@@ -14,7 +14,7 @@ from double_q import double_QAgent
 from sarsa_agent import sarsa_agent
 from mc_agent import mc_agent
 from Q_learning_UCB import QAgent_UCB
-from DQN_agent import DQNAgent
+#from DQN_agent import DQNAgent
 from SARSA_policy import SARSA_agent
 
 from dealer import dealer
@@ -176,13 +176,18 @@ if __name__ == '__main__':
     policy = SARSA_agent(alpha=0.005, strategy='softmax')
     policy_name = str(type(policy))[8:].split('.')[0]
 
+    # Pick casino params
+    decks = 10000
+    penetration = 0.5
+    infinity = True  # if use infinity above is meaningless
+
     # Training phase
     training_rounds = 1000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
         print('Starting training')
-        casino = dealer()
+        casino = dealer(decks=decks, penetration=penetration, infinity=infinity)
         # agent has implemented learn
         for t in tqdm(range(training_rounds), leave=False, desc=policy_name,
                       file=sys.stdout, disable=False):
