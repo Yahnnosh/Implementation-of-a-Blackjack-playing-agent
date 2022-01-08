@@ -221,8 +221,13 @@ def plot_table_split(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    policy = SARSA_agent(strategy='greedy')
+    policy = SARSA_agent(strategy='softmax')
     policy_name = str(type(policy))[8:].split('.')[0]
+
+    # Pick casino params
+    decks = 6
+    penetration = 0.8
+    infinity = True  # if use infinity above is meaningless
 
     # Training phase
     training_rounds = 1000000
@@ -230,7 +235,7 @@ if __name__ == '__main__':
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
         print('Starting training')
-        casino = dealer()
+        casino = dealer(decks=decks, penetration=penetration, infinity=infinity)
         # agent has implemented learn
         for t in trange(training_rounds, desc=policy_name):
             casino.play_round(policy, bet=1, learning=True)  # train agent

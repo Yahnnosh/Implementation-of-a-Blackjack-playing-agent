@@ -10,9 +10,8 @@ from card_counting import count_agent       # optimal baseline
 from value_iteration import value_iteration
 from fast_value_iteration import fast_value_iteration
 from Q_learning_agent_old import QAgent
-from sarsa_agent_old import sarsa_agent
+from sarsa_agent import SARSA_agent
 from mc_agent import mc_agent
-from Q_learning import QAgent_UCB
 from DQN_agent import DQNAgent
 
 from dealer import dealer
@@ -162,28 +161,29 @@ def plot_table_soft(agent):
 if __name__ == '__main__':
     # Pick policy
     #policy = DQNAgent()
-    #policy = QAgent_UCB(alpha=0.01)
     #policy = QAgent()
     #policy = table_agent()
-    policy = sarsa_agent(strategy='table')
+    policy = SARSA_agent(strategy='softmax')
     #policy = mc_agent(strategy='random')
     policy_name = str(type(policy))[8:].split('.')[0]
 
+    # Pick casino params
+    decks = 6
+    penetration = 0.8
+    infinity = True  # if use infinity above is meaningless
+
     # Training phase
-    training_rounds = 10000
+    training_rounds = 1000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
         print('Starting training')
-        casino = dealer()
+        casino = dealer(decks=decks, penetration=penetration, infinity=infinity)
         # agent has implemented learn
         for t in tqdm(range(training_rounds), leave=False, desc=policy_name,
                       file=sys.stdout, disable=False):
             casino.play_round(policy, bet=1, learning=True)  # train agent
         print('Finished training for', policy_name)
-        # sarsa needs explicit call
-        if isinstance(policy, sarsa_agent):
-            policy.set_evaluating()
     else:
         # agent has not implemented learn
         pass

@@ -65,7 +65,7 @@ def get_name(policy) -> str:
         if writing:
             if character == '.':
                 if hasattr(policy, 'strategy'):
-                    name += '(' + str(policy.strategy) + str(policy.temperature) + ')'
+                    name += '(' + str(policy.strategy) + ')'
                 return name
             name += character
         if character == '<':
@@ -98,18 +98,11 @@ if __name__ == '__main__':
     t0 = time.time()
 
     # Select policies
-    '''policies = [
+    policies = [
         SARSA_agent(strategy='greedy'),
         SARSA_agent(strategy='softmax'),
         SARSA_agent(strategy='e-greedy'),
         SARSA_agent(strategy='ucb')
-    ]'''
-    policies = [
-        SARSA_agent(strategy='softmax', temperature=0.1),
-        SARSA_agent(strategy='softmax', temperature=1),
-        SARSA_agent(strategy='softmax', temperature=5),
-        SARSA_agent(strategy='softmax', temperature=7),
-        SARSA_agent(strategy='softmax', temperature=10),
     ]
 
     # Select rounds

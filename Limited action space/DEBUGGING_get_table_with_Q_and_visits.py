@@ -13,7 +13,6 @@ from Q_learning_agent_old import QAgent
 from double_q import double_QAgent
 from sarsa_agent_old import sarsa_agent
 from mc_agent import mc_agent
-from Q_learning import QAgent_UCB
 #from DQN_agent import DQNAgent
 from sarsa_agent import SARSA_agent
 
@@ -167,7 +166,6 @@ def plot_table_soft(agent):
 if __name__ == '__main__':
     # Pick policy
     #policy = DQNAgent()
-    #policy = QAgent_UCB()
     #policy = double_QAgent(alpha=0.01, strategy='e-greedy')
     #policy = QAgent()
     #policy = table_agent()
@@ -202,7 +200,7 @@ if __name__ == '__main__':
 
     #policy.activate_greedy()
     policy.activate_greedy()
-    policy.save_Q()
+    #policy.save_Q()
 
     # Plot table hard
     fig = plt.figure()
