@@ -221,10 +221,7 @@ def plot_table_split(agent):
 
 if __name__ == '__main__':
     # Pick policy
-    #policy = QAgent(strategy='greedy')
-    policy = SARSA_agent(strategy='softmax')
-    #policy = table_agent()
-    #policy = QAgent_improved()
+    policy = SARSA_agent(strategy='greedy')
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Training phase
@@ -252,4 +249,3 @@ if __name__ == '__main__':
     plt.subplot(1, 3, 3)
     plot_table_split(policy)
     plt.show()
-    print(1)    # for debugging (pause)

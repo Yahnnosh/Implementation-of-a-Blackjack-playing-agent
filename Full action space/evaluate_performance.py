@@ -106,11 +106,11 @@ if __name__ == '__main__':
     # Select policies
     policies = [
         table_agent(),
-        QAgent(strategy='random'),
-        QAgent(strategy='greedy'),
-        QAgent(strategy='softmax'),
-        QAgent(strategy='e-greedy'),
-        QAgent(strategy='ucb')
+        SARSA_agent(strategy='random'),
+        SARSA_agent(strategy='greedy'),
+        SARSA_agent(strategy='softmax'),
+        SARSA_agent(strategy='e-greedy'),
+        SARSA_agent(strategy='ucb')
         ]
 
     # Select rounds
@@ -144,6 +144,12 @@ if __name__ == '__main__':
     print('-policy name | mean win rate | long term profitability | loss per round-\n')
     # simulate for each policy
     for policy in policies:
+        name = get_name(policy)  # otherwise overwritten by activation of greedy
+        try:
+            policy.activate('greedy')
+        except:
+            pass
+
         mean_win_rate, long_term_profitability, mean_loss_per_round, std_loss_per_round \
             = simulate(policy, testing_rounds, plot=True, starting_money=money)
 
@@ -151,7 +157,7 @@ if __name__ == '__main__':
         extra_white_space = ''
         for _ in range(max_string_length - len(get_name(policy))):
             extra_white_space += ' '
-        print(get_name(policy) + ':' + extra_white_space, '\t', mean_win_rate,
+        print(name + ':' + extra_white_space, '\t', mean_win_rate,
               '\t\t', long_term_profitability, '$\t\t', mean_loss_per_round, '$', '(+-', std_loss_per_round, '$)')
 
     # additional code for plot

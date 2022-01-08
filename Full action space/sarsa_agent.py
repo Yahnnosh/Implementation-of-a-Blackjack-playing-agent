@@ -161,8 +161,11 @@ class SARSA_agent(agent):
         else:
             raise NotImplementedError
 
-    def activate_greedy(self):
-        self.strategy = 'greedy'
+    def activate(self, strategy):
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb') or (strategy == 'table')
+        self.strategy = strategy
 
     def learn(self, episode):
         actions = episode['actions']
