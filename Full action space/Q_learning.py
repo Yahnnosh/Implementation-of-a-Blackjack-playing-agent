@@ -1,36 +1,33 @@
-# Q-learning agent for full action space supports the following actions:
-# 1) doubling-down
-# 2) splitting 
-# TODO: 
-# 3) insurance 
-# 4) surrender 
-
-# do not forget to check allowed actions 
-
 from agent import agent
 import numpy as np
 import random
-import time 
+import math
+import pandas as pd
+
+
+# converting csv tables to dictionaries
+double_hard_table = pd.read_csv("double_hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is allowed
+double_soft_table = pd.read_csv("double_soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is allowed
+hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is not allowed
+soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is not allowed
+split_table = pd.read_csv("split_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is splittable
+
 
 class QAgent(agent):
 
-    def __init__(self, alpha=0.01,  strategy='random', epsilon=0.5,
-                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
-        self.NUMBER_OF_STATES = 363  # 3 terminal states + 10 (dealer) * 18 (agent) * 2(soft)
+    def __init__(self, alpha=0.005, strategy='random', epsilon=0.5,
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2 ** 0.5):
+        self.NUMBER_OF_STATES = 363  # new state approx: (363, splittable, first_hand)
+        self.NUMBER_OF_ACTIONS = 4  # hit, stand, split, double
 
-        # Q-values
-        self.Stand = np.zeros((self.NUMBER_OF_STATES, 2, 2))  # this is Q(State, Stand)
-        self.Hit = np.zeros((self.NUMBER_OF_STATES, 2, 2))  # this is Q(State, Hit)
-        self.Split = np.zeros((self.NUMBER_OF_STATES, 2, 2))  # this is Q(State, Split)
-        self.Double = np.zeros((self.NUMBER_OF_STATES, 2, 2))  # this is Q(State, Doubling)
+        # Initialization: Q-values
+        self.Q = np.zeros((self.NUMBER_OF_STATES, 2, 2, self.NUMBER_OF_ACTIONS))  # Q(s, a)
+        self.Q[0], self.Q[1], self.Q[2] = 10, -10, 0  # terminal states
 
-        # Q-values of terminal states
-        self.Stand[0], self.Stand[1], self.Stand[2] = 1, -1, 0 
-        self.Hit[0], self.Hit[1], self.Hit[2] = 1, -1, 0 
-        self.Split[0], self.Split[1], self.Split[2] = 1, -1, 0 
-        self.Double[0], self.Double[1], self.Double[2] = 1, -1, 0 
-        
-        self.gamma = 1  # we have a single reward at the end => no need to discount anything
+        # Initialization: state visitations
+        self.visitations = np.zeros((self.NUMBER_OF_STATES, 2, 2, self.NUMBER_OF_ACTIONS))  # N(s, a)
+
+        self.gamma = 1  # discount factor
         self.alpha = alpha  # learning rate
 
         # Policy params
@@ -43,57 +40,130 @@ class QAgent(agent):
         self.temperature = temperature
         self.ucb_param = ucb_param
 
-    def policy(self, hand, allowed_actions):  # given hand and allowed actions, take a certain action
-        old_state_index = self.state_approx(hand)  # this is state index given by old state approximation
-        splittable = 1 if 'split' in allowed_actions else 0  # if the agent's hand is splittable or not
-        first_hand = int(len(hand[0]) == 2)  # number of cards in an agent hand
-        state_index = (old_state_index, first_hand, splittable)
+    def action_mapping(self, action):
+        return {'hit': 0, 'stand': 1, 'split': 2, 'double': 3}[action]
 
-        Q_stand = self.Stand[state_index]
-        Q_hit = self.Hit[state_index]
-        Q_split = self.Split[state_index]
-        Q_double = self.Double[state_index]
-       
-        # Q-values of all actions for the given state 
-        Q_values = {'stand': [Q_stand], 'hit': [Q_hit], 'split': [Q_split], 'double': [Q_double]}  
-       
-        # Q-values of allowed actions 
-        Q_values_allowed = {}
-        for key in Q_values:
-            if key in allowed_actions:
-                Q_values_allowed[key] = Q_values[key]
+    def policy(self, hand, allowed_actions, overwrite=False):
+        if not overwrite:
+            splittable = 1 if self.split(hand[0]) else 0
+            first_card = int(len(hand[0]) == 2)
+            state_index = (self.state_approx(hand), splittable, first_card)
+        else:
+            state_index = hand
+
+        # TODO: do not learn insurance - change?
+        if 'insurance' in allowed_actions:
+            allowed_actions.remove('insurance')
+
+        # random policy
+        if self.strategy == 'random':
+            return random.choice(allowed_actions)
 
         # greedy policy
-        if self.strategy == 'greedy':
-            # Q-values with biggest values
-            Q_values_max = {}
-            while True:
-                key_max = max(Q_values_allowed, key=Q_values_allowed.get)  # the action with biggest Q-value
-                Q_values_max[key_max] = Q_values_allowed.pop(key_max)
-                if Q_values_allowed:
-                    if Q_values_max[key_max] > max(Q_values_allowed.values()): # if Q values of other allowed actions are less
-                        break
-                else:
-                    break
+        elif self.strategy == 'greedy':
+            q_values = np.array([self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
+                                 for a in ['hit', 'stand', 'split', 'double']])
+            action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
 
-            action = random.choice(list(Q_values_max))  # we choose random action among those with highest Q values
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
             return action
 
         # softmax policy
         elif self.strategy == 'softmax':
             def softmax(x):
-                temperature = 1
-                temp = np.array(x) * temperature
-                y = np.exp(temp)
-                f_x = y / np.sum(np.exp(temp))
-                return f_x
+                denom = sum([math.exp(self.temperature * q) for q in x])
+                return [math.exp(self.temperature * q) / denom for q in x]
 
-            action = random.choices(population=list(Q_values_allowed),
-                                    weights=softmax(list(Q_values_allowed.values())))
-            return action[0]
+            q_values = [self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
+                        for a in ['hit', 'stand', 'split', 'double']]
+            action = random.choices(population=['hit', 'stand', 'split', 'double'],
+                                    weights=softmax(q_values))[0]
+
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
+
+        # epsilon-greedy policy
+        elif self.strategy == 'e-greedy':
+            # act randomly
+            if np.random.rand() < self.epsilon:
+                action = random.choice(['h', 's'])
+            # act greedily
+            else:
+                q_values = np.array(
+                    [self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
+                     for a in ['hit', 'stand', 'split', 'double']])
+                action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
+
+            self.epsilon *= self.epsilon_decay
+
+            if action not in allowed_actions:   # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
+
+        # UCB
+        elif self.strategy == 'ucb':
+            # state action visitations
+            state_action_visitations = [max(1, self.visitations[state_index][a]) for a in range(4)]
+            state_visitations = sum(state_action_visitations)
+
+            # ucb q values
+            q_values = np.array([self.Q[state_index][self.action_mapping(a)] +
+                                 self.ucb_param * (np.log(state_visitations) /
+                                                   state_action_visitations[self.action_mapping(a)]) ** 0.5
+                                 if a in allowed_actions else float('-inf')
+                                 for a in ['hit', 'stand', 'split', 'double']])
+
+            action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
+
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
+
+        elif self.strategy == 'table':
+            agent_hand = hand[0]
+            dealer_hand = hand[1]
+
+            # translate 10 face values for table use
+            if dealer_hand in {"J", "Q", "K"}:
+                dealer_hand = "10"
+
+            agent_sum = self.evaluate(agent_hand)  # total card value of the agent
+
+            # check if splittable
+            if 'split' in allowed_actions:
+                if agent_hand[0] in {"J", "Q", "K"}:
+                    agent_hand[0] = "10"
+                if split_table[dealer_hand][agent_hand[0]]:  # if splitting recommended
+                    return 'split'
+
+            if 'double' in allowed_actions:
+                if self.soft(agent_hand):
+                    action = double_soft_table[dealer_hand][agent_sum]
+                else:
+                    action = double_hard_table[dealer_hand][agent_sum]
+            else:
+                if self.soft(agent_hand):
+                    action = soft_table[dealer_hand][agent_sum]
+                else:
+                    action = hard_table[dealer_hand][agent_sum]
+
+            actions = {
+                's': 'stand',
+                'h': 'hit',
+                'd': 'double'
+            }
+
+            action = actions[action]
+
+            return action
 
         else:
             raise NotImplementedError
+
+    def activate_greedy(self):
+        self.strategy = 'greedy'
 
     def learn(self, episode):
         actions = episode['actions']
@@ -101,11 +171,11 @@ class QAgent(agent):
         reward = episode['reward']
         dealer_card = episode['dealer'][0][0]
 
-        if not actions: # actions list can be empty if either agent or dealer has a blackjack => nothing to learn here, just return 
+        if not actions:  # actions list can be empty if either agent or dealer has a blackjack -> nothing to learn
             return
 
         if len(actions) != len(agent_hands):  # then and only then the agent busted
-            del agent_hands[-1] # so we remove the last hand of the agent from the episode because it doesn't carry any useful information (it is just lose state)
+            del agent_hands[-1]  # busted hand is equal to terminal lose state, do not need it
 
         if reward > 0:  # if the reward was positive, we won
             final_state_index = 0  # the index of the terminal win state
@@ -113,56 +183,69 @@ class QAgent(agent):
             final_state_index = 1  # the index of the terminal lose state
         elif reward == 0:
             final_state_index = 2  # the index of the terminal draw state
-       
+
         while agent_hands:  # while there is something we can learn from
-            # current state, next state
+            # Current state
             current_agent_hand = agent_hands.pop(0)  # current hand
+            old_state_index = self.state_approx([current_agent_hand, dealer_card])
+            splittable = 1 if self.split(current_agent_hand) else 0
+            first_card = int(len(current_agent_hand) == 2)
+            current_state_index = (old_state_index, splittable, first_card)
+
+            # Next state
             next_agent_hand = agent_hands[0] if agent_hands else None  # next hand
+            old_state_index = self.state_approx([next_agent_hand, dealer_card]) if agent_hands else final_state_index
+            splittable = 1 if self.split(current_agent_hand) else 0
+            first_card = int(len(current_agent_hand) == 2)
+            next_state_index = (old_state_index, splittable, first_card)
 
-            # state approx: number of cards in hand
-            current_number_of_cards = len(current_agent_hand)
-            next_number_of_cards = len(next_agent_hand) if next_agent_hand else 2
+            # Current action
+            action = self.action_mapping(actions.pop(0))  # the action which was done in the current state
 
-            # state approx: splittable hand
-            current_splittable = 1 if self.split(current_agent_hand) else 0
-            next_splittable = 0  # next state is never splittable
+            # Q-value of next state
+            allowed_actions = ['hit', 'stand']
+            if first_card:
+                allowed_actions.append('double')
+            if splittable:
+                allowed_actions.append('split')
 
-            # old state approx
-            old_current_state_index = self.state_approx([current_agent_hand, dealer_card])
-            old_next_state_index = self.state_approx(
-                [next_agent_hand, dealer_card]) if agent_hands else final_state_index
+            Q_next = max([self.Q[next_state_index][self.action_mapping(a)] for a in allowed_actions])
 
-            # new state approximation
-            first_hand = lambda x: int(x == 2)
-            current_state_index = (old_current_state_index, first_hand(current_number_of_cards), current_splittable)
-            next_state_index = (old_next_state_index, first_hand(next_number_of_cards), next_splittable)
-
-            action = actions.pop(0)  # the action which was done in the current state
-            Q_max = max(self.Hit[next_state_index], self.Stand[next_state_index])  # the max Q value for the next state
-
-            # and just perform updates of the corresponding Q function
-            if action == 'hit':
-                self.Hit[current_state_index] += self.alpha * (
-                        reward + self.gamma * Q_max - self.Hit[current_state_index])
-
-            elif action == 'stand':
-                self.Stand[current_state_index] += self.alpha * (
-                        reward + self.gamma * Q_max - self.Stand[current_state_index])
-
-            elif action == 'split':
-                self.Split[current_state_index] += self.alpha * (
-                        reward + self.gamma * Q_max - self.Split[current_state_index])
-
-            elif action == 'double':
-                self.Double[current_state_index] += self.alpha * (
-                        reward + self.gamma * Q_max - self.Double[current_state_index])
-
-    def get_Q(self):
-        return self.Stand, self.Hit, self.Split, self.Double
+            # Update current Q-value
+            self.Q[current_state_index][action] += self.alpha * (
+                        reward + self.gamma * Q_next - self.Q[current_state_index][action])
+            self.visitations[current_state_index][action] += 1
 
     def split(self, hand):
-        hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten
+        if len(hand) != 2:
+            return False
+
+        hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand]  # all face cards are worth ten
         return hand[0] == hand[1]
 
-if __name__ == '__main__':
-    agent = QAgent() 
+    def get_Q(self):
+        return (self.Q[:, :, :, a] for a in range(4))
+
+    def get_Q_hand(self, hand):
+        old_state_index = self.state_approx(hand)
+        splittable = 1 if self.split(hand[0]) else 0
+        first_card = int(len(hand[0]) == 2)
+        state_index = (old_state_index, splittable, first_card)
+
+        return (self.Q[state_index][a] for a in range(4))  # hit, stand, split, double
+
+    def get_visitations(self, hand):
+        old_state_index = self.state_approx(hand)
+        splittable = 1 if self.split(hand[0]) else 0
+        first_card = int(len(hand[0]) == 2)
+        state_index = (old_state_index, splittable, first_card)
+
+        return (self.visitations[state_index][a] for a in range(4))  # hit, stand, split, double
+
+    def save_Q(self, name='sars'):
+        df = pd.DataFrame(self.Q)
+        df.to_csv('Models/' + name + '.csv')
+
+    def load_Q(self, filename):  # TODO: check if works (indices etc.)
+        q = pd.read_csv(filename)
+        self.Q = list(q.to_numpy()[:, 1])

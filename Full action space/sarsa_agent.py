@@ -16,9 +16,9 @@ split_table = pd.read_csv("split_table.csv", index_col=0).to_dict()  # the fixed
 class SARSA_agent(agent):
 
     def __init__(self, alpha=0.005,  strategy='random', epsilon=0.5,
-                 epsilon_decay=0.99999, temperature=5, ucb_param=2**0.5):
+                 epsilon_decay=0.99999, temperature=5, ucb_param=2 ** 0.5):
         self.NUMBER_OF_STATES = 363     # new state approx: (363, splittable, first_hand)
-        self.NUMBER_OF_ACTIONS = 4  # hit, stand, double, split
+        self.NUMBER_OF_ACTIONS = 4      # hit, stand, split, double
 
         # Initialization: Q-values
         self.Q = np.zeros((self.NUMBER_OF_STATES, 2, 2, self.NUMBER_OF_ACTIONS))  # Q(s, a)
@@ -63,9 +63,13 @@ class SARSA_agent(agent):
         elif self.strategy == 'greedy':
             q_values = np.array([self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
                                  for a in ['hit', 'stand', 'split', 'double']])
-            return ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
+            action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
 
-        # softmax policy # TODO
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
+
+        # softmax policy
         elif self.strategy == 'softmax':
             def softmax(x):
                 denom = sum([math.exp(self.temperature * q) for q in x])
@@ -74,45 +78,47 @@ class SARSA_agent(agent):
             q_values = [self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
                         for a in ['hit', 'stand', 'split', 'double']]
             action = random.choices(population=['hit', 'stand', 'split', 'double'],
-                                    weights=softmax(q_values))  # TODO: can this break for the extremely unlikely case that it returns an invalid action?
+                                    weights=softmax(q_values))[0]
 
-            '''# TODO: temperature decay - worth it?
-            self.temperature = max(self.temperature_min, self.temperature * self.temperature_decay)'''
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
 
-            assert action[0] in allowed_actions # TODO: necessary
-            return action[0]
-
-        # epsilon-greedy policy # TODO
+        # epsilon-greedy policy
         elif self.strategy == 'e-greedy':
             # act randomly
             if np.random.rand() < self.epsilon:
                 action = random.choice(['h', 's'])
             # act greedily
             else:
-                if self.Q_H[state_index] > self.Q_S[state_index]:  # if Q(State, H) > Q(State, S) then we hit
-                    action = 'h'
-                elif self.Q_H[state_index] < self.Q_S[state_index]:
-                    action = 's'
-                elif self.Q_H[state_index] == self.Q_S[state_index]:
-                    action = random.choice(['h', 's'])
+                q_values = np.array([self.Q[state_index][self.action_mapping(a)] if a in allowed_actions else float('-inf')
+                                     for a in ['hit', 'stand', 'split', 'double']])
+                action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
 
             self.epsilon *= self.epsilon_decay
+
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
             return action
 
-        # UCB   # TODO
+        # UCB
         elif self.strategy == 'ucb':
-            state_visitations = max(1, self.H_visitations[state_index] + self.S_visitations[state_index])
-            hit_visitations = max(1, self.H_visitations[state_index])
-            stand_visitations = max(1, self.S_visitations[state_index])
+            # state action visitations
+            state_action_visitations = [max(1, self.visitations[state_index][a]) for a in range(4)]
+            state_visitations = sum(state_action_visitations)
 
-            # UCB
-            Q_hit = self.Q_H[state_index] + self.ucb_param * (np.log(state_visitations) / hit_visitations) ** 0.5
-            Q_stand = self.Q_S[state_index] + self.ucb_param * (np.log(state_visitations) / stand_visitations) ** 0.5
+            # ucb q values
+            q_values = np.array([self.Q[state_index][self.action_mapping(a)] +
+                                 self.ucb_param * (np.log(state_visitations) /
+                                                   state_action_visitations[self.action_mapping(a)]) ** 0.5
+                                 if a in allowed_actions else float('-inf')
+                                 for a in ['hit', 'stand', 'split', 'double']])
 
-            if Q_hit == Q_stand:
-                return random.choice(['h', 's'])
-            else:
-                return 'h' if Q_hit > Q_stand else 's'
+            action = ['hit', 'stand', 'split', 'double'][np.argmax(q_values)]
+
+            if action not in allowed_actions:  # for unlikely case chose illegal action
+                return self.policy(hand, allowed_actions, overwrite=overwrite)
+            return action
 
         elif self.strategy == 'table':
             agent_hand = hand[0]
@@ -222,8 +228,8 @@ class SARSA_agent(agent):
         hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand]  # all face cards are worth ten
         return hand[0] == hand[1]
 
-    def get_Q(self):    # TODO:
-        return (self.Q[:, :, :, a] for a in range(4))   # TODO: hope this works
+    def get_Q(self):
+        return (self.Q[:, :, :, a] for a in range(4))
 
     def get_Q_hand(self, hand):
         old_state_index = self.state_approx(hand)
@@ -231,22 +237,20 @@ class SARSA_agent(agent):
         first_card = int(len(hand[0]) == 2)
         state_index = (old_state_index, splittable, first_card)
 
-        return (self.Q[state_index][a] for a in range(4))
+        return (self.Q[state_index][a] for a in range(4))   # hit, stand, split, double
 
-    def get_visitations(self, hand):    # TODO
+    def get_visitations(self, hand):
         old_state_index = self.state_approx(hand)
         splittable = 1 if self.split(hand[0]) else 0
         first_card = int(len(hand[0]) == 2)
         state_index = (old_state_index, splittable, first_card)
 
-        return (self.visitations[state_index][a] for a in range(4))
+        return (self.visitations[state_index][a] for a in range(4)) # hit, stand, split, double
 
-    def save_Q(self):   # TODO
-        for action, q in {'hit': self.Q_H, 'stand': self.Q_S}.items():
-            name = 'sarsa-' + action
-            df = pd.DataFrame(q)
-            df.to_csv('Models/' + name + '.csv')
+    def save_Q(self, name='sars'):
+        df = pd.DataFrame(self.Q)
+        df.to_csv('Models/' + name + '.csv')
 
-    def load_Q(self, filename_hit, filename_stand): # TODO
-        Q_H, Q_S = pd.read_csv(filename_hit), pd.read_csv(filename_stand)
-        self.Q_H, self.Q_S = list(Q_H.to_numpy()[:, 1]), list(Q_S.to_numpy()[:, 1])
+    def load_Q(self, filename):  # TODO: check if works (indices etc.)
+        q = pd.read_csv(filename)
+        self.Q = list(q.to_numpy()[:, 1])
