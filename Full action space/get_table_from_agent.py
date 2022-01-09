@@ -13,6 +13,46 @@ import matplotlib.pyplot as plt
 import math
 from tqdm import trange
 
+
+def latexify(actions, split=False):
+    # colors for actions
+    green = '\cellcolor[HTML]{58D68D}'  # stand
+    blue = '\cellcolor[HTML]{3498DB}'   # hit
+    orange = '\cellcolor[HTML]{F5B041}'  # double
+    yellow = '\cellcolor[HTML]{F4D03F}'  # split
+
+    # header
+    print('\n\n'
+          '\\begin{table}[H]'
+          '\n\t\centering'
+          '\n\t\scalebox{1}{'
+          '\n\t\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}'
+          '\n\t\t\hline'
+          '\n\t\t& 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & A\\\\'
+          '\n\t\t\\hline')
+
+    # table content
+    counter = 20    # top hand value in table
+    for sublist in actions:
+        line = '\t\t' + str(counter)
+        for action in sublist:
+            if split:
+                color = yellow if 'split' else ''
+                action = 's' if 'split' else '-'
+                line += ' & ' + color + action
+            else:
+                color = {'hit': blue, 'stand': green, 'double': orange, 'split': yellow}[action]
+                action = {'hit': 'h', 'stand': 's', 'double': 'd', 'split': 's'}[action]
+                line += ' & ' + color + action
+        print(line + '\\\\' + '\\hline')
+        counter -= 1
+
+    # footer
+    print('\t\\end{tabular}'
+          '\n\t}'
+          '\n\t\\caption{}'
+          '\n\\end{table}')
+
 def plot_table_hard(agent):
     """
     Plots a table for all agent hand / dealer face up card hard combinations
@@ -67,21 +107,7 @@ def plot_table_hard(agent):
     table.set_fontsize(7)
 
     # for LaTeX
-    green = '\cellcolor[HTML]{58D68D}'
-    blue = '\cellcolor[HTML]{3498DB}'
-    orange = '\cellcolor[HTML]{F5B041}'
-    counter = 20
-    for sublist in actions:
-        line = str(counter)
-        for action in sublist:
-            color = blue
-            if action == 'stand':
-                color = green
-            elif action == 'double':
-                color = orange
-            line += ' & ' + color + action[0]
-        print(line + '\\\\' + '\\hline')
-        counter -= 1
+    latexify(actions)
 
 def plot_table_soft(agent):
     """
@@ -137,21 +163,7 @@ def plot_table_soft(agent):
     table.set_fontsize(7)
 
     # for LaTeX
-    green = '\cellcolor[HTML]{58D68D}'
-    blue = '\cellcolor[HTML]{3498DB}'
-    orange = '\cellcolor[HTML]{F5B041}'
-    counter = 20
-    for sublist in actions:
-        line = str(counter)
-        for action in sublist:
-            color = blue
-            if action == 'stand':
-                color = green
-            elif action == 'double':
-                color = orange
-            line += ' & ' + color + action[0]
-        print(line + '\\\\' + '\\hline')
-        counter -= 1
+    latexify(actions)
 
 def plot_table_split(agent):
     """
@@ -208,20 +220,11 @@ def plot_table_split(agent):
     table.set_fontsize(7)
 
     # for LaTeX
-    yellow = '\cellcolor[HTML]{F4D03F}'
-    counter = 20
-    for sublist in actions:
-        line = str(counter)
-        for action in sublist:
-            color = yellow if action == 'split' else ''
-            a = 's' if action == 'split' else '-'
-            line += ' & ' + color + a
-        print(line + '\\\\' + '\\hline')
-        counter -= 1
+    latexify(actions, split=True)
 
 if __name__ == '__main__':
     # Pick policy
-    policy = SARSA_agent(strategy='softmax')
+    policy = SARSA_agent(strategy='ucb')
     policy_name = str(type(policy))[8:].split('.')[0]
 
     # Pick casino params

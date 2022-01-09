@@ -138,7 +138,7 @@ class dealer:
         return (len(hand) == 2) and (self.evaluate(hand) == 21) 
 
     # Return True if cards can be splitted 
-    def split(self, hand): 
+    def split(self, hand):
         hand = ['10' if x in ['J', 'Q', 'K'] else x for x in hand] # all face cards are worth ten
         return hand[0] == hand[1]
 

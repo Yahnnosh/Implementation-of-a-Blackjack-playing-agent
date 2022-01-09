@@ -27,7 +27,7 @@ def latexify(actions):
 
     # header
     print('\n\n'
-          '\\begin{table}[]'
+          '\\begin{table}[H]'
           '\n\t\centering'
           '\n\t\scalebox{1}{'
           '\n\t\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}'

@@ -104,9 +104,9 @@ if __name__ == '__main__':
     ]
 
     # Select rounds
-    training_rounds = 1000000
+    training_rounds = 10000000
     window = training_rounds // 10  # moving window of length 10% of training rounds
-    transition_length = 1000  # transition length of next window
+    transition_length = 100000  # transition length of next window
 
     for policy in policies:
         mean, std = main(policy, 10, training_rounds, window, transition_length)

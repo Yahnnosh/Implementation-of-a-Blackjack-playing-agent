@@ -18,9 +18,8 @@ from hilo import HiLo
 # For full action space :
 sys.path.append('../Full action space')
 from table_policy import table_agent  # hard baseline
-from Q_learning_agent_improved import QAgent_improved
-from sarsa_agent import Sarsa_agent
-from SARSA_policy import SARSA_agent
+from Q_learning import QAgent
+from sarsa_agent import SARSA_agent
 from dealer import dealer
 
 
@@ -156,12 +155,12 @@ if __name__ == '__main__':
                                                                 max_bet=max_bet,
                                                                 increment=increment,
                                                                 strategy='risky',
-                                                                risk=5)),
+                                                                risk=0)),
     ]
 
     # Select rounds
-    training_rounds = 100000
-    testing_rounds = 10000
+    training_rounds = 1000000
+    testing_rounds = 100000
 
     # Training phase (static policies)
     print('Starting training')
