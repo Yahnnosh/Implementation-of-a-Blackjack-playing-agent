@@ -37,8 +37,8 @@ def latexify(actions, split=False):
         line = '\t\t' + str(counter)
         for action in sublist:
             if split:
-                color = yellow if 'split' else ''
-                action = 's' if 'split' else '-'
+                color = yellow if action =='split' else ''
+                action = 's' if action == 'split' else '-'
                 line += ' & ' + color + action
             else:
                 color = {'hit': blue, 'stand': green, 'double': orange, 'split': yellow}[action]
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     infinity = True  # if use infinity above is meaningless
 
     # Training phase
-    training_rounds = 1000000
+    training_rounds = 10000000
     _RETURN_NONE = (lambda: None).__code__.co_code
     # if the instance has not implemented learn, 'pass' in learn will return None
     if policy.learn.__code__.co_code != _RETURN_NONE:
@@ -246,6 +246,8 @@ if __name__ == '__main__':
     else:
         # agent has not implemented learn
         pass
+
+    policy.activate('greedy')
 
     # Plot table hard
     fig = plt.figure()

@@ -43,9 +43,6 @@ class mc_agent(agent):
         self.temperature = temperature
         self.ucb_param = ucb_param
 
-    def activate_greedy(self):
-        self.strategy = 'greedy'
-
     def policy(self, hand):
         # state approximation
         state_index = self.state_approx(hand)
@@ -108,6 +105,12 @@ class mc_agent(agent):
 
         else:
             raise NotImplementedError
+
+    def activate(self, strategy):
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb') or (strategy == 'table')
+        self.strategy = strategy
 
     def learn(self, episode):
         actions = episode['actions']

@@ -188,6 +188,8 @@ if __name__ == '__main__':
         # agent has not implemented learn
         pass
 
+    policy.activate('greedy')
+
     # Plot table hard
     fig = plt.figure()
     fig.suptitle('agent: ' + policy_name)

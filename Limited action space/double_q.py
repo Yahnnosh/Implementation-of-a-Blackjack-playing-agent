@@ -111,8 +111,11 @@ class double_QAgent(agent):
         else:
             raise NotImplementedError
 
-    def activate_greedy(self):
-        self.strategy = 'greedy'
+    def activate(self, strategy):
+        assert (strategy == 'random') or (strategy == 'greedy') \
+               or (strategy == 'softmax') or (strategy == 'e-greedy') \
+               or (strategy == 'ucb') or (strategy == 'table')
+        self.strategy = strategy
 
     def update_q(self):
         self.Q_S = (self.Q1_S + self.Q2_S)/2
