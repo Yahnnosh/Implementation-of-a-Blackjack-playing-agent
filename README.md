@@ -47,3 +47,5 @@ Contains:
 **Dynamic betting policies**
 - **Hi-Lo**: policy following the Hi-Lo heuristic, commonly used by human players using card counting
 - **Model-based**: Our novel RL dynamic betting algorithm, outperforming Hi-Lo
+
+**Additional functions**
