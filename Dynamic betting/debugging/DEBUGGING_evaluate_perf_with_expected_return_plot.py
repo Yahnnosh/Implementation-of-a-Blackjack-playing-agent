@@ -16,7 +16,7 @@ from model_based_full_action_space import Model_based_dynamic_betting_policy
 from hilo import HiLo
 
 # For full action space :
-sys.path.append('../Full action space')
+sys.path.append('../../Full action space')
 from table_policy import table_agent  # hard baseline
 from Q_learning_agent_improved import QAgent_improved
 from sarsa_agent import Sarsa_agent

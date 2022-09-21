@@ -12,23 +12,14 @@ metrics:
 """
 
 # Import all agents
-from random_policy import random_agent      # low baseline
-from dealer_policy import dealer_policy     # medium baseline
-from table_policy import table_agent        # hard baseline
 from card_counting import count_agent       # optimal baseline
-from value_iteration import value_iteration
-from fast_value_iteration import fast_value_iteration
-from Q_learning_agent_old import QAgent
 from double_q import double_QAgent
 from sarsa_agent_old import sarsa_agent
-from mc_agent import mc_agent
-from Q_learning import QAgent_UCB
 from sarsa_agent import SARSA_agent
 
 from dealer import dealer
 
 import matplotlib.pyplot as plt
-import sys
 from multiprocessing import Process, Manager
 
 

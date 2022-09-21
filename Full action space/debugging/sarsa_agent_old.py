@@ -13,11 +13,11 @@ import random
 import pandas as pd
 
 # converting csv tables to dictionaries
-double_hard_table = pd.read_csv("double_hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is allowed
-double_soft_table = pd.read_csv("double_soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is allowed
-hard_table = pd.read_csv("hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is not allowed
-soft_table = pd.read_csv("soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is not allowed
-split_table = pd.read_csv("split_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is splittable
+double_hard_table = pd.read_csv("../double_hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is allowed
+double_soft_table = pd.read_csv("../double_soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is allowed
+hard_table = pd.read_csv("../hard_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is hard and double is not allowed
+soft_table = pd.read_csv("../soft_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is soft and double is not allowed
+split_table = pd.read_csv("../split_table.csv", index_col=0).to_dict()  # the fixed policy if our hand is splittable
 
 
 class Sarsa_agent(agent):

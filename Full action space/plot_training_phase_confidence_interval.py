@@ -12,13 +12,11 @@ metrics:
 """
 
 # Import all agents
-from Q_learning_agent_old import QAgent
 from sarsa_agent import SARSA_agent
 
 from dealer import dealer
 
 import matplotlib.pyplot as plt
-import sys
 import time
 from multiprocessing import Process, Manager
 import numpy as np
